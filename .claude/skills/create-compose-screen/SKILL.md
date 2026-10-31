@@ -3,7 +3,7 @@ name: create-compose-screen
 description: Scaffold a Moisesai Challange Compose screen - UiState, Ui model (prefix `Ui`), optional mapper, ViewModel, stateless screen composable, navigation graph and previews. Use when creating a new screen or feature.
 ---
 
-Scaffold a new screen following `ARCHITECTURE.md` §2 and §4. While the project is a single `:app` module, a feature is a package, not a Gradle module.
+Scaffold a new screen following `ARCHITECTURE.md` §2 and §4. A feature is a Gradle module (`:feature:<name>`) whose presentation, domain and data are packages. If the module does not exist yet, create it first with `create-feature-module`; this skill fills the `presentation` package.
 
 ---
 
@@ -21,7 +21,7 @@ Scaffold a new screen following `ARCHITECTURE.md` §2 and §4. While the project
 
 ## Input
 
-- Feature name (lower snake case, e.g. `exercise_list`)
+- Feature name (lower case, no underscores, e.g. `songs`; it is the module and package name)
 - A short description of what the screen displays
 
 If either is unclear, ask: "What should the feature be called, and what should it display?"
@@ -30,7 +30,7 @@ If either is unclear, ask: "What should the feature be called, and what should i
 
 ## Prerequisites
 
-The templates below use libraries the template does not have yet. Before the first screen, check `gradle/libs.versions.toml` and `app/build.gradle.kts`, and add what is missing:
+The templates below use libraries the template does not have yet. Before the first screen, check `gradle/libs.versions.toml` and the feature module's `build.gradle.kts`, and add what is missing:
 
 - `androidx.lifecycle:lifecycle-viewmodel-compose` and `lifecycle-runtime-compose` (ViewModel, `collectAsStateWithLifecycle`)
 - `androidx.navigation:navigation-compose` and `kotlinx-serialization-json` with the serialization plugin (typed routes), if the screen is navigated to
@@ -52,7 +52,7 @@ Match the real requirements; do not apply one template to every screen.
 ### 2. Create the package
 
 ```
-app/src/main/java/com/moisesai/challange/<feature>/
+feature/<feature>/src/main/java/com/moisesai/challange/feature/<feature>/presentation/
 ├── composable/<Feature>Screen.kt
 ├── model/Ui<Model>.kt
 ├── view_model/<Feature>ViewModel.kt
@@ -60,14 +60,14 @@ app/src/main/java/com/moisesai/challange/<feature>/
 └── mapper/<Model>Mapper.kt        # only if a domain model needs UI mapping
 ```
 
-Never put a feature's files flat in the root package, and never import another feature's package.
+Never put a feature's files flat in the module root, and never import another feature's package: share through `core:*` or the `:app` NavHost.
 
 ### 3. UiModel
 
 `model/Ui<Model>.kt`: a plain immutable data class, prefix `Ui`, no Android or Compose imports.
 
 ```kotlin
-package com.moisesai.challange.<feature>.model
+package com.moisesai.challange.feature.<feature>.presentation.model
 
 data class Ui<Model>(
     val id: String,
@@ -79,10 +79,10 @@ data class Ui<Model>(
 ### 4. Mapper (optional)
 
 ```kotlin
-package com.moisesai.challange.<feature>.mapper
+package com.moisesai.challange.feature.<feature>.presentation.mapper
 
-import com.moisesai.challange.<feature>.model.Ui<Model>
-import com.moisesai.challange.domain.model.<DomainModel>DomainModel
+import com.moisesai.challange.feature.<feature>.presentation.model.Ui<Model>
+import com.moisesai.challange.core.sharedmodel.<DomainModel>DomainModel // or feature.<feature>.domain.model for a feature-only model
 
 fun <DomainModel>DomainModel.toUiModel(): Ui<Model> = Ui<Model>(
     id = id,
@@ -98,12 +98,12 @@ Field mapping and simple formatting only. Called from the ViewModel, never from 
 `UiState` sits at the top of the same file.
 
 ```kotlin
-package com.moisesai.challange.<feature>.view_model
+package com.moisesai.challange.feature.<feature>.presentation.view_model
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.moisesai.challange.<feature>.model.Ui<Model>
-import com.moisesai.challange.domain.usecase.<UseCase>
+import com.moisesai.challange.feature.<feature>.presentation.model.Ui<Model>
+import com.moisesai.challange.feature.<feature>.domain.usecase.<UseCase>
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -173,14 +173,14 @@ Rules:
 
 ### 6. Reusable components
 
-Before writing the screen, list the components it needs (cards, rows, banners, empty states). For each: check `ui/components/` for a match; if it will be reused across screens, create it with `create-ui-component`; if it is specific to this feature, keep it in this feature's `composable/` package (private if used in one file).
+Before writing the screen, list the components it needs (cards, rows, banners, empty states). For each: check `core/design/components/` for a match; if it will be reused across features, create it with `create-ui-component`; if it is specific to this feature, keep it in this feature's `presentation/composable/` package (private if used in one file).
 
 ### 7. Screen composable
 
 `composable/<Feature>Screen.kt` is **stateless**: it receives `uiState` and callbacks.
 
 ```kotlin
-package com.moisesai.challange.<feature>.composable
+package com.moisesai.challange.feature.<feature>.presentation.composable
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -189,10 +189,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.moisesai.challange.<feature>.model.Ui<Model>
-import com.moisesai.challange.<feature>.view_model.<Feature>UiState
-import com.moisesai.challange.ui.preview.FullPreview
-import com.moisesai.challange.ui.theme.MoisesaiChallangeTheme
+import com.moisesai.challange.feature.<feature>.presentation.model.Ui<Model>
+import com.moisesai.challange.feature.<feature>.presentation.view_model.<Feature>UiState
+import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
 
 @Composable
 fun <Feature>Screen(
@@ -253,15 +253,15 @@ Rules:
 Needs the navigation dependencies from Prerequisites.
 
 ```kotlin
-package com.moisesai.challange.<feature>.navigation
+package com.moisesai.challange.feature.<feature>.presentation.navigation
 
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.moisesai.challange.<feature>.composable.<Feature>Screen
-import com.moisesai.challange.<feature>.view_model.<Feature>ViewModel
+import com.moisesai.challange.feature.<feature>.presentation.composable.<Feature>Screen
+import com.moisesai.challange.feature.<feature>.presentation.view_model.<Feature>ViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -278,7 +278,7 @@ fun NavGraphBuilder.<feature>Graph(
 }
 ```
 
-Register `<feature>Graph(...)` in the root `NavHost` once it exists; navigation callbacks are lambdas supplied there. `hiltViewModel()` replaces `viewModel { ... }` after Hilt is added.
+Register `<feature>Graph(...)` in the root `NavHost` in `:app`; navigation callbacks are lambdas supplied there, and routes carry ids only. `hiltViewModel()` replaces `viewModel { ... }` after Hilt is added.
 
 ### 9. Previews
 
@@ -321,7 +321,7 @@ private fun <Feature>ErrorPreview() {
 
 ### 10. Output summary
 
-List every file created under `<feature>/` with its purpose, and remind the user to:
+List every file created under `feature/<feature>/` with its purpose, and remind the user to:
 
 - register the graph in the root `NavHost` (if one exists)
 - write ViewModel unit tests (JUnit 4 + MockK + coroutines-test)
@@ -336,5 +336,6 @@ List every file created under `<feature>/` with its purpose, and remind the user
 - A ViewModel calls use cases only
 - Composables never collect a domain Flow or map models; only the `StateFlow<UiState>` reaches the navigation graph
 - Every screen composable has `@FullPreview` previews wrapped in `MoisesaiChallangeTheme { }`
-- A feature's files are nested under `<feature>/{composable,model,view_model,navigation,mapper}`
-- Shared state between features goes through a `domain` repository or use case, never across feature packages
+- A feature's UI files are nested under `feature/<feature>/presentation/{composable,model,view_model,navigation,mapper}`
+- Presentation never imports the feature's `data` package; a feature never imports another feature
+- State shared between features goes through `core:*` (shared model or Room table), never across feature modules

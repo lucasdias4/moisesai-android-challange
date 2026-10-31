@@ -2,9 +2,10 @@
 
 ## 1. Current state
 
-- One module: `:app`. Package `com.moisesai.challange`.
+- Today: one module, `:app`. Package `com.moisesai.challange`.
 - Present: `MainActivity`, theme (`app/src/main/java/com/moisesai/challange/ui/theme/{Color,Theme,Type}.kt`), `@FullPreview` (`ui/preview/FullPreview.kt`), Compose, Material 3.
-- Not present yet: dependency injection, networking, database (Room), ViewModels, navigation, domain/data code.
+- Not present yet: dependency injection, networking, database (Room), ViewModels, navigation, domain/data code, and the module split below.
+- Target: modules **by feature** (section 2). The foundation step moves the theme and `@FullPreview` to `:core:design` (`core/design/{theme,preview}`); new code follows the target layout, not the current `ui/` paths.
 - Versions and SDKs: `gradle/libs.versions.toml` and `app/build.gradle.kts`. JDK per `gradle/gradle-daemon-jvm.properties`.
 
 Everything below the next heading is the convention for code **as it is added**. When a section needs a dependency that is missing, add it to `gradle/libs.versions.toml` first.
@@ -19,20 +20,42 @@ Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API
 
 - **Presentation -> Domain:** ViewModels never call the API or DataSources. They go through use cases.
 - **Domain -> Data:** domain knows only repository interfaces; implementations live in `data`.
-- **Packages first:** while there is one module, layers are packages under `com.moisesai.challange`:
+- **Modules by feature, layers as packages:** there is no global `:domain` or `:data` module. Each feature module contains its own presentation, domain and data packages.
+
+### Modules
 
 ```text
-com.moisesai.challange
-├── ui/theme/                    # exists
-├── ui/preview/                  # exists: @FullPreview
-├── ui/components/               # shared composables (see create-ui-component)
-├── <feature>/                   # presentation, one package per feature
-│   ├── composable/  model/  view_model/  navigation/  mapper/
-├── domain/                      # model/, repository/, usecase/  (pure Kotlin, no Android imports)
-└── data/                        # datasource/, remote/{api,dto}, local/{dao,entity}, mapper/, repository/
+:app                  Application, MainActivity, NavHost (the only place features meet), DI root, splash
+:feature:songs        search, pagination, recents list, More-options sheet
+:feature:songdetails  song details screen (player): play/pause, seek slider, timeline, skip (uses :library:player)
+:feature:album        album header and track list
+:core:design          theme, @FullPreview, shared components
+:core:common          AppError, dispatchers, small extensions
+:core:shared-model    pure Kotlin shared models only (TrackDomainModel, AlbumDomainModel): no logic, no Android
+:core:network         OkHttp/Retrofit setup, ItunesApi, Api* DTOs, remote datasource interface + iTunes implementation
+:core:database        Room AppDatabase, Db* entities, DAOs
+:library:player       reusable playback engine: PlayerController interface + Media3 ExoPlayer implementation (no feature or iTunes knowledge)
 ```
 
-Features do not import each other's packages. Shared state goes through a `domain` repository or use case.
+### Feature package layout
+
+```text
+com.moisesai.challange.feature.<name>
+├── presentation/   composable/  model/  view_model/  navigation/  mapper/
+├── domain/         usecase/  repository/ (interfaces)   # pure Kotlin, no Android imports
+└── data/           datasource/  repository/  mapper/
+```
+
+Core packages: `com.moisesai.challange.core.{design,common,sharedmodel,network,database}`.
+
+### Dependency rules
+
+- `feature:*` depends on `core:*` and `library:*`. Features never depend on or import each other. `:app` connects them with type-safe routes and lambdas (ids only: Player receives a track id, Album a collection id).
+- `core:*` and `library:*` never depend on a feature. `core:shared-model` depends on nothing. `library:*` modules are generic and reusable: they know nothing about tracks, iTunes or the app's models (`:library:player` plays a URL).
+- Inside a feature: `presentation -> domain <- data`. Presentation never imports data.
+- State shared by several features goes through `core:*` (a shared model, or a Room table behind a DAO); each feature keeps its own repository interface and use cases over it. Songs reads recents and Player writes them through the same DAO, not through each other.
+- Layers are packages, so Gradle does not enforce the third rule: an architecture test (Konsist or ArchUnit) does (section 9).
+- Why `core:*` exists: tracks, the iTunes client and the Room database are used by all three features, and Room needs a single `AppDatabase` that knows every entity. Keep it to infrastructure and shared models; no feature logic.
 
 ### Suspend or Flow?
 
@@ -59,7 +82,7 @@ The Flow stops at the ViewModel: it is collected there and written into the sing
 | Data / API | prefix `Api` | `ApiExercise` |
 | Data / Room | prefix `Db` | `DbExercise` |
 
-Package names are singular, lowercase, no underscores for the app-level layers. Feature subpackages use the names above (`view_model` with underscore is the one exception).
+Package names are singular, lowercase, no underscores for modules and layers (`feature.songs.presentation`). Presentation subpackages use the names in section 2 (`view_model` with underscore is the one exception).
 
 ---
 
@@ -79,11 +102,11 @@ Package names are singular, lowercase, no underscores for the app-level layers. 
 - Pure Kotlin, no Android imports. Models end in `DomainModel`.
 - One public method per use case; verb names (`GetExercisesUseCase`); `Get` never persists, use `Save`/`Submit`.
 - `suspend operator fun invoke(...): Result<T>` for one-shot calls, `operator fun invoke(...): Flow<Result<T>>` for streams (see "Suspend or Flow?" in §2).
-- Repository interfaces live in `domain/repository`.
+- Repository interfaces live in the feature's `domain/repository`; use cases in its `domain/usecase`. Models shared by several features live in `:core:shared-model`; a model used by one feature stays in that feature's `domain`.
 
 ## 6. Data
 
-- DataSources wrap one source (the API, or a Room DAO) for one domain and return raw `Api*` / `Db*` models in `Result<T>` (`Flow<Result<T>>` for streams). They own `Dispatchers.IO` (`withContext` for suspend, `.flowOn` for Flow).
+- `Api*` DTOs, the Retrofit interface and the remote datasource interface with its iTunes implementation live in `:core:network`. Replacing the API means replacing that implementation (and its `Api*` models); feature repositories only map `Api*` to domain. Feature datasources wrap one source (the remote datasource, or a Room DAO) for one domain and return raw `Api*` / `Db*` models in `Result<T>` (`Flow<Result<T>>` for streams). They own `Dispatchers.IO` (`withContext` for suspend, `.flowOn` for Flow).
 - `runCatching` lives in suspend datasources only, and rethrows `CancellationException`:
 
 ```kotlin
@@ -104,7 +127,7 @@ fun observeExercises(lessonId: String): Flow<Result<List<DbExercise>>> =
   A Flow never throws to its collector: every failure is an emitted `Result.failure`.
 - Repositories depend on datasources, never on the API interface or a DAO. They map with `.map { it.toDomain() }` for suspend, and `.map { result -> result.map { it.toDomain() } }` for Flow. They never use `runCatching` or `mapCatching`.
 - Mappers are pure extension functions: `fun ApiExercise.toDomain()` / `fun DbExercise.toDomain(): ExerciseDomainModel` (called from repositories) and `fun ExerciseDomainModel.toUiModel(): UiExercise` (called from ViewModels, never from composables). A domain model never carries an `Api*` or `Db*` field.
-- Room entities and DAOs live in `data/local/{entity,dao}`. A DAO may return `Flow<List<Db*>>` directly, because only datasources touch it. DAO one-shot reads and writes are `suspend` (Room runs them off the main thread itself), and the local datasource wraps them like an API call:
+- Room entities and DAOs live in `:core:database` (`core/database/{entity,dao}`), because a single `AppDatabase` must know every entity. A DAO may return `Flow<List<Db*>>` directly, because only datasources touch it. DAO one-shot reads and writes are `suspend` (Room runs them off the main thread itself), and the local datasource wraps them like an API call:
 
 ```kotlin
 suspend fun saveExercise(exercise: DbExercise): Result<Unit> =
@@ -124,7 +147,7 @@ DataSources catch (`runCatching` for suspend, `.catch` for Flow). Repositories a
 
 ## 7. Theming
 
-Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `MaterialTheme.typography` and `MaterialTheme.shapes`. Change the palette in `ui/theme/Color.kt` and `Theme.kt`, not at call sites. The theme uses dynamic colour on Android 12+ and follows the system dark mode. Never hardcode hex colours, corner radii or font sizes.
+Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `MaterialTheme.typography` and `MaterialTheme.shapes`. Change the palette in `core/design/theme/Color.kt` and `Theme.kt`, not at call sites. The theme uses dynamic colour on Android 12+ and follows the system dark mode. Never hardcode hex colours, corner radii or font sizes.
 
 ---
 
@@ -141,5 +164,7 @@ Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `M
 ## 9. Testing
 
 - Unit tests: JUnit 4; add MockK and `kotlinx-coroutines-test` when the first ViewModel or use case is written, plus Turbine when the first Flow is tested. ViewModels, use cases and repositories are always tested.
+- Tests live in the module that owns the code: network with MockWebServer in `:core:network`, in-memory Room in `:core:database`, use cases, repositories and ViewModels in their feature module.
+- An architecture test (Konsist or ArchUnit) fails when presentation imports data, domain imports Android, a feature imports another feature, or `core:*` imports a feature.
 - Commands: `./gradlew test`, `./gradlew lint`, `./gradlew connectedAndroidTest`. Gradle wrapper only.
 - No CI and no static analysis configured yet.

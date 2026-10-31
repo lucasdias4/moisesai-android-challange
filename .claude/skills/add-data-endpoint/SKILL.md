@@ -3,7 +3,7 @@ name: add-data-endpoint
 description: Wire a backend endpoint or field through the app's data layers (Api model, Service, datasource, mapper, repository, use case, tests) and prove the JSON matches the API. Use when a new or changed API response/request must reach the app, or when writing or auditing datasource/repository suspend code.
 ---
 
-Take an endpoint or field to the UI through the layers in `ARCHITECTURE.md` §5 and §6. This skill is the procedure and the coroutine-safety checklist. Layers are packages inside `:app` (`domain/`, `data/`) until modules exist.
+Take an endpoint or field to the UI through the layers in `ARCHITECTURE.md` §5 and §6. This skill is the procedure and the coroutine-safety checklist. Ownership is split by module: `Api*`, the Retrofit service and the remote datasource live in `:core:network`; `Db*` entities and DAOs in `:core:database`; datasource, mapper, repository and use case in the consuming feature module (`feature.<name>.data` / `.domain`); models shared by several features in `:core:shared-model`.
 
 ## When to use
 
@@ -20,7 +20,7 @@ The endpoint (method + path), request and response JSON, and which screen needs 
 
 ## Prerequisites
 
-The template has no networking. Before the first endpoint, add to `gradle/libs.versions.toml` and `app/build.gradle.kts`: Retrofit, a JSON converter (Gson, Moshi or kotlinx.serialization), OkHttp, `kotlinx-coroutines-core`, and for tests MockK and `kotlinx-coroutines-test`. Add the `INTERNET` permission to `AndroidManifest.xml`. Pick the converter once and record it in `ARCHITECTURE.md` §1. Until a DI library is added, build the object graph by hand in one place.
+The template has no networking. Before the first endpoint, add to `gradle/libs.versions.toml` and the owning module's `build.gradle.kts` (`:core:network` for Retrofit/OkHttp, `:core:database` for Room, the feature module for test libraries): Retrofit, a JSON converter (Gson, Moshi or kotlinx.serialization), OkHttp, `kotlinx-coroutines-core`, and for tests MockK and `kotlinx-coroutines-test`. Add the `INTERNET` permission to the `:app` `AndroidManifest.xml`. Pick the converter once and record it in `ARCHITECTURE.md` §1. Until a DI library is added, build the object graph by hand in one place.
 
 When the source is a local database, also add Room (runtime, ktx, compiler via KSP), and Turbine for Flow tests.
 
@@ -34,7 +34,7 @@ Decide before writing code (see `ARCHITECTURE.md` §2). One-shot request or read
 
 From the API specification, copy the exact JSON keys. Note which fields are optional or defaulted: a wrong key on those is often accepted silently.
 
-### 2. Api models (`data/remote/dto/Api<Name>.kt`)
+### 2. Api models (`:core:network`, `core/network/dto/Api<Name>.kt`)
 
 ```kotlin
 data class ApiStreak(
@@ -44,13 +44,15 @@ data class ApiStreak(
 
 Prefix `Api`. Keep the property names or serialization annotations matching the JSON keys exactly.
 
-### 3. Service (`data/remote/api/Service.kt`)
+### 3. Service (`:core:network`, `core/network/api/Service.kt`)
 
 A Retrofit interface with a `suspend` function returning the `Api*` model.
 
-For a Room source instead: a `Db<Name>` entity in `data/local/entity` and a DAO in `data/local/dao` whose observed read returns `Flow<List<Db<Name>>>`, while single reads (get by id) and all writes (insert, update, delete) are `suspend`. Entities map to domain exactly like `Api*` models.
+For a Room source instead: a `Db<Name>` entity and a DAO in `:core:database` (`core/database/{entity,dao}`; register the entity in the single `AppDatabase`) whose observed read returns `Flow<List<Db<Name>>>`, while single reads (get by id) and all writes (insert, update, delete) are `suspend`. Entities map to domain exactly like `Api*` models.
 
-### 4. DataSource (`data/datasource/<Domain>ApiDataSource.kt`)
+### 4. DataSource
+
+The remote datasource interface and its iTunes implementation live in `:core:network`, so the API can be replaced there. A feature's `data/datasource/<Domain>LocalDataSource.kt` wraps a DAO the same way. Both follow:
 
 ```kotlin
 suspend fun getExercises(lessonId: String): Result<List<ApiExercise>> =
@@ -74,7 +76,7 @@ A Room one-shot (read by id, or a write) uses the suspend form above with the DA
 
 The datasource owns `Dispatchers.IO` (`withContext` for suspend, `.flowOn` for Flow) and returns raw `Api*` / `Db*` models. Any `runCatching`, `catch (e: Exception)` or Flow `.catch` must rethrow `CancellationException` first.
 
-### 5. Mapper (`data/mapper/Api<Name>Mapper.kt`)
+### 5. Mapper (feature `data/mapper/Api<Name>Mapper.kt`)
 
 ```kotlin
 fun ApiStreak.toDomain(): Int = count
@@ -84,8 +86,9 @@ A pure extension function with no injected dependencies.
 
 ### 6. Domain and repository
 
-- Domain model `<Name>DomainModel` and the repository interface in `domain/repository` (pure Kotlin)
-- Implementation in `data/repository/<Domain>RepositoryImpl.kt`:
+- Domain model `<Name>DomainModel` in `:core:shared-model` when several features use it, otherwise in the feature's `domain/model` (pure Kotlin)
+- The repository interface in the feature's `domain/repository`
+- Implementation in the feature's `data/repository/<Domain>RepositoryImpl.kt`:
 
 ```kotlin
 override suspend fun getExercises(lessonId: String): Result<List<ExerciseDomainModel>> =
@@ -102,7 +105,7 @@ override fun observeExercises(lessonId: String): Flow<Result<List<ExerciseDomain
 
 Repositories use `.map`, never `runCatching` or `mapCatching` (`mapCatching` swallows cancellation). To turn a failure into a domain error, use `fold`.
 
-### 7. Use case (`domain/usecase/<Verb><Noun>UseCase.kt`)
+### 7. Use case (feature `domain/usecase/<Verb><Noun>UseCase.kt`)
 
 One public method, verb name; `Get` never persists. `suspend operator fun invoke(...): Result<T>` for one-shot calls, `operator fun invoke(...): Flow<Result<T>>` for streams. The ViewModel maps domain to `Ui*`; nothing here does.
 
@@ -110,7 +113,7 @@ One public method, verb name; `Get` never persists. `suspend operator fun invoke
 
 - Use case and repository tests with MockK
 - Flow tests with Turbine: assert a success emission, a `Result.failure` emission (the Flow completes without throwing), and that cancellation is not turned into a `Result.failure`
-- A serialization test that pins the JSON for requests, asserting the exact JSON string with the same converter configuration the app uses (the `data/remote/dto/` test folder)
+- A serialization test that pins the JSON for requests, asserting the exact JSON string with the same converter configuration the app uses (the `:core:network` test folder for DTOs)
 
 ### 9. Prove the contract against the API
 
@@ -127,4 +130,5 @@ Files changed per layer, any audit finding (a swallowed `CancellationException`,
 - A Flow never throws to its collector: failures are emitted as `Result.failure`
 - `Flow` only for real streams; one-shot calls stay `suspend`
 - Repositories never call the Retrofit interface or a DAO directly
+- A feature never imports another feature's data or domain; shared types come from `core:*`
 - A failing repository method returns `Result<T>` (`Result<Unit>` for void), never `T?`, and never both returns and throws

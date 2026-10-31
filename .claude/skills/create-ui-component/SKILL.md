@@ -1,9 +1,9 @@
 ---
 name: create-ui-component
-description: Create a reusable Moisesai Challange Compose component using the project theme (`MaterialTheme`, `ui/theme/`). Use when building a shared composable - a card, button variant, list item, badge, dialog, bottom sheet, etc.
+description: Create a reusable Moisesai Challange Compose component using the project theme (`MaterialTheme`, `core/design/theme/`). Use when building a shared composable - a card, button variant, list item, badge, dialog, bottom sheet, etc.
 ---
 
-Create a reusable Compose component in `app/src/main/java/com/moisesai/challange/ui/components/`, themed only through `MaterialTheme`.
+Create a reusable Compose component in `:core:design` (`core/design/src/main/java/com/moisesai/challange/core/design/components/`), themed only through `MaterialTheme`.
 
 ---
 
@@ -14,7 +14,7 @@ Create a reusable Compose component in `app/src/main/java/com/moisesai/challange
 
 ## When NOT to Use
 
-- UI used by a single feature: keep it in `<feature>/composable/`
+- UI used by a single feature: keep it in that feature's `presentation/composable/`
 - A whole screen: use `create-compose-screen`
 - Business logic: composables are UI only
 
@@ -32,12 +32,12 @@ Create a reusable Compose component in `app/src/main/java/com/moisesai/challange
 
 ### 1. Decide ownership
 
-- Reused by several features: `ui/components/`
-- Used by one feature: that feature's `composable/` package
+- Reused by several features: `core/design/components/` (features may not share components by importing each other)
+- Used by one feature: that feature's `presentation/composable/` package
 
 ### 2. Check for existing components
 
-Search `ui/components/` first. Extend or wrap a close match. If variants differ only by spacing, alignment, icon placement or colour, make one configurable composable instead of two.
+Search `core/design/components/` first. Extend or wrap a close match. If variants differ only by spacing, alignment, icon placement or colour, make one configurable composable instead of two.
 
 ### 3. Define the API
 
@@ -76,15 +76,15 @@ Surface(color = MaterialTheme.colorScheme.surface) {
 
 - Typography: `MaterialTheme.typography`
 - Shapes: `MaterialTheme.shapes`, never hardcoded corner radii
-- If the palette needs a new colour, add it in `ui/theme/Color.kt` and `Theme.kt`, not as a literal at the call site
+- If the palette needs a new colour, add it in `core/design/theme/Color.kt` and `Theme.kt`, not as a literal at the call site
 - Dark mode and dynamic colour come from `MoisesaiChallangeTheme`; read `isSystemInDarkTheme()` only inside the theme
 
 ### 5. Previews
 
-Every component file has its own `@FullPreview` previews, wrapped in `MoisesaiChallangeTheme { }`: the default state plus one per visually distinct state (disabled, loading, error, empty, selected). `@FullPreview` is `com.moisesai.challange.ui.preview.FullPreview`.
+Every component file has its own `@FullPreview` previews, wrapped in `MoisesaiChallangeTheme { }`: the default state plus one per visually distinct state (disabled, loading, error, empty, selected). `@FullPreview` is `com.moisesai.challange.core.design.preview.FullPreview`.
 
 ```kotlin
-import com.moisesai.challange.ui.preview.FullPreview
+import com.moisesai.challange.core.design.preview.FullPreview
 
 @FullPreview
 @Composable
@@ -109,7 +109,7 @@ private fun ComponentNameDisabledPreview() {
 
 ### 6. Report
 
-- Created file path and import path (`com.moisesai.challange.ui.components.*`)
+- Created file path and import path (`com.moisesai.challange.core.design.components.*`)
 - Public composable names
 - Theme tokens used
 - Existing components extended or wrapped
