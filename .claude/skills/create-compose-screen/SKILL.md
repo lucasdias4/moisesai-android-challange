@@ -34,7 +34,7 @@ The templates below use libraries the template does not have yet. Before the fir
 
 - `androidx.lifecycle:lifecycle-viewmodel-compose` and `lifecycle-runtime-compose` (ViewModel, `collectAsStateWithLifecycle`)
 - `androidx.navigation:navigation-compose` and `kotlinx-serialization-json` with the serialization plugin (typed routes), if the screen is navigated to
-- Hilt: not yet. Construct the ViewModel with `viewModel { ... }` until it is added.
+- `androidx.hilt:hilt-navigation-compose` (`hiltViewModel()`); Hilt itself is already configured in `:app`, and each feature module needs the Hilt and KSP plugins too (added to the feature convention plugin).
 
 ---
 

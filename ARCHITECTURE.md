@@ -4,7 +4,8 @@
 
 - Today: `:app`, `:core:common`, `:core:design`. Package `com.moisesai.challange`.
 - Present: `MainActivity`; `:core:common` (`AppError`, dispatchers); `:core:design` (theme in `core/design/.../theme/{Color,Theme,Type}.kt`, `@FullPreview` in `.../preview/FullPreview.kt`); build-logic convention plugins; Compose, Material 3.
-- Not present yet: dependency injection, networking, database (Room), ViewModels, navigation, domain/data code, and the module split below.
+- Hilt: configured in `:app` (`@HiltAndroidApp` `MoisesaiChallangeApplication`, `@AndroidEntryPoint` `MainActivity`), KSP for the compiler; no bindings yet.
+- Not present yet: networking, database (Room), ViewModels, navigation, domain/data code, and the module split below.
 - Target: modules **by feature** (section 2). New code follows that layout.
 - Versions and SDKs: `gradle/libs.versions.toml` and `app/build.gradle.kts`. JDK per `gradle/gradle-daemon-jvm.properties`.
 
@@ -88,7 +89,7 @@ Package names are singular, lowercase, no underscores for modules and layers (`f
 
 ## 4. Presentation
 
-- `@HiltViewModel` once Hilt is added; until then a plain `ViewModel` created with `viewModel { ... }`.
+- `@HiltViewModel` with `@Inject constructor`, obtained with `hiltViewModel()` (needs `androidx.hilt:hilt-navigation-compose`, added with the first screen).
 - State: `StateFlow<UiState>` (`_uiState` private, `uiState` exposed), consumed with `collectAsStateWithLifecycle()` in the navigation graph, not in the screen composable.
 - `data class UiState` when states overlap; a `sealed class` when they are mutually exclusive. `isLoading` and `error` exist on every `UiState`.
 - ViewModels hold UI logic only (loading/error state, domain -> UI mapping). Business rules belong in use cases.
