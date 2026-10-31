@@ -18,6 +18,14 @@ android {
     }
 }
 
+// Hilt generates androidTest sources, so without this every library gets an instrumented
+// test APK even when it has no tests, and that APK crashes (no test runner on its classpath).
+androidComponents {
+    beforeVariants { variant ->
+        variant.androidTest.enable = file("src/androidTest").exists()
+    }
+}
+
 val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 dependencies {

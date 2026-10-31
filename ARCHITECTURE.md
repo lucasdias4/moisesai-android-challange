@@ -2,7 +2,7 @@
 
 ## 1. Current state
 
-- Today: `:app`, `:core:common`, `:core:design`, plus empty `:core:shared-model` (JVM-only), `:core:network`, `:core:database` and `:library:player`. Package `com.moisesai.challange`.
+- Today: `:app`, `:core:common`, `:core:design`, plus empty `:core:shared-model` (JVM-only), `:core:network`, `:core:database`, `:library:player`, and empty `:feature:songs`, `:feature:songdetails`, `:feature:album` (feature convention plugin: Compose, Hilt/KSP, `:core:design`, `:core:common`, `:core:shared-model`). Package `com.moisesai.challange`.
 - Present: `MainActivity`; `:core:common` (`AppError`, dispatchers); `:core:design` (theme in `core/design/.../theme/{Color,Theme,Type}.kt`, `@FullPreview` in `.../preview/FullPreview.kt`); build-logic convention plugins; Compose, Material 3.
 - Hilt: configured in `:app` (`@HiltAndroidApp` `MoisesaiChallangeApplication`, `@AndroidEntryPoint` `MainActivity`), KSP for the compiler; no bindings yet.
 - Not present yet: networking, database (Room), ViewModels, navigation, domain/data code, and the module split below.

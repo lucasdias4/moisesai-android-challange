@@ -24,7 +24,7 @@ Feature name: lower case, no underscores (e.g. `songs`). It becomes the module `
 
 1. **Check for conflicts.** Confirm `feature/<name>` and the include do not already exist.
 2. **Register the module** in `settings.gradle.kts`: `include(":feature:<name>")`.
-3. **Build file** `feature/<name>/build.gradle.kts`: use the project's feature convention plugin when it exists (Android library, Compose, Hilt, test libraries); otherwise mirror an existing feature's file. Dependencies are limited to `:core:design`, `:core:common`, `:core:shared-model`, and `:core:network` / `:core:database` only when the feature has data, and `:library:*` modules it uses (e.g. `:library:player`). Never depend on another `:feature:*` module.
+3. **Build file** `feature/<name>/build.gradle.kts`: apply `id("moisesai.android.feature")` and set the `namespace`. The plugin already provides Android library, Compose, Hilt/KSP and the `:core:design`, `:core:common` and `:core:shared-model` dependencies. Add `:core:network` / `:core:database` only when the feature has data, and the `:library:*` modules it uses (e.g. `:library:player`) in the feature's own build file. Never depend on another `:feature:*` module.
 4. **Package skeleton** under `feature/<name>/src/main/java/com/moisesai/challange/feature/<name>/`:
 
    ```text

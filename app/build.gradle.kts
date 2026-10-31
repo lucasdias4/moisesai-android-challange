@@ -39,6 +39,9 @@ android {
 
 dependencies {
     implementation(project(":core:design"))
+    implementation(project(":feature:songs"))
+    implementation(project(":feature:songdetails"))
+    implementation(project(":feature:album"))
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(platform(libs.androidx.compose.bom))
