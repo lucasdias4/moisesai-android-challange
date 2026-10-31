@@ -164,7 +164,7 @@ Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `M
 
 ## 9. Testing
 
-- Unit tests: JUnit 4; add MockK and `kotlinx-coroutines-test` when the first ViewModel or use case is written, plus Turbine when the first Flow is tested. ViewModels, use cases and repositories are always tested.
+- Unit tests: JUnit 4, MockK, `kotlinx-coroutines-test` and Turbine come from the `moisesai.android.library` convention plugin, so every Android module has them. MockWebServer (`mockwebserver3`) is added in `:core:network` only. `:core:shared-model` (JVM) has JUnit only. ViewModels, use cases and repositories are always tested.
 - Tests live in the module that owns the code: network with MockWebServer in `:core:network`, in-memory Room in `:core:database`, use cases, repositories and ViewModels in their feature module.
 - An architecture test (Konsist or ArchUnit) fails when presentation imports data, domain imports Android, a feature imports another feature, or `core:*` imports a feature.
 - Commands: `./gradlew test`, `./gradlew lint`, `./gradlew connectedAndroidTest`. Gradle wrapper only.

@@ -30,4 +30,7 @@ val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 dependencies {
     "testImplementation"(libs.findLibrary("junit").get())
+    "testImplementation"(libs.findLibrary("mockk").get())
+    "testImplementation"(libs.findLibrary("kotlinx-coroutines-test").get())
+    "testImplementation"(libs.findLibrary("turbine").get())
 }
