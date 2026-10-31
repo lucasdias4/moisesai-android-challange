@@ -14,3 +14,6 @@
 .cxx
 local.properties
 /PLAN.md
+
+build-logic/**/build/
+/misc-notes.md
