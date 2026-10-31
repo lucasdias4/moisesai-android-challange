@@ -8,12 +8,12 @@
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
 .DS_Store
-/build
+build/
 /captures
 .externalNativeBuild
 .cxx
 local.properties
 /PLAN.md
 
-build-logic/**/build/
 /misc-notes.md
+.idea/
