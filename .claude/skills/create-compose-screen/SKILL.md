@@ -142,7 +142,29 @@ class <Feature>ViewModel(
 }
 ```
 
-For a use case that returns `Flow<T>`, use `.catch { ... }.collect { ... }` instead of `.onSuccess`/`.onFailure`.
+For a use case that returns `Flow<Result<T>>` (a stream, e.g. a Room query), collect it and fold each emission the same way. The Flow never throws, so no `.catch` is needed here:
+
+```kotlin
+private var observeJob: Job? = null
+
+fun observe() {
+    observeJob?.cancel()
+    observeJob = viewModelScope.launch {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        useCase().collect { result ->
+            result
+                .onSuccess { data ->
+                    _uiState.update { it.copy(items = data.map { item -> item.toUiModel() }, isLoading = false, error = null) }
+                }
+                .onFailure { e ->
+                    _uiState.update { it.copy(isLoading = false, error = e.message) }
+                }
+        }
+    }
+}
+```
+
+Use suspend by default; use the Flow form only when the use case really is a stream (`ARCHITECTURE.md` §2, "Suspend or Flow?"). Domain -> `Ui*` mapping happens here in both forms.
 
 Rules:
 - One `StateFlow<UiState>`; `isLoading` and `error` are mandatory
@@ -312,6 +334,7 @@ List every file created under `<feature>/` with its purpose, and remind the user
 - No Activity or Fragment per screen
 - The screen composable is stateless; state collection lives in the navigation graph
 - A ViewModel calls use cases only
+- Composables never collect a domain Flow or map models; only the `StateFlow<UiState>` reaches the navigation graph
 - Every screen composable has `@FullPreview` previews wrapped in `MoisesaiChallangeTheme { }`
 - A feature's files are nested under `<feature>/{composable,model,view_model,navigation,mapper}`
 - Shared state between features goes through a `domain` repository or use case, never across feature packages

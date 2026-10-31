@@ -22,6 +22,12 @@ The endpoint (method + path), request and response JSON, and which screen needs 
 
 The template has no networking. Before the first endpoint, add to `gradle/libs.versions.toml` and `app/build.gradle.kts`: Retrofit, a JSON converter (Gson, Moshi or kotlinx.serialization), OkHttp, `kotlinx-coroutines-core`, and for tests MockK and `kotlinx-coroutines-test`. Add the `INTERNET` permission to `AndroidManifest.xml`. Pick the converter once and record it in `ARCHITECTURE.md` §1. Until a DI library is added, build the object graph by hand in one place.
 
+When the source is a local database, also add Room (runtime, ktx, compiler via KSP), and Turbine for Flow tests.
+
+## Suspend or Flow?
+
+Decide before writing code (see `ARCHITECTURE.md` §2). One-shot request or read/write: `suspend ...: Result<T>`. Anything observed over time, typically a Room query: `fun ...: Flow<Result<T>>`. When unsure, use `suspend`. The steps below show the suspend form first and the Flow variant where it differs.
+
 ## Steps
 
 ### 1. Read the contract
@@ -42,6 +48,8 @@ Prefix `Api`. Keep the property names or serialization annotations matching the 
 
 A Retrofit interface with a `suspend` function returning the `Api*` model.
 
+For a Room source instead: a `Db<Name>` entity in `data/local/entity` and a DAO in `data/local/dao` whose observed read returns `Flow<List<Db<Name>>>`, while single reads (get by id) and all writes (insert, update, delete) are `suspend`. Entities map to domain exactly like `Api*` models.
+
 ### 4. DataSource (`data/datasource/<Domain>ApiDataSource.kt`)
 
 ```kotlin
@@ -52,7 +60,19 @@ suspend fun getExercises(lessonId: String): Result<List<ApiExercise>> =
     }
 ```
 
-The datasource owns `Dispatchers.IO` (`withContext` for suspend, `.flowOn` for Flow) and returns raw `Api*` models. Any `runCatching` or `catch (e: Exception)` in a `suspend` function must rethrow `CancellationException` first.
+Flow variant (`runCatching` cannot see errors in later emissions, so use `.catch`):
+
+```kotlin
+fun observeExercises(lessonId: String): Flow<Result<List<DbExercise>>> =
+    dao.observeByLesson(lessonId)
+        .map { Result.success(it) }
+        .catch { if (it is CancellationException) throw it else emit(Result.failure(it)) }
+        .flowOn(Dispatchers.IO)
+```
+
+A Room one-shot (read by id, or a write) uses the suspend form above with the DAO in place of the API, e.g. `runCatching { dao.upsert(exercise) }` returning `Result<Unit>`. For writes, the repository maps domain to `Db*` (`toDb()`) before calling the datasource.
+
+The datasource owns `Dispatchers.IO` (`withContext` for suspend, `.flowOn` for Flow) and returns raw `Api*` / `Db*` models. Any `runCatching`, `catch (e: Exception)` or Flow `.catch` must rethrow `CancellationException` first.
 
 ### 5. Mapper (`data/mapper/Api<Name>Mapper.kt`)
 
@@ -72,15 +92,24 @@ override suspend fun getExercises(lessonId: String): Result<List<ExerciseDomainM
     exerciseApiDataSource.getExercises(lessonId).map { dtos -> dtos.map { it.toDomain() } }
 ```
 
+Flow variant: map each emission's `Result`, so the mapping stays in the repository.
+
+```kotlin
+override fun observeExercises(lessonId: String): Flow<Result<List<ExerciseDomainModel>>> =
+    exerciseLocalDataSource.observeExercises(lessonId)
+        .map { result -> result.map { entities -> entities.map { it.toDomain() } } }
+```
+
 Repositories use `.map`, never `runCatching` or `mapCatching` (`mapCatching` swallows cancellation). To turn a failure into a domain error, use `fold`.
 
 ### 7. Use case (`domain/usecase/<Verb><Noun>UseCase.kt`)
 
-One public method, verb name; `Get` never persists. `suspend operator fun invoke(...)` for one-shot calls, `operator fun invoke(...): Flow<T>` for streams.
+One public method, verb name; `Get` never persists. `suspend operator fun invoke(...): Result<T>` for one-shot calls, `operator fun invoke(...): Flow<Result<T>>` for streams. The ViewModel maps domain to `Ui*`; nothing here does.
 
 ### 8. Tests
 
 - Use case and repository tests with MockK
+- Flow tests with Turbine: assert a success emission, a `Result.failure` emission (the Flow completes without throwing), and that cancellation is not turned into a `Result.failure`
 - A serialization test that pins the JSON for requests, asserting the exact JSON string with the same converter configuration the app uses (the `data/remote/dto/` test folder)
 
 ### 9. Prove the contract against the API
@@ -94,6 +123,8 @@ Files changed per layer, any audit finding (a swallowed `CancellationException`,
 ## Hard constraints
 
 - `CancellationException` is never swallowed
-- Datasources catch; repositories and use cases propagate `Result<T>`; ViewModels use `.onSuccess`/`.onFailure`
-- Repositories never call the Retrofit interface directly
+- Datasources catch; repositories and use cases propagate `Result<T>` (`Flow<Result<T>>` for streams); ViewModels use `.onSuccess`/`.onFailure`
+- A Flow never throws to its collector: failures are emitted as `Result.failure`
+- `Flow` only for real streams; one-shot calls stay `suspend`
+- Repositories never call the Retrofit interface or a DAO directly
 - A failing repository method returns `Result<T>` (`Result<Unit>` for void), never `T?`, and never both returns and throws
