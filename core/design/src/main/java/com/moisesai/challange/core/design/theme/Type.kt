@@ -1,4 +1,4 @@
-package com.moisesai.challange.ui.theme
+package com.moisesai.challange.core.design.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

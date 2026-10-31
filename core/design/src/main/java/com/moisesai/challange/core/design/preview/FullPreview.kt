@@ -1,4 +1,4 @@
-package com.moisesai.challange.ui.preview
+package com.moisesai.challange.core.design.preview
 
 import androidx.compose.ui.tooling.preview.AndroidUiModes
 import androidx.compose.ui.tooling.preview.Devices

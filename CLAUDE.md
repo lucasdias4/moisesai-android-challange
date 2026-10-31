@@ -4,7 +4,7 @@ Android app, Jetpack Compose, package `com.moisesai.challange`, theme `MoisesaiC
 Full reference: `ARCHITECTURE.md`.
 
 ## Current state
-One Gradle module, `:app`, today. No DI, no network, no ViewModel and no navigation yet. `@FullPreview` (`ui/preview/FullPreview.kt`) covers phone, dark, small and tablet previews. The target is the feature-based module layout below; the foundation step moves the theme and `@FullPreview` into `:core:design`, and new code follows the target layout. The iTunes challenge plan is in `PLAN.md`.
+One Gradle module, `:app`, today. No DI, no network, no ViewModel and no navigation yet. The theme and `@FullPreview` (`core/design/.../preview/FullPreview.kt`, phone, dark, small and tablet previews) live in `:core:design`. The target is the feature-based module layout below, built step by step; new code follows it. The iTunes challenge plan is in `PLAN.md`.
 
 ## Modules (by feature, not by layer)
 `:app` (Application, NavHost, DI root, splash), `:feature:<name>` (songs, songdetails, album), `:core:design`, `:core:common`, `:core:shared-model` (shared pure-Kotlin models), `:core:network`, `:core:database`, `:library:player` (reusable Media3 playback engine behind a `PlayerController`).

@@ -2,10 +2,10 @@
 
 ## 1. Current state
 
-- Today: one module, `:app`. Package `com.moisesai.challange`.
-- Present: `MainActivity`, theme (`app/src/main/java/com/moisesai/challange/ui/theme/{Color,Theme,Type}.kt`), `@FullPreview` (`ui/preview/FullPreview.kt`), Compose, Material 3.
+- Today: `:app`, `:core:common`, `:core:design`. Package `com.moisesai.challange`.
+- Present: `MainActivity`; `:core:common` (`AppError`, dispatchers); `:core:design` (theme in `core/design/.../theme/{Color,Theme,Type}.kt`, `@FullPreview` in `.../preview/FullPreview.kt`); build-logic convention plugins; Compose, Material 3.
 - Not present yet: dependency injection, networking, database (Room), ViewModels, navigation, domain/data code, and the module split below.
-- Target: modules **by feature** (section 2). The foundation step moves the theme and `@FullPreview` to `:core:design` (`core/design/{theme,preview}`); new code follows the target layout, not the current `ui/` paths.
+- Target: modules **by feature** (section 2). New code follows that layout.
 - Versions and SDKs: `gradle/libs.versions.toml` and `app/build.gradle.kts`. JDK per `gradle/gradle-daemon-jvm.properties`.
 
 Everything below the next heading is the convention for code **as it is added**. When a section needs a dependency that is missing, add it to `gradle/libs.versions.toml` first.

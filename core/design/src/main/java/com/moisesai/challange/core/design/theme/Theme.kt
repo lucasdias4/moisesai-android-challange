@@ -1,4 +1,4 @@
-package com.moisesai.challange.ui.theme
+package com.moisesai.challange.core.design.theme
 
 import android.app.Activity
 import android.os.Build

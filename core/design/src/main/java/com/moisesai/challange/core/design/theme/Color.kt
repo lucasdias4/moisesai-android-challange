@@ -1,4 +1,4 @@
-package com.moisesai.challange.ui.theme
+package com.moisesai.challange.core.design.theme
 
 import androidx.compose.ui.graphics.Color
 

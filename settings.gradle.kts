@@ -26,3 +26,4 @@ dependencyResolutionManagement {
 rootProject.name = "Moisesai Challange"
 include(":app")
 include(":core:common")
+include(":core:design")
