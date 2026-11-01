@@ -11,7 +11,7 @@ import retrofit2.Response
 class RemoteErrorExtensionTest {
 
     @Test
-    fun `an http error is a network error that keeps its cause`() {
+    fun `GIVEN an http error, WHEN converting it to a remote error, THEN it is a network error that keeps its cause`() {
         // Given
         val httpError = HttpException(Response.error<Any>(500, "".toResponseBody()))
 
@@ -24,7 +24,7 @@ class RemoteErrorExtensionTest {
     }
 
     @Test
-    fun `any other error is classified by toAppError`() {
+    fun `GIVEN an unexpected error, WHEN converting it to a remote error, THEN it is an unknown error`() {
         // Given
         val unexpected = IllegalStateException("boom")
 

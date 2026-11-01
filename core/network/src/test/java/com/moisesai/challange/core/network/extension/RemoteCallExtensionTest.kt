@@ -15,7 +15,7 @@ import retrofit2.Response
 class RemoteCallExtensionTest {
 
     @Test
-    fun `a returned value is a success`() = runTest {
+    fun `GIVEN a request that returns a value, WHEN making the remote call, THEN the result is a success with that value`() = runTest {
         // Given
         val request: suspend () -> Int = { 42 }
 
@@ -27,7 +27,7 @@ class RemoteCallExtensionTest {
     }
 
     @Test
-    fun `a thrown error becomes a failure with the mapped error`() = runTest {
+    fun `GIVEN a request that throws an http error, WHEN making the remote call, THEN the result is a failure with a network error`() = runTest {
         // Given
         val httpError = HttpException(Response.error<Any>(500, "".toResponseBody()))
 
@@ -39,7 +39,7 @@ class RemoteCallExtensionTest {
     }
 
     @Test
-    fun `cancellation is rethrown, never returned as a failure`() {
+    fun `GIVEN a request that is cancelled, WHEN making the remote call, THEN the cancellation is rethrown, not returned as a failure`() {
         // Given
         val cancelled: suspend () -> Unit = { throw CancellationException("cancelled") }
 

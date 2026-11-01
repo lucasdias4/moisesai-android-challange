@@ -34,7 +34,7 @@ class AlbumRemoteDataSourceTest {
     fun tearDown() = server.close()
 
     @Test
-    fun `getting an album sends its id and the song entity to the lookup endpoint`() = runBlocking {
+    fun `GIVEN an album id, WHEN getting the album with its tracks, THEN the lookup endpoint is called with the id and the song entity`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.EMPTY)))
 
@@ -49,7 +49,7 @@ class AlbumRemoteDataSourceTest {
     }
 
     @Test
-    fun `getting an album returns every field of a real album`() = runBlocking {
+    fun `GIVEN a real album response, WHEN getting the album with its tracks, THEN the album has every field mapped`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.LOOKUP_ALBUM)))
 
@@ -66,7 +66,7 @@ class AlbumRemoteDataSourceTest {
     }
 
     @Test
-    fun `the album is followed by its tracks in track order`() = runBlocking {
+    fun `GIVEN a real album response, WHEN getting the album with its tracks, THEN the tracks follow the album in track order`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.LOOKUP_ALBUM)))
 
@@ -80,7 +80,7 @@ class AlbumRemoteDataSourceTest {
     }
 
     @Test
-    fun `getting an unknown album returns a successful response without results`() = runBlocking {
+    fun `GIVEN an unknown album id, WHEN getting the album with its tracks, THEN the response is successful and has no results`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.EMPTY)))
 
@@ -92,7 +92,7 @@ class AlbumRemoteDataSourceTest {
     }
 
     @Test
-    fun `an album missing a required field is an unknown error`() = runBlocking {
+    fun `GIVEN an album missing a required field, WHEN getting the album with its tracks, THEN the result is an unknown error`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(responseJson("""{"wrapperType":"collection","collectionId":9}""")))
 

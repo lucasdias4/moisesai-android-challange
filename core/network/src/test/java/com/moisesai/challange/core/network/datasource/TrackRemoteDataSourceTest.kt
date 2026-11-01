@@ -32,7 +32,7 @@ class TrackRemoteDataSourceTest {
     fun tearDown() = server.close()
 
     @Test
-    fun `searching sends the text and limit to the search endpoint filtered to music songs`() = runBlocking {
+    fun `GIVEN a search text and a limit, WHEN searching tracks, THEN the search endpoint is called filtered to music songs`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.EMPTY)))
 
@@ -49,7 +49,7 @@ class TrackRemoteDataSourceTest {
     }
 
     @Test
-    fun `searching returns every field of a real track`() = runBlocking {
+    fun `GIVEN a real search response, WHEN searching tracks, THEN the first track has every field mapped`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.SEARCH_SONGS)))
 
@@ -71,7 +71,7 @@ class TrackRemoteDataSourceTest {
     }
 
     @Test
-    fun `searching returns the tracks in the order of the response`() = runBlocking {
+    fun `GIVEN a real search response, WHEN searching tracks, THEN the tracks keep the order of the response`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.SEARCH_SONGS)))
 
@@ -84,7 +84,7 @@ class TrackRemoteDataSourceTest {
     }
 
     @Test
-    fun `searching with no match returns a successful response without results`() = runBlocking {
+    fun `GIVEN no track matches, WHEN searching tracks, THEN the response is successful and has no results`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.EMPTY)))
 
@@ -96,7 +96,7 @@ class TrackRemoteDataSourceTest {
     }
 
     @Test
-    fun `a track without optional fields has them as null`() = runBlocking {
+    fun `GIVEN a track without optional fields, WHEN searching tracks, THEN the optional fields are null`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(responseJson(trackJson())))
 
@@ -110,7 +110,7 @@ class TrackRemoteDataSourceTest {
     }
 
     @Test
-    fun `an item of an unknown kind is returned as an unknown item`() = runBlocking {
+    fun `GIVEN an item of an unknown kind, WHEN searching tracks, THEN it is returned as an unknown item`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(responseJson("""{"wrapperType":"artist","artistName":"Someone"}""")))
 
@@ -122,7 +122,7 @@ class TrackRemoteDataSourceTest {
     }
 
     @Test
-    fun `getting a track sends its id to the lookup endpoint without an entity filter`() = runBlocking {
+    fun `GIVEN a track id, WHEN getting the track, THEN the lookup endpoint is called with the id and no entity filter`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.EMPTY)))
 
@@ -137,7 +137,7 @@ class TrackRemoteDataSourceTest {
     }
 
     @Test
-    fun `getting a track returns that track`() = runBlocking {
+    fun `GIVEN a real lookup response, WHEN getting a track, THEN that track is returned`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.LOOKUP_TRACK)))
 
@@ -149,7 +149,7 @@ class TrackRemoteDataSourceTest {
     }
 
     @Test
-    fun `getting an unknown track returns a successful response without results`() = runBlocking {
+    fun `GIVEN an unknown track id, WHEN getting the track, THEN the response is successful and has no results`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(readFixture(Fixtures.EMPTY)))
 

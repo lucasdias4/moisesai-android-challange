@@ -28,7 +28,7 @@ class RemoteErrorHandlingTest {
     fun tearDown() = server.close()
 
     @Test
-    fun `an http error status is a network error`() = runBlocking {
+    fun `GIVEN the server answers 500, WHEN getting a track, THEN the result is a network error`() = runBlocking {
         // Given
         server.enqueue(MockResponse.Builder().code(500).body("oops").build())
 
@@ -40,7 +40,7 @@ class RemoteErrorHandlingTest {
     }
 
     @Test
-    fun `an unreachable server is a network error`() = runBlocking {
+    fun `GIVEN an unreachable server, WHEN getting a track, THEN the result is a network error`() = runBlocking {
         // Given
         server.close()
 
@@ -52,7 +52,7 @@ class RemoteErrorHandlingTest {
     }
 
     @Test
-    fun `a malformed body is an unknown error`() = runBlocking {
+    fun `GIVEN a malformed body, WHEN getting a track, THEN the result is an unknown error`() = runBlocking {
         // Given
         server.enqueue(jsonResponse("this is not json"))
 
@@ -64,7 +64,7 @@ class RemoteErrorHandlingTest {
     }
 
     @Test
-    fun `a track missing a required field is an unknown error`() = runBlocking {
+    fun `GIVEN a track missing a required field, WHEN getting a track, THEN the result is an unknown error`() = runBlocking {
         // Given
         server.enqueue(jsonResponse(responseJson("""{"wrapperType":"track","trackId":7}""")))
 

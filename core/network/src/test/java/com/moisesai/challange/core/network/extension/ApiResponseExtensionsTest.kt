@@ -11,7 +11,7 @@ import org.junit.Test
 class ApiResponseExtensionsTest {
 
     @Test
-    fun `tracks keeps only the tracks, in their original order`() {
+    fun `GIVEN a response with albums, tracks and an unknown item, WHEN reading the tracks, THEN only the tracks remain in their original order`() {
         // Given
         val response = ApiResponse(listOf(anAlbum(id = 1), aTrack(id = 10), ApiUnknownItem, aTrack(id = 11)))
 
@@ -23,7 +23,7 @@ class ApiResponseExtensionsTest {
     }
 
     @Test
-    fun `album returns the first album`() {
+    fun `GIVEN a response with several albums, WHEN reading the album, THEN the first album is returned`() {
         // Given
         val response = ApiResponse(listOf(aTrack(id = 10), anAlbum(id = 1), anAlbum(id = 2)))
 
@@ -35,7 +35,7 @@ class ApiResponseExtensionsTest {
     }
 
     @Test
-    fun `album is null when the response has none`() {
+    fun `GIVEN a response without an album, WHEN reading the album, THEN it is null`() {
         // Given
         val response = ApiResponse(listOf(aTrack(id = 10), ApiUnknownItem))
 
