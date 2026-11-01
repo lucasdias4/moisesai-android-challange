@@ -1,5 +1,7 @@
 # Moisesai Challange — Architecture Reference
 
+**This file is the single source of the project's rules.** `CLAUDE.md` holds one-line versions that point here, and the skills hold procedures and examples. To change a rule, edit it here first, then update its one-line version in `CLAUDE.md` and any example in a skill, and search the repository for the old wording.
+
 ## 1. Current state
 
 - **Modules:** `:app`, `:core:common`, `:core:design` and `:core:network` have code. Empty so far: `:core:shared-domain-model` (JVM-only), `:core:database`, `:core:player`, `:feature:songs`, `:feature:songdetails`, `:feature:album`. Package `com.moisesai.challange`.

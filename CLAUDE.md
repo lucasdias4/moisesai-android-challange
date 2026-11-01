@@ -21,6 +21,7 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Tests: one concept each, named as sentences, fixtures from the real API, none that pass with the code broken. (§9)
 
 ## Working agreements
+- Rules are defined in `ARCHITECTURE.md`. To change one: edit it there first, then its short version here and the examples in the skills, then search for the old wording.
 - Small steps, one commit each, green on `./gradlew clean assembleDebug testDebugUnitTest lintDebug connectedDebugAndroidTest`. Suggest a short commit message; do not commit unless asked.
 - Temporary code lives in one `Temporary*.kt` file marked `TEMPORARY` (§11).
 - Question a request that conflicts with a rule or a requirement, say why, then follow the user's decision.
