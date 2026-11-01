@@ -2,10 +2,10 @@
 
 ## 1. Current state
 
-- Today: `:app`, `:core:common`, `:core:design`, plus empty `:core:shared-domain-model` (JVM-only), `:core:network`, `:core:database`, `:library:player`, and empty `:feature:songs`, `:feature:songdetails`, `:feature:album` (feature convention plugin: Compose, Hilt/KSP, `:core:design`, `:core:common`, `:core:shared-domain-model`). Package `com.moisesai.challange`.
+- Today: `:app`, `:core:common`, `:core:design`, `:core:network` (Retrofit, OkHttp, kotlinx.serialization, `TrackRemoteDataSource`, `AlbumRemoteDataSource`), plus empty `:core:shared-domain-model` (JVM-only), `:core:database`, `:core:player`, and empty `:feature:songs`, `:feature:songdetails`, `:feature:album` (feature convention plugin: Compose, Hilt/KSP, `:core:design`, `:core:common`, `:core:shared-domain-model`). Package `com.moisesai.challange`.
 - Present: `MainActivity`; `:core:common` (`AppError`, dispatchers); `:core:design` (theme in `core/design/.../theme/{Color,Theme,Type}.kt`, `@FullPreview` in `.../preview/FullPreview.kt`); build-logic convention plugins; Compose, Material 3.
 - Hilt: configured in `:app` (`@HiltAndroidApp` `MoisesaiChallangeApplication`, `@AndroidEntryPoint` `MainActivity`), KSP for the compiler; no bindings yet.
-- Not present yet: networking, database (Room), ViewModels, navigation, domain/data code, and the module split below.
+- Not present yet: database (Room), ViewModels, navigation, domain/data code, and the module split below.
 - Target: modules **by feature** (section 2). New code follows that layout.
 - Versions and SDKs: `gradle/libs.versions.toml` and `app/build.gradle.kts`. JDK per `gradle/gradle-daemon-jvm.properties`.
 
@@ -28,14 +28,14 @@ Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API
 ```text
 :app                       Application, MainActivity, NavHost (the only place features meet), DI root, splash
 :feature:songs             search, pagination, recents list, More-options sheet
-:feature:songdetails       song details screen (player): play/pause, seek slider, timeline, skip (uses :library:player)
+:feature:songdetails       song details screen (player): play/pause, seek slider, timeline, skip (uses :core:player)
 :feature:album             album header and track list
 :core:design               theme, @FullPreview, shared components
 :core:common               AppError, dispatchers, small extensions
 :core:shared-domain-model  pure Kotlin shared domain models only (TrackDomainModel, AlbumDomainModel): no logic, no Android
-:core:network              OkHttp/Retrofit setup, ItunesApi, Api* DTOs, remote datasource interface + iTunes implementation
+:core:network              OkHttp/Retrofit setup, ItunesApi, Api* DTOs, remote datasources (track, album)
 :core:database             Room AppDatabase, Db* entities, DAOs
-:library:player            reusable playback engine: PlayerController interface + Media3 ExoPlayer implementation (no feature or iTunes knowledge)
+:core:player               playback engine: PlayerController interface + Media3 ExoPlayer implementation (knows no feature or iTunes code)
 ```
 
 ### Feature package layout
@@ -51,8 +51,8 @@ Core packages: `com.moisesai.challange.core.{design,common,shareddomainmodel,net
 
 ### Dependency rules
 
-- `feature:*` depends on `core:*` and `library:*`. Features never depend on or import each other. `:app` connects them with type-safe routes and lambdas (ids only: Player receives a track id, Album a collection id).
-- `core:*` and `library:*` never depend on a feature. `core:shared-domain-model` depends on nothing. `library:*` modules are generic and reusable: they know nothing about tracks, iTunes or the app's models (`:library:player` plays a URL).
+- `feature:*` depends on `core:*`. Features never depend on or import each other. `:app` connects them with type-safe routes and lambdas (ids only: Player receives a track id, Album a collection id).
+- `core:*` never depends on a feature. `core:shared-domain-model` depends on nothing. `:core:player` knows nothing about tracks or iTunes: it plays a URL.
 - Inside a feature: `presentation -> domain <- data`. Presentation never imports data.
 - State shared by several features goes through `core:*` (a shared model, or a Room table behind a DAO); each feature keeps its own repository interface and use cases over it. Songs reads recents and Player writes them through the same DAO, not through each other.
 - Layers are packages, so Gradle does not enforce the third rule: an architecture test (Konsist or ArchUnit) does (section 9).
@@ -107,7 +107,10 @@ Package names are singular, lowercase, no underscores for modules and layers (`f
 
 ## 6. Data
 
-- `Api*` DTOs, the Retrofit interface and the remote datasource interface with its iTunes implementation live in `:core:network`. Replacing the API means replacing that implementation (and its `Api*` models); feature repositories only map `Api*` to domain. Feature datasources wrap one source (the remote datasource, or a Room DAO) for one domain and return raw `Api*` / `Db*` models in `Result<T>` (`Flow<Result<T>>` for streams). They own `Dispatchers.IO` (`withContext` for suspend, `.flowOn` for Flow).
+- `Api*` DTOs, the Retrofit interface and the remote datasources (`TrackRemoteDataSource`, `AlbumRemoteDataSource`, split by context) live in `:core:network`.
+- **Datasources are concrete classes with no interface**, injected by constructor. The Retrofit service and the DAO are already the abstractions they wrap, and the boundary that keeps the API replaceable is the repository interface in the feature's `domain`. Replacing the API means rewriting the datasources, the `Api*` models and the repository mappers; the domain, the ViewModels and the UI stay untouched. Tests fake the layer below (MockWebServer, an in-memory Room) or mock the concrete class with MockK.
+- A datasource wraps one source for one context and returns the raw `Api*` / `Db*` models in `Result<T>` (`Flow<Result<T>>` for streams). It does no filtering or reshaping: a remote datasource returns the whole response (`Result<ApiResponse>`), and the repository's mapper reads it, using the shared `ApiResponse.tracks()` / `album()` extensions from `:core:network` for a response that mixes kinds. Method names follow the vocabulary in section 8: an action plus what the caller wants (`searchTracksBySearchText`, `getTrack`, `getAlbumWithTracks`).
+- **Datasources do not switch dispatchers.** Retrofit suspend functions and Room suspend and `Flow` queries are main-safe. The repository injects a `DispatcherProvider` and switches (`withContext(dispatchers.io)`) only when it does blocking or CPU-heavy work, such as mapping a large list.
 - `runCatching` lives in suspend datasources only, and rethrows `CancellationException`:
 
 ```kotlin
@@ -122,7 +125,6 @@ fun observeExercises(lessonId: String): Flow<Result<List<DbExercise>>> =
     dao.observeByLesson(lessonId)
         .map { Result.success(it) }
         .catch { if (it is CancellationException) throw it else emit(Result.failure(it)) }
-        .flowOn(Dispatchers.IO)
 ```
 
   A Flow never throws to its collector: every failure is an emitted `Result.failure`.
@@ -132,10 +134,8 @@ fun observeExercises(lessonId: String): Flow<Result<List<DbExercise>>> =
 
 ```kotlin
 suspend fun saveExercise(exercise: DbExercise): Result<Unit> =
-    withContext(Dispatchers.IO) {
-        runCatching { dao.upsert(exercise) }
-            .onFailure { if (it is CancellationException) throw it }
-    }
+    runCatching { dao.upsert(exercise) }
+        .onFailure { if (it is CancellationException) throw it }
 ```
 
   Writes return `Result<Unit>`; the repository maps the domain model to `Db*` on the way in (`ExerciseDomainModel.toDb()`) and `Db*` to domain on the way out.
@@ -152,13 +152,74 @@ Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `M
 
 ---
 
-## 8. Code quality
+## 8. Code quality (Clean Code)
 
-- Names reveal intent; avoid `Manager`, `Helper`, `Util`, `Handler`. Booleans use `is`/`has`/`can`.
-- A class or function does one thing; no boolean flag parameters that change behaviour.
-- Guard clauses over nested conditionals. Meaningful literals are named constants.
-- Comments explain *why* (hidden constraint, workaround, invariant), never *what*.
-- Extract duplicated logic on the third occurrence, not the second.
+Robert C. Martin's *Clean Code* applies to every file, Kotlin idioms included. When a rule below conflicts with a convention elsewhere in this document, the architecture convention wins. The Boy Scout rule applies: leave the file cleaner than you found it.
+
+### Names
+
+- **Reveal intent.** A name answers why it exists, what it does and how it is used. If it needs a comment, rename it. `elapsedMs` beats `t`; `activeTracks` beats `list2`.
+- **Classes and types are nouns** (`TrackRepository`, `AppError`); **functions are verbs** (`getAlbumWithTracks`, `toAppError`); **booleans read as questions** (`isLoading`, `hasPreview`, `canSeek`).
+- **No noise or disinformation.** No `Manager`, `Helper`, `Util`, `Handler`, `Data`, `Info`; no `List` in the name of something that is not a `List`; no type prefixes or encodings (`IFoo`, `strName`). Layer markers (`Ui*`, `*DomainModel`, `Api*`, `Db*`) are a project convention, not an encoding.
+- **One word per concept.** Pick one verb for one idea across the code base and keep it: `get` reads one thing by id, `search` finds many by text, `save` writes, `observe` streams. A layer speaks its own level: datasources and repositories use the app's words (`searchTracksBySearchText`, `getAlbumWithTracks`), the Retrofit service names methods after the endpoint (`lookupTrack`).
+- **Pronounceable and searchable.** No abbreviations beyond the well-known (`id`, `url`, `ui`). Name constants, so they can be found.
+- **Length follows scope.** A loop variable may be `i` or `it`; a public API gets a full name.
+
+### Functions
+
+- **Small, and they do one thing.** If a function needs a section comment, or "and" in its name, split it.
+- **One level of abstraction per function.** Do not mix business rules with parsing or error plumbing. Extract the lower level and name it.
+- **Read top to bottom** (the stepdown rule): a public function first, the helpers it calls below it.
+- **Few arguments.** Zero to three. More than three, or arguments that always travel together, become a parameter object.
+- **No flag arguments** (`render(true)`): write two functions, or use an enum or sealed type.
+- **No hidden side effects.** A function either does something (command) or answers something (query), not both. `Get` never persists.
+- **Fail with a result, not a code.** Return `Result<T>`; never return `null` or a magic value to mean "failed". Extract the `try`/`runCatching` body into its own function so the error handling is separate from the logic.
+- **Do not repeat yourself.** Extract duplicated logic on the third occurrence, not the second.
+
+### Classes and files
+
+- **Small, with a single responsibility** and one reason to change. A class that you can only describe with "and" does two jobs.
+- **High cohesion.** Members use the class's state; unrelated helpers move out.
+- **One main concept per file**, named after it. A tiny sealed hierarchy or a group of DTOs that only make sense together may share a file.
+- **Newspaper order.** The most important declaration first, details below.
+- **Depend on abstractions** and hide implementations: `internal` or `private` by default, public only for what other modules need.
+- **Organize by feature**, then by layer (section 2), never by technical kind alone.
+
+### Variables and state
+
+- **`val` over `var`**, immutable data classes, no shared mutable state.
+- **Declare close to first use**, with the narrowest scope.
+- **No magic numbers or strings.** A named constant, or a named argument that explains it. Prefer a typed value (enum, sealed class, value class) over a raw string.
+- **Explanatory variables.** Name an intermediate result when it makes a long expression readable.
+- **Null is a decision.** Nullable only where absence is a real state (an optional API field). Never pass `null` to mean "default".
+
+### Comments and formatting
+
+- **Comments explain why** (hidden constraint, workaround, invariant), never what. Good code does not need a *what* comment.
+- **No commented-out code, no journal or banner comments, no noise** (`// constructor`). Version control keeps history.
+- **KDoc only on public API whose contract is not obvious.**
+- **Formatting is the Kotlin official style.** Related code stays close together; blank lines separate concepts, not lines of one idea. No unused imports, parameters or code (delete it; YAGNI).
+
+### Error handling
+
+- Errors are values at layer boundaries (`Result<T>`, `AppError`); coroutine cancellation is never swallowed. Do not catch an exception you cannot handle, and never leave a `catch` block empty.
+
+### Tests (F.I.R.S.T.)
+
+- **Fast, Independent, Repeatable, Self-validating, Timely.** No test depends on another or on the network, the clock or the order of execution.
+- **One concept per test**, with a name that reads as a sentence (backticks). Arrange, act and assert are visible.
+- **No logic in tests** (no loops or conditionals around assertions). Test code gets the same cleanliness rules as production code.
+- A test that only restates a constant or a getter is deleted.
+
+### SOLID in this project
+
+| Principle | Where it shows |
+|---|---|
+| Single responsibility | One use case does one job; a datasource wraps one source; a mapper only maps |
+| Open/closed | A new kind of API item is a new subtype, not an edit to a `when` in the parser |
+| Liskov substitution | Any implementation of a repository interface (the real one or a fake) behaves the same to its callers |
+| Interface segregation | Repository interfaces list only what their callers use; datasources are split by context, so a feature depends only on the ones it uses |
+| Dependency inversion | The domain owns repository interfaces; data implements them; the API is replaceable behind the repository interface |
 
 ---
 

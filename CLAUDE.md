@@ -7,14 +7,14 @@ Full reference: `ARCHITECTURE.md`.
 One Gradle module, `:app`, today. Hilt is set up in `:app` (no bindings yet); no network, no ViewModel and no navigation yet. The theme and `@FullPreview` (`core/design/.../preview/FullPreview.kt`, phone, dark, small and tablet previews) live in `:core:design`. The target is the feature-based module layout below, built step by step; new code follows it. The iTunes challenge plan is in `PLAN.md`.
 
 ## Modules (by feature, not by layer)
-`:app` (Application, NavHost, DI root, splash), `:feature:<name>` (songs, songdetails, album), `:core:design`, `:core:common`, `:core:shared-domain-model` (shared pure-Kotlin models), `:core:network`, `:core:database`, `:library:player` (reusable Media3 playback engine behind a `PlayerController`).
+`:app` (Application, NavHost, DI root, splash), `:feature:<name>` (songs, songdetails, album), `:core:design`, `:core:common`, `:core:shared-domain-model` (shared pure-Kotlin models), `:core:network`, `:core:database`, `:core:player` (Media3 playback engine behind a `PlayerController`).
 Each feature module holds its own layers as **packages**: `com.moisesai.challange.feature.<name>.{presentation,domain,data}`. There is no global `:domain` or `:data` module.
 
 ## Layering (the convention new code follows)
 `Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API`
 
 ## Hard rules
-- Features never import each other: `:app` connects them with routes and lambdas. Shared types live in `core:*` only. `core:*` and `library:*` never depend on a feature.
+- Features never import each other: `:app` connects them with routes and lambdas. Shared types live in `core:*` only. `core:*` never depend on a feature.
 - Inside a feature, `presentation -> domain <- data`; presentation never imports data. Repository interfaces and use cases live in the feature's `domain`; implementations in its `data`.
 - `Api*` DTOs and the iTunes client live in `:core:network`; `Db*` entities and DAOs live in `:core:database` (one Room `AppDatabase`); features own their datasources and repositories over them.
 - A ViewModel calls use cases, never repositories, datasources or the API. `domain` has no Android imports.
@@ -25,6 +25,7 @@ Each feature module holds its own layers as **packages**: `com.moisesai.challang
 - Colours, typography and shapes come from `MaterialTheme` (`core/design/theme/`), never hex literals or inline `TextStyle`.
 - Every screen composable has `@FullPreview` previews wrapped in `MoisesaiChallangeTheme { }`.
 - User-facing text comes from `R.string.*`.
+- Clean Code (Robert C. Martin) applies everywhere; the rules are in `ARCHITECTURE.md` §8. The short version: names reveal intent (nouns for classes, verbs for functions, booleans as questions); small functions that do one thing at one level of abstraction; at most three parameters and no flag arguments; `val` over `var`; no magic numbers; no dead or commented-out code; one responsibility per class; tests are one concept each and read as sentences.
 - Comments explain *why*, never *what*.
 
 ## Skills (procedures, in `.claude/skills/`)
