@@ -170,14 +170,14 @@ build-logic/         convention plugins shared by every module
 gradle/              wrapper and the version catalog (libs.versions.toml)
 ARCHITECTURE.md      the full architecture reference
 CLAUDE.md            short contributor and AI-assistant conventions
-.claude/skills/      step-by-step procedures for scaffolding features, screens and data
+.claude/skills/      step-by-step procedures for scaffolding features, screens and data, and for reviewing against Clean Code
 ```
 
 ## Conventions and further reading
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) is the complete reference: layering, `suspend` versus `Flow`, error handling, naming, theming and testing.
 - [`CLAUDE.md`](CLAUDE.md) is the short rule list that new code follows.
-- `.claude/skills/` holds the procedures for adding a feature module, a screen, a shared UI component, and a data endpoint.
+- `.claude/skills/` holds the procedures for adding a feature module, a screen, a shared UI component a data endpoint, and a Clean Code review.
 
 ## Decisions and trade-offs
 
@@ -197,6 +197,16 @@ Each entry says what was chosen, why, and what it costs. New entries are added i
 
 - **Why:** a datasource wraps one source that is already an abstraction (the Retrofit service, a Room DAO), so an interface on top adds a file without adding a seam. Clean Architecture puts the seam where the domain meets the data layer: the repository interface. Replacing the API means rewriting the datasources, the `Api*` models and the mappers; the domain, ViewModels and UI do not change.
 - **Trade-off:** the replaceable boundary is one layer higher than a datasource interface would make it, and the `Api*` models are iTunes-shaped. Tests fake the layer below (MockWebServer, in-memory Room) or mock the concrete class with MockK.
+
+### Datasources return the raw response; the repository mapper reads it
+
+- **Why:** a datasource that filters or assembles (`.tracks()`, `firstOrNull()`, a custom aggregate type) is doing a mapper's job and invents a type the API never sent. Returning `Result<ApiResponse>` keeps it a one-line call, and the mapper reads mixed responses with the shared extensions `ApiResponse.tracks()` and `album()`.
+- **Trade-off:** knowledge of the response envelope (a lookup returns the album, then its tracks) sits in the feature repositories instead of the network module.
+
+### DTO nullability comes from real data
+
+- **Why:** each field was checked against 3,455 real tracks and 8 albums. Fields always present are non-null, so the mappers need no null checks. Only `artworkUrl100`, `previewUrl` and `releaseDate` are nullable, because the docs or the data show they can be absent. DTOs also have no default values: `explicitNulls = false` already reads an absent nullable field as `null`.
+- **Trade-off:** a non-null field missing from one item fails the whole response as `AppError.Unknown`. That is deliberate (a malformed response should be loud), but one odd item would turn a search into an error.
 
 ### Datasources do not switch dispatchers
 

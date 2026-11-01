@@ -330,12 +330,14 @@ Re-read what you wrote against `ARCHITECTURE.md` §8 before reporting:
 - The ViewModel has one responsibility (UI state), `val` over `var`, and no unused functions.
 - No commented-out code, unused imports or `TODO` placeholders left behind.
 
+For a full review of the files, use the `clean-code-review` skill.
+
 ### 11. Output summary
 
 List every file created under `feature/<feature>/` with its purpose, and remind the user to:
 
 - register the graph in the root `NavHost` (if one exists)
-- write ViewModel unit tests (JUnit 4 + MockK + coroutines-test)
+- write the ViewModel unit tests (`ARCHITECTURE.md` §9)
 - add any dependency listed in Prerequisites that was missing
 
 ---

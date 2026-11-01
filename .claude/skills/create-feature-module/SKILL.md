@@ -37,7 +37,7 @@ Feature name: lower case, no underscores (e.g. `songs`). It becomes the module `
 5. **DI module** `feature/<name>/.../di/<Name>Module.kt` binding repository interfaces to their implementations, once Hilt is configured.
 6. **Wire into `:app`**: add `implementation(project(":feature:<name>"))` and register the feature's navigation graph in the root `NavHost`. This is the only place features meet; routes carry ids only.
 7. **Fill it**: screens with `create-compose-screen`, data with `add-data-endpoint`.
-8. **Clean code check** (`ARCHITECTURE.md` §8): the module contains only what is used now: no placeholder classes, no empty packages, no unused dependencies.
+8. **Clean code check** (`clean-code-review` skill, `ARCHITECTURE.md` §8): the module contains only what is used now: no placeholder classes, no empty packages, no unused dependencies.
 
 ## Report
 

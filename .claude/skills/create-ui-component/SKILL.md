@@ -117,6 +117,8 @@ Re-read the component against `ARCHITECTURE.md` §8:
 - Small: split anything longer than one screen of code, and put each preview next to what it previews.
 - No unused parameters, imports or commented-out code.
 
+For a full review, use the `clean-code-review` skill.
+
 ### 7. Report
 
 - Created file path and import path (`com.moisesai.challange.core.design.components.*`)
