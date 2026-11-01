@@ -27,7 +27,7 @@ An Android app that searches songs through the Apple iTunes Search API, plays th
 | Modularization | Done: 3 feature modules, 6 core modules |
 | Tests | Tooling ready (JUnit, MockK, coroutines-test, Turbine, MockWebServer); first real tests arrive with the data layers |
 | Network abstraction layer | Done: `:core:network` (Retrofit, OkHttp, kotlinx.serialization) with concrete `TrackRemoteDataSource` and `AlbumRemoteDataSource` (the replaceable boundary is the repository interface in each feature's domain), tested against live-captured JSON |
-| Offline-first cache, recently played on home | Pending (`:core:database`) |
+| Offline-first cache, recently played on home | Database layer done: `:core:database` (Room 3) caches searches with page reads and stores recent tracks, tested on a device; the repositories that use it come with the songs feature |
 | API pagination | Pending |
 | Splash, Songs, Song details (player), More-options sheet, Album | Pending |
 
@@ -125,7 +125,7 @@ Solid arrows are the explicit module dependencies. Dotted arrows are the shared 
 | `:core:common` | `AppError`, dispatcher provider, small extensions |
 | `:core:shared-domain-model` | Pure Kotlin shared domain models (`*DomainModel`). A JVM module, so Android imports do not compile there |
 | `:core:network` | HTTP client setup, the API service and DTOs, the remote data source behind an interface |
-| `:core:database` | The Room database, entities and DAOs |
+| `:core:database` | The Room 3 database, entities, DAOs and local datasources |
 | `:core:player` | Reusable playback engine behind a `PlayerController` interface. It knows nothing about the app |
 
 ### Dependency rules
@@ -158,7 +158,7 @@ Folders are created with their first file, so a feature only shows the packages 
 | SDK | `minSdk` 24, `targetSdk` 36, `compileSdk` 37 |
 | Testing | JUnit 4, MockK, `kotlinx-coroutines-test`, Turbine, MockWebServer |
 
-Networking: Retrofit, OkHttp and kotlinx.serialization in `:core:network`. Persistence and playback libraries are added with the modules that use them.
+Networking: Retrofit, OkHttp and kotlinx.serialization in `:core:network`. Persistence: Room 3 with the AndroidX SQLite framework driver in `:core:database`. Playback libraries are added with the module that uses them.
 
 ## Repository layout
 
@@ -207,6 +207,16 @@ Each entry says what was chosen, why, and what it costs. New entries are added i
 
 - **Why:** each field was checked against 3,455 real tracks and 8 albums. Fields always present are non-null, so the mappers need no null checks. Only `artworkUrl100`, `previewUrl` and `releaseDate` are nullable, because the docs or the data show they can be absent. DTOs also have no default values: `explicitNulls = false` already reads an absent nullable field as `null`.
 - **Trade-off:** a non-null field missing from one item fails the whole response as `AppError.Unknown`. That is deliberate (a malformed response should be loud), but one odd item would turn a search into an error.
+
+### Room 3, not Room 2
+
+- **Why:** Room 3 (`androidx.room3`, stable) is the current generation: coroutine-first (every DAO function is `suspend` or a `Flow`), driver-based, Kotlin and KSP only. Starting a new database on Room 2 would mean migrating it later.
+- **Trade-off:** it is newer, so there is less community material than for Room 2, and its transaction API differs (`withWriteTransaction`). I checked the APIs I use against the published artifacts.
+
+### Room tests are instrumented, with underscore names
+
+- **Why:** the tests run on the device's real SQLite with an in-memory database. DEX before version 40 forbids spaces in method names and `minSdk` is 24, so these tests keep the uppercase `GIVEN`, `WHEN` and `THEN` and join the words with underscores. JVM tests keep the sentence form.
+- **Trade-off:** they need an emulator or device (`connectedDebugAndroidTest`) and run slower than JVM tests; the naming differs between the two kinds of test.
 
 ### Datasources do not switch dispatchers
 

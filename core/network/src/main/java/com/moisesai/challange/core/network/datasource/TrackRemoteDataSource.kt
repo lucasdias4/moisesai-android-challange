@@ -5,7 +5,7 @@ import com.moisesai.challange.core.network.extension.remoteCall
 import com.moisesai.challange.core.network.model.ApiResponse
 import javax.inject.Inject
 
-class TrackRemoteDataSource @Inject constructor(
+class TrackRemoteDataSource @Inject internal constructor(
     private val api: ItunesApi,
 ) {
     /**

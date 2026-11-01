@@ -4,7 +4,7 @@ Android app (Jetpack Compose), package `com.moisesai.challange`, theme `Moisesai
 This is the short list. The full rules are in `ARCHITECTURE.md` (section numbers below); if they disagree, `ARCHITECTURE.md` wins.
 
 ## Current state
-Code in `:app`, `:core:common`, `:core:design`, `:core:network`. Empty so far: `:core:shared-domain-model`, `:core:database`, `:core:player` and the three `:feature:*`. `MainActivity` shows a `TemporaryNetworkCheck` (delete it with the first real screen). Local and git-ignored: `PLAN.md`, `misc-notes.md`, `core/network/itunes-api-samples.md`.
+Code in `:app`, `:core:common`, `:core:design`, `:core:network`, `:core:database`. Empty so far: `:core:shared-domain-model`, `:core:player` and the three `:feature:*`. `MainActivity` shows a `TemporaryDataCheck` (delete it with the first real screen). Local and git-ignored: `PLAN.md`, `misc-notes.md`, `core/network/itunes-api-samples.md`.
 
 ## Layering and modules (§2)
 `Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API`
@@ -15,6 +15,7 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - `suspend` by default, `Flow` only for streams. Errors are caught in datasources, travel as `Result<T>`, cancellation is rethrown, and an empty result is a success. (§2, §6)
 - Datasources: concrete (no interface), split by context, return the raw response, no dispatcher switch. The repository maps and owns the injected `DispatcherProvider`. (§6)
 - DTOs: one file per class, `@Serializable` and `@SerialName`, no default values, nullable only when real data shows it. Fixed query parameters go in `@GET`. (§6)
+- Room 3, `Db*`, DAOs and the local datasources live in `:core:database`. Types only a datasource uses are `internal`, and so is its constructor. A multi-table write is one transaction, and rows are saved with `@Upsert`, not a replace. (§6)
 - Names: track and album; `id`, `name`, `albumId`, `artUrl`; methods are an action plus what the caller wants (`getTrack`, `searchTracksBySearchText`); parameters named by meaning; models carry their layer (`Ui*`, `*DomainModel`, `Api*`, `Db*`). (§3, §8)
 - Clean Code applies everywhere (§8): intent-revealing names, small functions, at most three parameters, no flag arguments, `val` over `var`, no magic values, no dead code, one class per file, `internal` by default, comments explain *why*.
 - UI: colours, typography and shapes from `MaterialTheme`; every screen has `@FullPreview` previews wrapped in `MoisesaiChallangeTheme`; text from `R.string.*`. (§4, §7)
@@ -24,6 +25,7 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Rules are defined in `ARCHITECTURE.md`. To change one: edit it there first, then its short version here and the examples in the skills, then search for the old wording.
 - Small steps, one commit each, green on `./gradlew clean assembleDebug testDebugUnitTest lintDebug connectedDebugAndroidTest`. Suggest a short commit message; do not commit unless asked.
 - Temporary code lives in one `Temporary*.kt` file marked `TEMPORARY` (§11).
+- Room tests are instrumented tests; their names use underscores (`GIVEN_a_..._WHEN_..._THEN_...`) because DEX before version 40 forbids spaces (§9).
 - Question a request that conflicts with a rule or a requirement, say why, then follow the user's decision.
 
 ## Skills (`.claude/skills/`)

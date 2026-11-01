@@ -4,7 +4,7 @@ import com.moisesai.challange.core.network.model.ApiResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-interface ItunesApi {
+internal interface ItunesApi {
     @GET("search?media=music&entity=song")
     suspend fun searchTracksBySearchText(
         @Query("term") searchText: String,

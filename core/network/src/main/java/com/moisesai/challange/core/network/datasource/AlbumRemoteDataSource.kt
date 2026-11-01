@@ -5,7 +5,7 @@ import com.moisesai.challange.core.network.extension.remoteCall
 import com.moisesai.challange.core.network.model.ApiResponse
 import javax.inject.Inject
 
-class AlbumRemoteDataSource @Inject constructor(
+class AlbumRemoteDataSource @Inject internal constructor(
     private val api: ItunesApi,
 ) {
     /** The album first, then its tracks in track order. */

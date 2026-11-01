@@ -4,9 +4,9 @@
 
 ## 1. Current state
 
-- **Modules:** `:app`, `:core:common`, `:core:design` and `:core:network` have code. Empty so far: `:core:shared-domain-model` (JVM-only), `:core:database`, `:core:player`, `:feature:songs`, `:feature:songdetails`, `:feature:album`. Package `com.moisesai.challange`.
-- **Done:** `build-logic` convention plugins, Hilt in `:app`, test tooling, the theme and `@FullPreview` in `:core:design`, `AppError` and `DispatcherProvider` in `:core:common` (the provider is for repositories and has no user yet), and the remote layer in `:core:network` (section 6).
-- **Not present yet:** Room, repositories, use cases, ViewModels, navigation and the real screens. `MainActivity` shows a `TemporaryNetworkCheck` (section 11).
+- **Modules:** `:app`, `:core:common`, `:core:design`, `:core:network` and `:core:database` have code. Empty so far: `:core:shared-domain-model` (JVM-only), `:core:player` and the three `:feature:*`. Package `com.moisesai.challange`.
+- **Done:** `build-logic` convention plugins, Hilt in `:app`, test tooling, the theme and `@FullPreview` in `:core:design`, `AppError` and `DispatcherProvider` in `:core:common` (the provider is for repositories and has no user yet), the remote layer in `:core:network` and the local layer in `:core:database` (section 6).
+- **Not present yet:** repositories, use cases, ViewModels, navigation and the real screens. `MainActivity` shows a `TemporaryDataCheck` (section 11).
 - **Versions and SDKs:** `gradle/libs.versions.toml` and `app/build.gradle.kts`. JDK per `gradle/gradle-daemon-jvm.properties`.
 
 Everything below the next heading is the convention for code **as it is added**. When a section needs a dependency that is missing, add it to `gradle/libs.versions.toml` first.
@@ -34,7 +34,7 @@ Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API
 :core:common               AppError, dispatchers, small extensions
 :core:shared-domain-model  pure Kotlin shared domain models only (TrackDomainModel, AlbumDomainModel): no logic, no Android
 :core:network              OkHttp/Retrofit setup, ItunesApi, Api* DTOs, remote datasources (track, album)
-:core:database             Room AppDatabase, Db* entities, DAOs
+:core:database             Room 3 AppDatabase, Db* entities, DAOs, local datasources (track, search, recent track)
 :core:player               playback engine: PlayerController interface + Media3 ExoPlayer implementation (knows no feature or iTunes code)
 ```
 
@@ -94,6 +94,7 @@ One word for one thing, in every layer:
 - **Short, plain property names:** `artUrl`, not `artworkUrl100`; `artistName`, not `artistNameText`.
 - **Names are ours, wire names stay on the wire.** A DTO property uses the app's word and keeps the JSON key with `@SerialName("collectionId") val id: Long`. A Retrofit parameter is named by meaning (`searchText`) and keeps the wire key in `@Query("term")`.
 - **Methods are an action plus what the caller wants** (section 8): `searchTracksBySearchText`, `getTrack`, `getAlbumWithTracks`.
+- **Storage follows the API's names.** An entity has the same property names as its DTO (`DbTrack` and `ApiTrack` both have `id`, `name`, `albumId`, `artUrl`), table names are singular snake_case (`track`, `saved_search_track`), and a time column ends in `Millis` (`fetchedAtMillis`, like `trackTimeMillis`). Local datasources use `get` (read), `save` (write) and `observe` (stream); the name says what is read or written (`getSavedSearch`, `saveSearch`).
 
 ---
 
@@ -159,30 +160,42 @@ suspend fun getTrack(trackId: Long): Result<ApiResponse> =
 - Files are named `<Subject>Extensions.kt` when they hold several functions (`ApiResponseExtensions.kt`) and `<Subject>Extension.kt` when they hold one (`RemoteCallExtension.kt`, `RemoteErrorExtension.kt`).
 - `internal` unless another module needs it. `tracks()` and `album()` are public because every feature's repository uses them; `remoteCall` and `toRemoteError` are internal.
 
-### Streams, repositories, mappers and Room
+**Visibility.** The datasource classes are public and their constructors are `internal`: `ItunesApi` and the other types only the datasources use never leave the module.
 
-- `runCatching` lives in suspend datasources only (inside `remoteCall` for the remote ones), and rethrows `CancellationException`.
-- Stream datasources cannot use `runCatching`, because it does not see errors thrown during later emissions. They use `.catch`, which is the Flow form of the same rule, and the cancellation guard is mandatory:
+### Local layer (`:core:database`)
 
-```kotlin
-fun observeExercises(lessonId: String): Flow<Result<List<DbExercise>>> =
-    dao.observeByLesson(lessonId)
-        .map { Result.success(it) }
-        .catch { if (it is CancellationException) throw it else emit(Result.failure(it)) }
+```text
+core/database
+├── AppDatabase.kt   the single Room database (internal)
+├── entity/          Db* entities
+├── dao/             DAOs (internal)
+├── datasource/      concrete local datasources, one per context (TrackLocalDataSource, SavedSearchLocalDataSource, RecentlyPlayedTrackLocalDataSource)
+├── extension/       localCall, asResult
+└── di/              Hilt module
 ```
 
-  A Flow never throws to its collector: every failure is an emitted `Result.failure`.
+**Room 3** (`androidx.room3`): coroutine-first, driver-based (`AndroidSQLiteDriver`) and KSP-only. DAO functions are `suspend` or return a `Flow`. `schemaDirectory` exports the schema to `core/database/schemas/` on every build; that folder is git-ignored. When the database gets a released version, keep that version's schema file (un-ignore it), because a migration is validated against it. There is no destructive-migration fallback; a schema change needs a version bump and a migration.
+
+**Tables.** `track` (every track stored locally, one copy each), `saved_search` (one row per saved search: its text and `fetchedAtMillis`, so the repository can judge freshness), `saved_search_track` (one track of a saved search, at a `position`) and `recently_played_track` (one row per played track, `playedAtMillis`). Foreign keys cascade on delete.
+
+**Entities.** `DbTrack` and `DbSavedSearch` are public because the datasources return and accept them; `DbSavedSearchTrack` and `DbRecentlyPlayedTrack` are storage details and stay `internal`. The saved search's text is its key exactly as typed; normalising it is the repository's job.
+
+**DAOs** are `internal`, one per concept (`TrackDao`, `SavedSearchDao`, `RecentlyPlayedTrackDao`). Their verbs say what the write does, because the kinds behave differently: `get...`, `upsert...` (insert or update in place), `insert...` (a plain insert, an error if the row exists), `delete...` and `observe...`. A name says what a method really does: `deleteSavedSearch` deletes the saved search and, through the foreign key, all its saved tracks. Paging is a SQL `LIMIT` and `OFFSET` read, so a page is one query. Writes that must not replace a row use `@Upsert`: a replace deletes the row first and the cascade would delete the rows that point to it. The datasources keep `save...` (a datasource call is one logical save, which may be several writes).
+
+**Datasources** follow the rules in the remote layer (concrete, no interface, no dispatcher switch) and:
+- Methods: `getTrack`, `saveTrack` | `getSavedSearch`, `getSavedSearchTracksPage(searchText, limit, offset)`, `saveSearch(savedSearch, tracks)` | `observeRecentlyPlayedTracks(limit)`, `saveRecentlyPlayedTrack(track, playedAtMillis)`.
+- The class is public and its constructor is `internal`, so Room types (`AppDatabase`, the DAOs) never leave the module.
+- A write that touches several tables runs in one `database.withWriteTransaction { ... }`, so it is all or nothing.
+- Timestamps are passed in by the caller (the repository owns the clock), so a datasource is deterministic.
+- A Flow is built lazily, inside `flow { emitAll(dao.observe...) }`, because Room checks that the database is open when the DAO builds its Flow; built eagerly, that failure would be thrown to the caller instead of emitted.
+- `localCall { ... }` wraps a suspend call and `asResult()` wraps a Flow, so every failure is a `Result.failure` (and cancellation is rethrown).
+
+### Streams, repositories and mappers
+
+- `runCatching` lives in suspend datasources only (inside `remoteCall` or `localCall`), and rethrows `CancellationException`.
+- A stream datasource cannot use `runCatching`, because it does not see errors thrown during later emissions. It uses `.catch`, wrapped once in `asResult()`: a Flow never throws to its collector, every failure is an emitted `Result.failure`.
 - Repositories depend on datasources, never on the API interface or a DAO. They map with `.map { it.toDomain() }` for suspend, and `.map { result -> result.map { it.toDomain() } }` for Flow. They never use `runCatching` or `mapCatching`.
-- Mappers are pure extension functions: `fun ApiExercise.toDomain()` / `fun DbExercise.toDomain(): ExerciseDomainModel` (called from repositories) and `fun ExerciseDomainModel.toUiModel(): UiExercise` (called from ViewModels, never from composables). A domain model never carries an `Api*` or `Db*` field.
-- Room entities and DAOs live in `:core:database` (`core/database/{entity,dao}`), because a single `AppDatabase` must know every entity. A DAO may return `Flow<List<Db*>>` directly, because only datasources touch it. DAO one-shot reads and writes are `suspend` (Room runs them off the main thread itself), and the local datasource wraps them like an API call:
-
-```kotlin
-suspend fun saveExercise(exercise: DbExercise): Result<Unit> =
-    runCatching { dao.upsert(exercise) }
-        .onFailure { if (it is CancellationException) throw it }
-```
-
-  Writes return `Result<Unit>`; the repository maps the domain model to `Db*` on the way in (`ExerciseDomainModel.toDb()`) and `Db*` to domain on the way out.
+- Mappers are pure extension functions: `fun ApiTrack.toDb()` / `fun DbTrack.toDomain(): TrackDomainModel` (called from repositories) and `fun TrackDomainModel.toUiModel(): UiTrack` (called from ViewModels, never from composables). A domain model never carries an `Api*` or `Db*` field.
 - Failures reach the UI as `Result.failure` and become the `error` field of `UiState`.
 
 ### Error handling by layer
@@ -272,13 +285,17 @@ Robert C. Martin's *Clean Code* applies to every file, Kotlin idioms included. W
 
 **Libraries.** JUnit 4, MockK, `kotlinx-coroutines-test` and Turbine come from the `moisesai.android.library` convention plugin, so every Android module has them. MockWebServer (`mockwebserver3`) is added in `:core:network` only. `:core:shared-domain-model` (JVM) has JUnit only. Instrumented tests are enabled only in a module that has `src/androidTest`.
 
-**Where tests live.** In the module that owns the code: remote datasources with MockWebServer in `:core:network`, in-memory Room in `:core:database`, use cases, repositories and ViewModels in their feature module. ViewModels, use cases and repositories are always tested.
+**Where tests live.** In the module that owns the code: remote datasources with MockWebServer in `:core:network`, local datasources on an in-memory Room database in `:core:database`, use cases, repositories and ViewModels in their feature module.
+
+**Room tests are instrumented tests** (`src/androidTest`), because Room runs on the device's real SQLite; they use an in-memory database, so nothing is written to disk and each test starts empty. A multi-write method also gets a test where the second write fails and the first must be rolled back.
+
+**Instrumented test names use underscores.** DEX before version 40 forbids spaces in method names and `minSdk` is 24, so an instrumented test keeps the uppercase keywords and joins the words with underscores: `GIVEN_a_saved_track_WHEN_getting_it_THEN_every_field_is_returned`. JVM unit tests keep the sentence form. ViewModels, use cases and repositories are always tested.
 
 **Fixtures come from the real API.** Capture them with read-only calls, store them in `src/test/resources/fixtures/`, and trim them only by removing items from a list. Never invent a response that the API could send. Synthetic JSON is for cases the API will not produce (a malformed body, a missing required field), written inline in the test.
 
 **What a remote datasource test covers:** the request that is sent (path and query), the mapping of a real response, an empty result, and each error mapping (HTTP status, dropped connection, malformed body, missing required field). Pure helpers such as `remoteCall` get their own tests with no network.
 
-**How tests are written: Given / When / Then.** Every unit test body has three parts, each marked with a comment: `// Given` (the setup: inputs, fakes, the response the server will give), `// When` (the one action under test, a single call) and `// Then` (the assertions). One `When` per test is what makes it one concept. The name states the same three parts as one sentence in backticks: `` `GIVEN <state>, WHEN <action>, THEN <outcome>` ``, with the three keywords in uppercase and the rest in lowercase, for example `` `GIVEN an unknown track id, WHEN getting the track, THEN the response is successful and has no results` ``. No logic in tests: no loops or conditionals around assertions.
+**How tests are written: Given / When / Then.** Every unit test body has three parts, each marked with a comment: `// Given` (the setup: inputs, fakes, the response the server will give), `// When` (the one action under test, a single call) and `// Then` (the assertions). One `When` per test is what makes it one concept. `Given` may use the class's other methods to reach the state; only the `When` action is under test. The name states the same three parts as one sentence in backticks: `` `GIVEN <state>, WHEN <action>, THEN <outcome>` ``, with the three keywords in uppercase and the rest in lowercase, for example `` `GIVEN an unknown track id, WHEN getting the track, THEN the response is successful and has no results` ``. No logic in tests: no loops or conditionals around assertions.
 
 **What to test, and where.** Test through the public entry points. A class with its own logic gets a test class in a package that mirrors the production package (`datasource`, `extension`); a class that is only configuration or a data holder (an annotated service interface, a DTO, the `Json` setup, Hilt wiring) has no test class of its own and is covered through the entry points that use it, with real fixtures. Test helpers live in a `support` package and exist only when two or more test classes use them; a helper with one user is private in that class.
 
@@ -317,5 +334,5 @@ Code added only to check something by hand (a probe, a debug screen, a manual re
 
 - It lives in **one file** named `Temporary<Something>.kt`, with a KDoc that starts with `TEMPORARY` and says exactly what to delete: the file, its use, and any dependency or manifest line added for it.
 - Its use in production files is as small as possible (one call), so removing it is deleting a file and a line.
-- It is listed when you hand work over, and it is removed in the step that makes it unnecessary. Today: `TemporaryNetworkCheck.kt` in `:app`, removed with the first real screen.
+- It is listed when you hand work over, and it is removed in the step that makes it unnecessary. Today: `TemporaryDataCheck.kt` in `:app` (with the `:core:network` and `:core:database` dependencies), removed with the first real screen.
 - It is exempt from the `R.string.*` and `@FullPreview` rules while it exists, and from nothing else.

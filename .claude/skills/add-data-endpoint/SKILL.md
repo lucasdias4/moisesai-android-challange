@@ -5,7 +5,7 @@ description: Take a remote endpoint or a Room source through the data layers (pr
 
 The procedure for taking an endpoint to the UI. **The rules are in `ARCHITECTURE.md`** (§3 vocabulary, §6 data layer, §8 Clean Code, §9 testing and verification, §10 the iTunes facts); this skill says in what order to do things and links to them instead of repeating them.
 
-Ownership by module: DTOs, the Retrofit service, extensions and remote datasources in `:core:network`; `Db*` entities and DAOs in `:core:database`; mapper, repository and use case in the consuming feature (`feature.<name>.data` and `.domain`); models used by several features in `:core:shared-domain-model`.
+Ownership by module: DTOs, the Retrofit service, extensions and remote datasources in `:core:network`; `Db*` entities, DAOs and local datasources in `:core:database` (`ARCHITECTURE.md` §6, Local layer); mapper, repository and use case in the consuming feature (`feature.<name>.data` and `.domain`); models used by several features in `:core:shared-domain-model`.
 
 ## When to use
 
@@ -83,8 +83,8 @@ suspend fun getTrack(trackId: Long): Result<ApiResponse> =
 ```
 
 - Method names are an action plus what the caller wants (§3, §8). No filtering, no dispatcher switch.
-- Flow source (Room): `.map { Result.success(it) }.catch { if (it is CancellationException) throw it else emit(Result.failure(it)) }`.
-- Room one-shot: `runCatching { dao.upsert(entity) }` returning `Result<Unit>`, rethrowing cancellation. Entities and DAOs live in `:core:database`, registered in the single `AppDatabase`.
+- Local datasource (`:core:database/datasource`): a concrete public class with an `internal` constructor over the DAOs. Suspend calls go through `localCall { ... }`; a stream is `flow { emitAll(dao.observeX()) }.asResult()` (built lazily, because Room checks the open database when the DAO builds its Flow). A write that touches several tables is one `database.withWriteTransaction { ... }`. The caller passes timestamps in.
+- Entities are `Db*` with the DTO's property names and snake_case table names; DAOs are `internal` and use `@Upsert`, not a replace, so a cascade never deletes related rows; register new entities in the single `AppDatabase` and bump `version` with a migration when the schema changes.
 
 ### 6. Extensions (`extension/`)
 

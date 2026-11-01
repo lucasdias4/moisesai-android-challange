@@ -70,17 +70,21 @@ The name and the markers must agree: what the name calls `GIVEN` is what `// Giv
 
 1. **Test through the public entry points.** A class with its own logic gets a test class; the test package mirrors the production package (`datasource`, `extension`).
 2. **No test class for configuration or data holders:** an annotated Retrofit interface, a DTO, the `Json` configuration, Hilt wiring. They are covered through the datasource tests with real fixtures: if a JSON key, a query parameter or a Json option is wrong, those tests fail.
-3. **Fake the layer below, not the class under test.** A remote datasource: the real Retrofit, OkHttp and JSON stack against `MockWebServer`. A repository: the datasource mocked with MockK (final Kotlin classes can be mocked). A use case: the repository mocked. A ViewModel: the use cases mocked, the `StateFlow` asserted. A Room datasource: an in-memory database.
+3. **Fake the layer below, not the class under test.** A remote datasource: the real Retrofit, OkHttp and JSON stack against `MockWebServer`. A repository: the datasource mocked with MockK (final Kotlin classes can be mocked). A use case: the repository mocked. A ViewModel: the use cases mocked, the `StateFlow` asserted. A Room datasource: an in-memory database on the device (an instrumented test, see below).
 4. **Pure helpers get their own tests with plain objects** and no network (`remoteCall`, `toRemoteError`, `ApiResponse.tracks()`).
 5. **Fixtures are real captures** under `src/test/resources/fixtures/`, trimmed only by removing list items. Synthetic JSON is only for cases the real API will not produce (a malformed body, a missing required field).
 6. **Shared helpers live in a `support` package** and exist only when two or more test classes use them. A helper with one user is private in that test class.
 7. **Delete a test that adds no value:** one that restates a constant, or that still passes when the code under test is broken.
 
+## Instrumented tests (Room)
+
+Room tests live in `src/androidTest` and run on the device's real SQLite with an in-memory database. DEX before version 40 forbids spaces in method names and `minSdk` is 24, so the name keeps the uppercase keywords and **uses underscores instead of spaces**: `GIVEN_a_saved_track_WHEN_getting_it_THEN_every_field_is_returned`. The body is the same three-part form. `Given` may use the class's other methods (and the DAOs) to reach the state; only the `When` action is under test. Cover, for a local datasource: each read, the paging (first page, next page, past the end), the ordering, an update through an upsert, that related rows survive an upsert, that a multi-write method rolls back when its second write fails (a DAO that throws, via `object : SomeDao by realDao`), and that a closed database gives a failure, not an exception.
+
 ## Coroutines and flows
 
 - `runTest` for suspend code with mocks; `runBlocking` when real threads are needed (`MockWebServer`).
 - A `@Test` function must return `Unit`. With `= runTest { ... }` or `= runBlocking { ... }` make sure the last expression is `Unit` (assertions are); otherwise use a block body.
-- Flows use Turbine (`flow.test { ... }`); assert each emission and that a failure is an emitted `Result.failure`, never a thrown exception.
+- Flows use Turbine (`flow.test { ... }`); assert each emission and that a failure is an emitted `Result.failure`, never a thrown exception. To keep collecting while the `When` action runs, use `flow.testIn(backgroundScope)` inside `turbineScope { ... }`.
 
 ## Checklist before reporting
 
