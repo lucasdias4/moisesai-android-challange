@@ -4,8 +4,8 @@
 
 ## 1. Current state
 
-- **Modules:** `:app`, `:core:common`, `:core:design`, `:core:network` and `:core:database` have code. Empty so far: `:core:shared-domain-model` (JVM-only), `:core:player` and the three `:feature:*`. Package `com.moisesai.challange`.
-- **Done:** `build-logic` convention plugins, Hilt in `:app`, test tooling, the theme and `@FullPreview` in `:core:design`, `AppError` and `DispatcherProvider` in `:core:common` (the provider is for repositories and has no user yet), the remote layer in `:core:network` and the local layer in `:core:database` (section 6).
+- **Modules:** `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:network` and `:core:database` have code. Empty so far: `:core:shared-domain-model` (JVM-only), `:core:player` and the three `:feature:*`. Package `com.moisesai.challange`.
+- **Done:** `build-logic` convention plugins, Hilt in `:app`, test tooling, the theme and `@FullPreview` in `:core:design`, `AppError` and `DispatcherProvider` in `:core:common` (the provider is for repositories and has no user yet), the datasource error helpers in `:core:data-common`, the remote layer in `:core:network` and the local layer in `:core:database` (section 6).
 - **Not present yet:** repositories, use cases, ViewModels, navigation and the real screens. `MainActivity` shows a `TemporaryDataCheck` (section 11).
 - **Versions and SDKs:** `gradle/libs.versions.toml` and `app/build.gradle.kts`. JDK per `gradle/gradle-daemon-jvm.properties`.
 
@@ -31,7 +31,8 @@ Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API
 :feature:songdetails       song details screen (player): play/pause, seek slider, timeline, skip (uses :core:player)
 :feature:album             album header and track list
 :core:design               theme, @FullPreview, shared components
-:core:common               AppError, dispatchers, small extensions
+:core:common               AppError, DispatcherProvider: what every layer may use
+:core:data-common          safeCall, asSafeResult, toAppError: error handling for datasources only
 :core:shared-domain-model  pure Kotlin shared domain models only (TrackDomainModel, AlbumDomainModel): no logic, no Android
 :core:network              OkHttp/Retrofit setup, ItunesApi, Api* DTOs, remote datasources (track, album)
 :core:database             Room 3 AppDatabase, Db* entities, DAOs, local datasources (track, search, recent track)
@@ -47,11 +48,12 @@ com.moisesai.challange.feature.<name>
 └── data/           datasource/  repository/  mapper/
 ```
 
-Core packages: `com.moisesai.challange.core.{design,common,shareddomainmodel,network,database}`.
+Core packages: `com.moisesai.challange.core.{design,common,datacommon,shareddomainmodel,network,database}`.
 
 ### Dependency rules
 
 - `feature:*` depends on `core:*`. Features never depend on or import each other. `:app` connects them with type-safe routes and lambdas (ids only: Player receives a track id, Album an album id).
+- `:core:data-common` is only for `:core:network` and `:core:database`. Features never depend on it, so a repository or a use case cannot call `safeCall` (Gradle enforces this, unlike the layer rules). `:core:common` holds what every layer may see (`AppError`, `DispatcherProvider`).
 - `core:*` never depends on a feature. `core:shared-domain-model` depends on nothing. `:core:player` knows nothing about tracks or iTunes: it plays a URL.
 - Inside a feature: `presentation -> domain <- data`. Presentation never imports data.
 - State shared by several features goes through `core:*` (a shared model, or a Room table behind a DAO); each feature keeps its own repository interface and use cases over it. Songs reads recents and Player writes them through the same DAO, not through each other.
@@ -124,7 +126,7 @@ One word for one thing, in every layer:
 core/network
 ├── api/         ItunesApi (the Retrofit service), ItunesApiFactory, ItunesJson
 ├── model/       Api* DTOs, one file per class
-├── extension/   extension functions: ApiResponseExtensions, RemoteCallExtension, RemoteErrorExtension
+├── extension/   extension functions: ApiResponseExtensions, SafeRemoteCallExtension, RemoteErrorExtension
 ├── datasource/  concrete remote datasources, one per context (TrackRemoteDataSource, AlbumRemoteDataSource)
 └── di/          Hilt modules
 ```
@@ -145,11 +147,11 @@ core/network
 - **Concrete classes with no interface**, injected by constructor, split by context. The Retrofit service and the DAO are already the abstractions they wrap, and the boundary that keeps the API replaceable is the repository interface in the feature's `domain`. Replacing the API means rewriting the datasources, the `Api*` models and the repository mappers; the domain, the ViewModels and the UI stay untouched. Tests fake the layer below (MockWebServer, an in-memory Room) or mock the concrete class with MockK.
 - A datasource wraps one source for one context and returns the **raw** response in `Result<T>` (`Flow<Result<T>>` for streams): `Result<ApiResponse>` for a remote call. It does no filtering, `firstOrNull()` or reshaping, and invents no aggregate type. The repository's mapper reads the response with the shared public extensions `ApiResponse.tracks()` and `album()`.
 - **Datasources do not switch dispatchers.** Retrofit suspend functions and Room suspend and `Flow` queries are main-safe. The repository injects a `DispatcherProvider` and switches (`withContext(dispatchers.io)`) only when it does blocking or CPU-heavy work, such as mapping a large list.
-- The shared error handling is one helper, `remoteCall { ... }`, not repeated in each method:
+- The shared error handling is one helper, `safeRemoteCall { ... }`, not repeated in each method. It is `safeCall` from `:core:data-common` plus the HTTP rule (`toRemoteError`):
 
 ```kotlin
 suspend fun getTrack(trackId: Long): Result<ApiResponse> =
-    remoteCall { api.lookupTrack(trackId) }
+    safeRemoteCall { api.lookupTrack(trackId) }
 ```
 
 **Errors**
@@ -157,8 +159,9 @@ suspend fun getTrack(trackId: Long): Result<ApiResponse> =
 - **An empty result is a success with an empty list**, not an error. iTunes answers an empty search and an unknown id with HTTP 200 and no results, so there is no "empty" error.
 
 **Extensions (`extension/`)**
-- Files are named `<Subject>Extensions.kt` when they hold several functions (`ApiResponseExtensions.kt`) and `<Subject>Extension.kt` when they hold one (`RemoteCallExtension.kt`, `RemoteErrorExtension.kt`).
-- `internal` unless another module needs it. `tracks()` and `album()` are public because every feature's repository uses them; `remoteCall` and `toRemoteError` are internal.
+- Files are named `<Subject>Extensions.kt` when they hold several functions (`ApiResponseExtensions.kt`) and `<Subject>Extension.kt` when they hold one (`SafeRemoteCallExtension.kt`, `RemoteErrorExtension.kt`).
+- `internal` unless another module needs it. `tracks()` and `album()` are public because every feature's repository uses them; `safeRemoteCall` and `toRemoteError` are internal.
+- The mapping `Throwable -> AppError` (`toAppError`) and the cancellation rule live once, in `:core:data-common`.
 
 **Visibility.** The datasource classes are public and their constructors are `internal`: `ItunesApi` and the other types only the datasources use never leave the module.
 
@@ -170,7 +173,6 @@ core/database
 ├── entity/          Db* entities
 ├── dao/             DAOs (internal)
 ├── datasource/      concrete local datasources, one per context (TrackLocalDataSource, SavedSearchLocalDataSource, RecentlyPlayedTrackLocalDataSource)
-├── extension/       localCall, asResult
 └── di/              Hilt module
 ```
 
@@ -188,12 +190,12 @@ core/database
 - A write that touches several tables runs in one `database.withWriteTransaction { ... }`, so it is all or nothing.
 - Timestamps are passed in by the caller (the repository owns the clock), so a datasource is deterministic.
 - A Flow is built lazily, inside `flow { emitAll(dao.observe...) }`, because Room checks that the database is open when the DAO builds its Flow; built eagerly, that failure would be thrown to the caller instead of emitted.
-- `localCall { ... }` wraps a suspend call and `asResult()` wraps a Flow, so every failure is a `Result.failure` (and cancellation is rethrown).
+- `safeCall { ... }` (from `:core:data-common`) wraps a suspend call and `asSafeResult()` wraps a Flow, so every failure is a `Result.failure` (and cancellation is rethrown).
 
 ### Streams, repositories and mappers
 
-- `runCatching` lives in suspend datasources only (inside `remoteCall` or `localCall`), and rethrows `CancellationException`.
-- A stream datasource cannot use `runCatching`, because it does not see errors thrown during later emissions. It uses `.catch`, wrapped once in `asResult()`: a Flow never throws to its collector, every failure is an emitted `Result.failure`.
+- `runCatching` lives in suspend datasources only (inside `safeCall`), and rethrows `CancellationException`.
+- A stream datasource cannot use `runCatching`, because it does not see errors thrown during later emissions. It uses `.catch`, wrapped once in `asSafeResult()`: a Flow never throws to its collector, every failure is an emitted `Result.failure`.
 - Repositories depend on datasources, never on the API interface or a DAO. They map with `.map { it.toDomain() }` for suspend, and `.map { result -> result.map { it.toDomain() } }` for Flow. They never use `runCatching` or `mapCatching`.
 - Mappers are pure extension functions: `fun ApiTrack.toDb()` / `fun DbTrack.toDomain(): TrackDomainModel` (called from repositories) and `fun TrackDomainModel.toUiModel(): UiTrack` (called from ViewModels, never from composables). A domain model never carries an `Api*` or `Db*` field.
 - Failures reach the UI as `Result.failure` and become the `error` field of `UiState`.
@@ -293,7 +295,7 @@ Robert C. Martin's *Clean Code* applies to every file, Kotlin idioms included. W
 
 **Fixtures come from the real API.** Capture them with read-only calls, store them in `src/test/resources/fixtures/`, and trim them only by removing items from a list. Never invent a response that the API could send. Synthetic JSON is for cases the API will not produce (a malformed body, a missing required field), written inline in the test.
 
-**What a remote datasource test covers:** the request that is sent (path and query), the mapping of a real response, an empty result, and each error mapping (HTTP status, dropped connection, malformed body, missing required field). Pure helpers such as `remoteCall` get their own tests with no network.
+**What a remote datasource test covers:** the request that is sent (path and query), the mapping of a real response, an empty result, and each error mapping (HTTP status, dropped connection, malformed body, missing required field). Pure helpers get their own tests with no network: `safeRemoteCall` in `:core:network`, and `safeCall`, `asSafeResult` and `toAppError` in `:core:data-common`.
 
 **How tests are written: Given / When / Then.** Every unit test body has three parts, each marked with a comment: `// Given` (the setup: inputs, fakes, the response the server will give), `// When` (the one action under test, a single call) and `// Then` (the assertions). One `When` per test is what makes it one concept. `Given` may use the class's other methods to reach the state; only the `When` action is under test. The name states the same three parts as one sentence in backticks: `` `GIVEN <state>, WHEN <action>, THEN <outcome>` ``, with the three keywords in uppercase and the rest in lowercase, for example `` `GIVEN an unknown track id, WHEN getting the track, THEN the response is successful and has no results` ``. No logic in tests: no loops or conditionals around assertions.
 

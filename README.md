@@ -34,7 +34,7 @@ An Android app that searches songs through the Apple iTunes Search API, plays th
 **Foundation (done)**
 
 - [x] Version catalog and `build-logic` convention plugins
-- [x] `:core:common`, `:core:design` (theme, `@FullPreview`), and empty core, library and feature modules
+- [x] `:core:common`, `:core:data-common`, `:core:design` (theme, `@FullPreview`), and empty core, library and feature modules
 - [x] Hilt in `:app`
 - [x] Test tooling wired into every module
 - [x] Architecture documentation and contributor conventions
@@ -100,6 +100,7 @@ graph TD
     subgraph core["Core"]
         design[":core:design"]
         common[":core:common"]
+        datacommon[":core:data-common"]
         shared[":core:shared-domain-model"]
         network[":core:network"]
         database[":core:database"]
@@ -107,6 +108,7 @@ graph TD
     end
 
     app --> songs & songdetails & album & design
+    network & database --> datacommon
     songs --> network & database
     songdetails --> network & database & player
     album --> network
@@ -122,7 +124,8 @@ Solid arrows are the explicit module dependencies. Dotted arrows are the shared 
 | `:feature:songdetails` | Song details screen with the player: play/pause, seek, timeline, skip |
 | `:feature:album` | Album header and track list |
 | `:core:design` | Theme, `@FullPreview`, shared UI components |
-| `:core:common` | `AppError`, dispatcher provider, small extensions |
+| `:core:common` | `AppError` and the dispatcher provider: what every layer may use |
+| `:core:data-common` | `safeCall`, `asSafeResult`, `toAppError`: error handling for datasources. Only `:core:network` and `:core:database` depend on it |
 | `:core:shared-domain-model` | Pure Kotlin shared domain models (`*DomainModel`). A JVM module, so Android imports do not compile there |
 | `:core:network` | HTTP client setup, the API service and DTOs, the remote data source behind an interface |
 | `:core:database` | The Room 3 database, entities, DAOs and local datasources |
@@ -187,6 +190,11 @@ Each entry says what was chosen, why, and what it costs. New entries are added i
 
 - **Why:** a feature can be read, tested and changed on its own, and the dependency rules are visible in the build files.
 - **Trade-off:** several small modules mean more build files. Layers inside a feature are packages, so Gradle does not enforce the layer rules. An architecture test is planned for that.
+
+### Error handling for datasources in its own module
+
+- **Why:** the remote and local datasources wrapped calls in the same way. One module holds `safeCall`, `asSafeResult` and `toAppError`, and only the data modules depend on it, so Gradle stops a repository or a feature from catching errors itself.
+- **Trade-off:** one more small module. `AppError` and `DispatcherProvider` stay in `:core:common` because every layer uses them.
 
 ### A thin `core`
 

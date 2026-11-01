@@ -79,16 +79,16 @@ A concrete class per context, no interface, returning the raw response (`ARCHITE
 
 ```kotlin
 suspend fun getTrack(trackId: Long): Result<ApiResponse> =
-    remoteCall { api.lookupTrack(trackId) }
+    safeRemoteCall { api.lookupTrack(trackId) }
 ```
 
 - Method names are an action plus what the caller wants (§3, §8). No filtering, no dispatcher switch.
-- Local datasource (`:core:database/datasource`): a concrete public class with an `internal` constructor over the DAOs. Suspend calls go through `localCall { ... }`; a stream is `flow { emitAll(dao.observeX()) }.asResult()` (built lazily, because Room checks the open database when the DAO builds its Flow). A write that touches several tables is one `database.withWriteTransaction { ... }`. The caller passes timestamps in.
+- Local datasource (`:core:database/datasource`): a concrete public class with an `internal` constructor over the DAOs. Suspend calls go through `safeCall { ... }` (from `:core:data-common`); a stream is `flow { emitAll(dao.observeX()) }.asSafeResult()` (built lazily, because Room checks the open database when the DAO builds its Flow). A write that touches several tables is one `database.withWriteTransaction { ... }`. The caller passes timestamps in.
 - Entities are `Db*` with the DTO's property names and snake_case table names; DAOs are `internal` and use `@Upsert`, not a replace, so a cascade never deletes related rows; register new entities in the single `AppDatabase` and bump `version` with a migration when the schema changes.
 
 ### 6. Extensions (`extension/`)
 
-Helpers that read a response (`ApiResponse.tracks()`, `album()`) are public because every feature's repository uses them; plumbing (`remoteCall`, `toRemoteError`) is `internal`. File names follow §6.
+Helpers that read a response (`ApiResponse.tracks()`, `album()`) are public because every feature's repository uses them; plumbing (`safeRemoteCall`, `toRemoteError`) is `internal`. The shared error rules (`safeCall`, `asSafeResult`, `toAppError`) come from `:core:data-common`, which only `:core:network` and `:core:database` use. File names follow §6.
 
 ### 7. Mapper and repository (feature `data/`)
 

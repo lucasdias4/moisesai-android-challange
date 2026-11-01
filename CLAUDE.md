@@ -4,7 +4,7 @@ Android app (Jetpack Compose), package `com.moisesai.challange`, theme `Moisesai
 This is the short list. The full rules are in `ARCHITECTURE.md` (section numbers below); if they disagree, `ARCHITECTURE.md` wins.
 
 ## Current state
-Code in `:app`, `:core:common`, `:core:design`, `:core:network`, `:core:database`. Empty so far: `:core:shared-domain-model`, `:core:player` and the three `:feature:*`. `MainActivity` shows a `TemporaryDataCheck` (delete it with the first real screen). Local and git-ignored: `PLAN.md`, `misc-notes.md`, `core/network/itunes-api-samples.md`.
+Code in `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:network`, `:core:database`. Empty so far: `:core:shared-domain-model`, `:core:player` and the three `:feature:*`. `MainActivity` shows a `TemporaryDataCheck` (delete it with the first real screen). Local and git-ignored: `PLAN.md`, `misc-notes.md`, `core/network/itunes-api-samples.md`.
 
 ## Layering and modules (§2)
 `Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API`
@@ -13,6 +13,7 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 ## Hard rules
 - Features never import each other; shared types live in `core:*`; `core:*` never depends on a feature. Presentation never imports data; `domain` has no Android imports; a ViewModel calls use cases only. (§2)
 - `suspend` by default, `Flow` only for streams. Errors are caught in datasources, travel as `Result<T>`, cancellation is rethrown, and an empty result is a success. (§2, §6)
+- `:core:data-common` (`safeCall`, `asSafeResult`, `toAppError`) is for `:core:network` and `:core:database` only; features never depend on it. (§2)
 - Datasources: concrete (no interface), split by context, return the raw response, no dispatcher switch. The repository maps and owns the injected `DispatcherProvider`. (§6)
 - DTOs: one file per class, `@Serializable` and `@SerialName`, no default values, nullable only when real data shows it. Fixed query parameters go in `@GET`. (§6)
 - Room 3, `Db*`, DAOs and the local datasources live in `:core:database`. Types only a datasource uses are `internal`, and so is its constructor. A multi-table write is one transaction, and rows are saved with `@Upsert`, not a replace. (§6)

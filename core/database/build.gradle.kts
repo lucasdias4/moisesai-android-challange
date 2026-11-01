@@ -18,6 +18,7 @@ room3 {
 dependencies {
     // api: the local datasources return Result<..AppError..>, so consumers need the type.
     api(project(":core:common"))
+    implementation(project(":core:data-common"))
 
     implementation(libs.room3.runtime)
     implementation(libs.androidx.sqlite.framework)

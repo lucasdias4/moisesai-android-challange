@@ -1,7 +1,7 @@
 package com.moisesai.challange.core.network.datasource
 
 import com.moisesai.challange.core.network.api.ItunesApi
-import com.moisesai.challange.core.network.extension.remoteCall
+import com.moisesai.challange.core.network.extension.safeRemoteCall
 import com.moisesai.challange.core.network.model.ApiResponse
 import javax.inject.Inject
 
@@ -13,8 +13,8 @@ class TrackRemoteDataSource @Inject internal constructor(
      * on cached results, not on the request.
      */
     suspend fun searchTracksBySearchText(searchText: String, limit: Int): Result<ApiResponse> =
-        remoteCall { api.searchTracksBySearchText(searchText, limit) }
+        safeRemoteCall { api.searchTracksBySearchText(searchText, limit) }
 
     suspend fun getTrack(trackId: Long): Result<ApiResponse> =
-        remoteCall { api.lookupTrack(trackId) }
+        safeRemoteCall { api.lookupTrack(trackId) }
 }

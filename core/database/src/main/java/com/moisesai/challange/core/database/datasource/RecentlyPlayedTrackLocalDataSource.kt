@@ -6,8 +6,8 @@ import com.moisesai.challange.core.database.dao.RecentlyPlayedTrackDao
 import com.moisesai.challange.core.database.dao.TrackDao
 import com.moisesai.challange.core.database.entity.DbRecentlyPlayedTrack
 import com.moisesai.challange.core.database.entity.DbTrack
-import com.moisesai.challange.core.database.extension.asResult
-import com.moisesai.challange.core.database.extension.localCall
+import com.moisesai.challange.core.datacommon.asSafeResult
+import com.moisesai.challange.core.datacommon.safeCall
 import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -23,10 +23,10 @@ class RecentlyPlayedTrackLocalDataSource @Inject internal constructor(
     // Building it inside `flow` keeps that failure in the stream, as a `Result.failure`.
     /** The newest played tracks, up to [limit]. Emits again whenever the played tracks change. */
     fun observeRecentlyPlayedTracks(limit: Int): Flow<Result<List<DbTrack>>> =
-        flow { emitAll(recentlyPlayedTrackDao.observeRecentlyPlayedTracks(limit)) }.asResult()
+        flow { emitAll(recentlyPlayedTrackDao.observeRecentlyPlayedTracks(limit)) }.asSafeResult()
 
     /** Saves the track too, so a played track can always be shown offline. */
-    suspend fun saveRecentlyPlayedTrack(track: DbTrack, playedAtMillis: Long): Result<Unit> = localCall {
+    suspend fun saveRecentlyPlayedTrack(track: DbTrack, playedAtMillis: Long): Result<Unit> = safeCall {
         database.withWriteTransaction {
             trackDao.upsertTrack(track)
             recentlyPlayedTrackDao.upsertRecentlyPlayedTrack(

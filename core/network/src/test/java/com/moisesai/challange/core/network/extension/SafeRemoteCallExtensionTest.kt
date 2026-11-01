@@ -12,7 +12,7 @@ import org.junit.Test
 import retrofit2.HttpException
 import retrofit2.Response
 
-class RemoteCallExtensionTest {
+class SafeRemoteCallExtensionTest {
 
     @Test
     fun `GIVEN a request that returns a value, WHEN making the remote call, THEN the result is a success with that value`() = runTest {
@@ -20,7 +20,7 @@ class RemoteCallExtensionTest {
         val request: suspend () -> Int = { 42 }
 
         // When
-        val result = remoteCall(request)
+        val result = safeRemoteCall(request)
 
         // Then
         assertEquals(42, result.getOrThrow())
@@ -32,7 +32,7 @@ class RemoteCallExtensionTest {
         val httpError = HttpException(Response.error<Any>(500, "".toResponseBody()))
 
         // When
-        val error = remoteCall { throw httpError }.exceptionOrNull()
+        val error = safeRemoteCall { throw httpError }.exceptionOrNull()
 
         // Then
         assertTrue(error is AppError.Network)
@@ -44,7 +44,7 @@ class RemoteCallExtensionTest {
         val cancelled: suspend () -> Unit = { throw CancellationException("cancelled") }
 
         // When
-        val call = { runBlocking { remoteCall(cancelled) } }
+        val call = { runBlocking { safeRemoteCall(cancelled) } }
 
         // Then
         assertThrows(CancellationException::class.java) { call() }

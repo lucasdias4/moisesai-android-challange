@@ -1,13 +1,12 @@
-package com.moisesai.challange.core.common
+package com.moisesai.challange.core.datacommon
 
+import com.moisesai.challange.core.common.AppError
 import java.io.IOException
-import kotlin.coroutines.cancellation.CancellationException
 import org.junit.Assert.assertSame
-import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class AppErrorMapperTest {
+class ThrowableExtensionTest {
 
     @Test
     fun `GIVEN an io exception, WHEN converting it to an app error, THEN it is a network error that keeps its cause`() {
@@ -23,7 +22,7 @@ class AppErrorMapperTest {
     }
 
     @Test
-    fun `GIVEN an unexpected exception, WHEN converting it to an app error, THEN it is an unknown error`() {
+    fun `GIVEN an unexpected exception, WHEN converting it to an app error, THEN it is an unknown error that keeps its cause`() {
         // Given
         val unexpected = IllegalStateException("boom")
 
@@ -32,6 +31,7 @@ class AppErrorMapperTest {
 
         // Then
         assertTrue(error is AppError.Unknown)
+        assertSame(unexpected, error.cause)
     }
 
     @Test
@@ -44,18 +44,5 @@ class AppErrorMapperTest {
 
         // Then
         assertSame(appError, converted)
-    }
-
-    @Test
-    fun `GIVEN a cancellation, WHEN converting it to an app error, THEN it is rethrown, not mapped`() {
-        // Given
-        val cancellation = CancellationException("cancelled")
-
-        // When
-        val call = { cancellation.toAppError() }
-
-        // Then
-        val thrown = assertThrows(CancellationException::class.java) { call() }
-        assertSame(cancellation, thrown)
     }
 }

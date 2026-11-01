@@ -1,4 +1,4 @@
-package com.moisesai.challange.core.database.extension
+package com.moisesai.challange.core.datacommon
 
 import app.cash.turbine.test
 import com.moisesai.challange.core.common.AppError
@@ -9,11 +9,12 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertSame
 import org.junit.Assert.assertThrows
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class FlowResultExtensionTest {
+class FlowExtensionTest {
 
     @Test
     fun `GIVEN a flow of values, WHEN converting it to results, THEN each value is a success and the flow completes`() = runTest {
@@ -21,7 +22,7 @@ class FlowResultExtensionTest {
         val values = flowOf(1, 2)
 
         // When
-        val results = values.asResult()
+        val results = values.asSafeResult()
 
         // Then
         results.test {
@@ -40,7 +41,7 @@ class FlowResultExtensionTest {
         }
 
         // When
-        val results = failing.asResult()
+        val results = failing.asSafeResult()
 
         // Then
         results.test {
@@ -51,12 +52,28 @@ class FlowResultExtensionTest {
     }
 
     @Test
-    fun `GIVEN a flow that is cancelled, WHEN converting it to results, THEN the cancellation is rethrown, not emitted`() {
+    fun `GIVEN a flow that fails and a custom mapper, WHEN converting it to results, THEN the custom mapper makes the failure`() = runTest {
+        // Given
+        val failing = flow<Int> { throw IllegalStateException("query failed") }
+        val customError = AppError.Network()
+
+        // When
+        val results = failing.asSafeResult(mapError = { customError })
+
+        // Then
+        results.test {
+            assertSame(customError, awaitItem().exceptionOrNull())
+            awaitComplete()
+        }
+    }
+
+    @Test
+    fun `GIVEN a flow that is cancelled and a custom mapper, WHEN converting it to results, THEN the cancellation is rethrown and never emitted`() {
         // Given
         val cancelled = flow<Int> { throw CancellationException("cancelled") }
 
         // When
-        val collect = { runBlocking { cancelled.asResult().toList() } }
+        val collect = { runBlocking { cancelled.asSafeResult(mapError = { AppError.Unknown(it) }).toList() } }
 
         // Then
         assertThrows(CancellationException::class.java) { collect() }

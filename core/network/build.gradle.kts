@@ -12,6 +12,7 @@ android {
 dependencies {
     // api: the remote datasource returns Result<..AppError..>, so consumers need the type.
     api(project(":core:common"))
+    implementation(project(":core:data-common"))
 
     implementation(libs.okhttp)
     implementation(libs.retrofit)

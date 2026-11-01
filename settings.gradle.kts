@@ -26,6 +26,7 @@ dependencyResolutionManagement {
 rootProject.name = "Moisesai Challange"
 include(":app")
 include(":core:common")
+include(":core:data-common")
 include(":core:design")
 include(":core:shared-domain-model")
 include(":core:network")
