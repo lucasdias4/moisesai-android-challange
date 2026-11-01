@@ -75,9 +75,10 @@ Surface(color = MaterialTheme.colorScheme.surface) {
 ```
 
 - Typography: `MaterialTheme.typography`
+- A component whose job is an animation ends in `Animation` (name and file), e.g. `EqualizerBarsAnimation`
 - Shapes: `MaterialTheme.shapes`, never hardcoded corner radii
 - If the palette needs a new colour, add it in `core/design/theme/Color.kt` and `Theme.kt`, not as a literal at the call site
-- Dark mode and dynamic colour come from `MoisesaiChallangeTheme`; read `isSystemInDarkTheme()` only inside the theme
+- The Aurora Neon palette and typeface come from `MoisesaiChallangeTheme` (dark only, no dynamic colour); never read `isSystemInDarkTheme()` in a component
 
 ### 5. Previews
 

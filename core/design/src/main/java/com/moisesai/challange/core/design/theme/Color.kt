@@ -2,10 +2,14 @@ package com.moisesai.challange.core.design.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// Aurora Neon palette. Only Theme.kt maps these to MaterialTheme roles.
+val AuroraLime = Color(0xFFC8FF3D)
+val AuroraMagenta = Color(0xFFFF2E93)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val AuroraNight = Color(0xFF08080B)
+val AuroraSmoke = Color(0xFF121218)
+val AuroraCharcoal = Color(0xFF1D1D26)
+val AuroraOutline = Color(0xFF3A3A48)
+
+val AuroraMist = Color(0xFFF5F5F7)
+val AuroraAsh = Color(0xFF9C9CAC)

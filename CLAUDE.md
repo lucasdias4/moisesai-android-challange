@@ -4,7 +4,7 @@ Android app (Jetpack Compose), package `com.moisesai.challange`, theme `Moisesai
 This is the short list. The full rules are in `ARCHITECTURE.md` (section numbers below); if they disagree, `ARCHITECTURE.md` wins.
 
 ## Current state
-Code in `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:network`, `:core:database`, `:core:shared-domain-model` (`TrackDomainModel`), and `AlbumDomainModel` in `:feature:album`. Empty so far: `:core:player`, `:feature:songs` and `:feature:songdetails`. `MainActivity` shows a `TemporaryDataCheck` (delete it with the first real screen). Local and git-ignored: `PLAN.md`, `misc-notes.md`, `core/network/itunes-api-samples.md`.
+Code in `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:network`, `:core:database`, `:core:shared-domain-model` (`TrackDomainModel`), and `AlbumDomainModel` in `:feature:album`. Empty so far: `:core:player`, `:feature:songs` and `:feature:songdetails`. The visual identity is Aurora Neon (fixed dark scheme, Space Grotesk and Inter Black; §7) and `:app` has the animated splash (`splash` package). `MainActivity` shows the splash and then a `TemporaryDataCheck` (delete it with the first real screen). Local and git-ignored: `PLAN.md`, `misc-notes.md`, `core/network/itunes-api-samples.md`.
 
 ## Layering and modules (§2)
 `Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API`
@@ -17,7 +17,7 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Datasources: concrete (no interface), split by context, return the raw response, no dispatcher switch. The repository maps and owns the injected `DispatcherProvider`. (§6)
 - DTOs: one file per class, `@Serializable` and `@SerialName`, no default values, nullable only when real data shows it. Fixed query parameters go in `@GET`. (§6)
 - Room 3, `Db*`, DAOs and the local datasources live in `:core:database`. Types only a datasource uses are `internal`, and so is its constructor. A multi-table write is one transaction, and rows are saved with `@Upsert`, not a replace. (§6)
-- Names: track and album; `id`, `name`, `albumId`, `artUrl`; methods are an action plus what the caller wants (`getTrack`, `searchTracksBySearchText`); parameters named by meaning; models carry their layer (`Ui*`, `*DomainModel`, `Api*`, `Db*`). (§3, §8)
+- Names: track and album; `id`, `name`, `albumId`, `artUrl`; methods are an action plus what the caller wants (`getTrack`, `searchTracksBySearchText`); parameters named by meaning; models carry their layer (`Ui*`, `*DomainModel`, `Api*`, `Db*`); animation composables and their files end in `Animation` and live in an `animation` package next to their screen. (§3, §8)
 - Clean Code applies everywhere (§8): intent-revealing names, small functions, at most three parameters, no flag arguments, `val` over `var`, no magic values, no dead code, one class per file, `internal` by default, comments explain *why*.
 - UI: colours, typography and shapes from `MaterialTheme`; every screen has `@FullPreview` previews wrapped in `MoisesaiChallangeTheme`; text from `R.string.*`. (§4, §7)
 - Tests: Given / When / Then in both the name (`GIVEN ..., WHEN ..., THEN ...`, keywords uppercase) and the body, one action each; fixtures from the real API; none that pass with the code broken. (§9, `write-unit-tests`)

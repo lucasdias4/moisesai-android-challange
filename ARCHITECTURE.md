@@ -5,7 +5,7 @@
 ## 1. Current state
 
 - **Modules:** `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:network`, `:core:database` and `:core:shared-domain-model` (JVM-only) have code. Empty so far: `:core:player` and the three `:feature:*`. Package `com.moisesai.challange`.
-- **Done:** `build-logic` convention plugins, Hilt in `:app`, test tooling, the theme and `@FullPreview` in `:core:design`, `AppError` and `DispatcherProvider` in `:core:common` (the provider is for repositories and has no user yet), the datasource error helpers in `:core:data-common`, the remote layer in `:core:network` and the local layer in `:core:database` (section 6), the shared `TrackDomainModel` in `:core:shared-domain-model` and `AlbumDomainModel` in `:feature:album` (`domain/model`, because only the album feature uses it); their fields match `ApiTrack`/`DbTrack` and `ApiAlbum`, so the mappers are one-to-one.
+- **Done:** `build-logic` convention plugins, Hilt in `:app`, test tooling, the Aurora Neon theme and `@FullPreview` in `:core:design`, the animated splash screen in `:app` (`splash` package), `AppError` and `DispatcherProvider` in `:core:common` (the provider is for repositories and has no user yet), the datasource error helpers in `:core:data-common`, the remote layer in `:core:network` and the local layer in `:core:database` (section 6), the shared `TrackDomainModel` in `:core:shared-domain-model` and `AlbumDomainModel` in `:feature:album` (`domain/model`, because only the album feature uses it); their fields match `ApiTrack`/`DbTrack` and `ApiAlbum`, so the mappers are one-to-one.
 - **Not present yet:** repositories, use cases, ViewModels, navigation and the real screens. `MainActivity` shows a `TemporaryDataCheck` (section 11).
 - **Versions and SDKs:** `gradle/libs.versions.toml` and `app/build.gradle.kts`. JDK per `gradle/gradle-daemon-jvm.properties`.
 
@@ -84,6 +84,8 @@ The Flow stops at the ViewModel: it is collected there and written into the sing
 | Domain | suffix `DomainModel` | `ExerciseDomainModel` |
 | Data / API | prefix `Api` | `ApiExercise` |
 | Data / Room | prefix `Db` | `DbExercise` |
+
+**Animations** end in `Animation`: a composable whose job is to animate something, and the file that holds it, share one name such as `EqualizerBarsAnimation` / `EqualizerBarsAnimation.kt`. They live in an `animation` package next to their screen (`splash/animation`), together with the timeline type they depend on (`SplashPhase`), so the screen package depends on `animation` and never the other way round. Screens (`SplashScreen`) keep their own names.
 
 Package names are singular, lowercase, no underscores for modules and layers (`feature.songs.presentation`). Presentation subpackages use the names in section 2 (`view_model` with underscore is the one exception).
 
@@ -207,7 +209,7 @@ DataSources catch (`runCatching` for suspend, `.catch` for Flow). Repositories a
 
 ## 7. Theming
 
-Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `MaterialTheme.typography` and `MaterialTheme.shapes`. Change the palette in `core/design/theme/Color.kt` and `Theme.kt`, not at call sites. The theme uses dynamic colour on Android 12+ and follows the system dark mode. Never hardcode hex colours, corner radii or font sizes.
+Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `MaterialTheme.typography` and `MaterialTheme.shapes`. Change the palette in `core/design/theme/Color.kt` and `Theme.kt`, not at call sites. The visual identity is **Aurora Neon**: glass surfaces and soft glows with one fixed dark colour scheme (lime and magenta on near-black) and the Space Grotesk typeface, with Inter Black for the display styles (Space Grotesk has no heavier weight than Bold); both are bundled in `:core:design` (`res/font`). There is no dynamic colour and no light scheme, so the system bars are drawn for dark content. Never hardcode hex colours, corner radii or font sizes.
 
 ---
 

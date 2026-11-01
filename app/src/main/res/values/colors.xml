@@ -7,4 +7,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <!-- Same value as AuroraNight in :core:design; XML themes cannot read Compose colours. -->
+    <color name="aurora_night">#FF08080B</color>
 </resources>
