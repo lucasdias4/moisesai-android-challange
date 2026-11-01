@@ -11,7 +11,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import com.moisesai.challange.R
+import com.moisesai.challange.core.strings.R
 
 // The accent dot glows in its own colour: strong (80%) and wide (28 dp).
 private const val ACCENT_GLOW_ALPHA = 0.8f

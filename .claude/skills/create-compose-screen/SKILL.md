@@ -244,7 +244,7 @@ private fun <Feature>Content(
 
 Rules:
 - `Scaffold` when the screen needs a toolbar, FAB or snackbar
-- All user-facing text from `R.string.*` (`app/src/main/res/values/strings.xml`)
+- All user-facing text from `R.string.*` (`core/strings/src/main/res/values/strings_<screen>.xml`, names prefixed with `<screen>_`)
 - Colours, typography and shapes only from `MaterialTheme`; no hex literals, no inline `TextStyle`
 - `modifier: Modifier = Modifier` is the first optional parameter
 

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Same value as AuroraNight in Color.kt; XML themes cannot read Compose colours. -->
+    <color name="aurora_night">#FF08080B</color>
+</resources>

@@ -24,6 +24,7 @@ private const val MAX_RESULTS = 200
 private const val PAGE_SIZE = 20
 private const val RECENT_LIMIT = 10
 
+//TODO: DELETE
 /**
  * TEMPORARY: a manual check of the network and database layers that runs on every launch and shows
  * the outcome: it fetches and caches a search, reads the first page back from the database, and

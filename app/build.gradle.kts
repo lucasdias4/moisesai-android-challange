@@ -42,6 +42,7 @@ dependencies {
     implementation(project(":core:network")) // TEMPORARY: used only by TemporaryDataCheck
     implementation(project(":core:database")) // TEMPORARY: used only by TemporaryDataCheck
     implementation(project(":core:design"))
+    implementation(project(":core:strings"))
     implementation(project(":feature:songs"))
     implementation(project(":feature:songdetails"))
     implementation(project(":feature:album"))

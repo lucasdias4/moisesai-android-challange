@@ -4,7 +4,7 @@
 
 ## 1. Current state
 
-- **Modules:** `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:network`, `:core:database` and `:core:shared-domain-model` (JVM-only) have code. Empty so far: `:core:player` and the three `:feature:*`. Package `com.moisesai.challange`.
+- **Modules:** `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:strings`, `:core:network`, `:core:database` and `:core:shared-domain-model` (JVM-only) have code. Empty so far: `:core:player` and the three `:feature:*`. Package `com.moisesai.challange`.
 - **Done:** `build-logic` convention plugins, Hilt in `:app`, test tooling, the Aurora Neon theme and `@FullPreview` in `:core:design`, the animated splash screen in `:app` (`splash` package), `AppError` and `DispatcherProvider` in `:core:common` (the provider is for repositories and has no user yet), the datasource error helpers in `:core:data-common`, the remote layer in `:core:network` and the local layer in `:core:database` (section 6), the shared `TrackDomainModel` in `:core:shared-domain-model` and `AlbumDomainModel` in `:feature:album` (`domain/model`, because only the album feature uses it); their fields match `ApiTrack`/`DbTrack` and `ApiAlbum`, so the mappers are one-to-one.
 - **Not present yet:** repositories, use cases, ViewModels, navigation and the real screens. `MainActivity` shows a `TemporaryDataCheck` (section 11).
 - **Versions and SDKs:** `gradle/libs.versions.toml` and `app/build.gradle.kts`. JDK per `gradle/gradle-daemon-jvm.properties`.
@@ -30,7 +30,8 @@ Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API
 :feature:songs             search, pagination, recents list, More-options sheet
 :feature:songdetails       song details screen (player): play/pause, seek slider, timeline, skip (uses :core:player)
 :feature:album             album header and track list
-:core:design               theme, @FullPreview, shared components
+:core:design               theme (Compose and the XML window theme), colours, fonts, @FullPreview, shared components
+:core:strings              every user-facing string (res/values only, no code)
 :core:common               AppError, DispatcherProvider: what every layer may use
 :core:data-common          safeCall, asSafeResult, toAppError: error handling for datasources only
 :core:shared-domain-model  pure Kotlin shared domain models only (TrackDomainModel): no logic, no Android
@@ -54,6 +55,7 @@ Core packages: `com.moisesai.challange.core.{design,common,datacommon,shareddoma
 
 - `feature:*` depends on `core:*`. Features never depend on or import each other. `:app` connects them with type-safe routes and lambdas (ids only: Player receives a track id, Album an album id).
 - `:core:data-common` is only for `:core:network` and `:core:database`. Features never depend on it, so a repository or a use case cannot call `safeCall` (Gradle enforces this, unlike the layer rules). `:core:common` holds what every layer may see (`AppError`, `DispatcherProvider`).
+- `:core:strings` holds all user-facing text and depends on nothing. `:app` and the features depend on it; `:core:design` does not.
 - `core:*` never depends on a feature. `core:shared-domain-model` depends on nothing. `:core:player` knows nothing about tracks or iTunes: it plays a URL.
 - Inside a feature: `presentation -> domain <- data`. Presentation never imports data.
 - State shared by several features goes through `core:*` (a shared model, or a Room table behind a DAO); each feature keeps its own repository interface and use cases over it. Songs reads recents and Player writes them through the same DAO, not through each other.
@@ -209,7 +211,7 @@ DataSources catch (`runCatching` for suspend, `.catch` for Flow). Repositories a
 
 ## 7. Theming
 
-Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `MaterialTheme.typography` and `MaterialTheme.shapes`. Change the palette in `core/design/theme/Color.kt` and `Theme.kt`, not at call sites. The visual identity is **Aurora Neon**: glass surfaces and soft glows with one fixed dark colour scheme (lime and magenta on near-black) and the Space Grotesk typeface, with Inter Black for the display styles (Space Grotesk has no heavier weight than Bold); both are bundled in `:core:design` (`res/font`). There is no dynamic colour and no light scheme, so the system bars are drawn for dark content. Never hardcode hex colours, corner radii or font sizes.
+Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `MaterialTheme.typography` and `MaterialTheme.shapes`. Change the palette in `core/design/theme/Color.kt` and `Theme.kt`, not at call sites. The visual identity is **Aurora Neon**: glass surfaces and soft glows with one fixed dark colour scheme (lime and magenta on near-black) and the Space Grotesk typeface, with Inter Black for the display styles (Space Grotesk has no heavier weight than Bold); both are bundled in `:core:design` (`res/font`). There is no dynamic colour and no light scheme, so the system bars are drawn for dark content. The XML half of the theme (`themes.xml` and the one colour it needs, `colors.xml`) lives next to `Color.kt` in `:core:design`. All user-facing text lives in `:core:strings`, one `strings_<screen>.xml` file per screen with a `<screen>_` prefix on every name, and is read with `stringResource(R.string.<name>)` using that module's `R`. Never hardcode hex colours, corner radii, font sizes or user-facing text.
 
 ---
 

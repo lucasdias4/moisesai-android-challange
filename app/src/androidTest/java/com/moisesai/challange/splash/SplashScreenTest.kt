@@ -4,6 +4,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import com.moisesai.challange.core.strings.R
 import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
 import com.moisesai.challange.splash.animation.SplashPhase
 import org.junit.Assert.assertEquals
@@ -21,6 +23,7 @@ class SplashScreenTest {
         const val REVEAL_MARGIN_MILLIS = 100L
     }
 
+    private val wordmark = InstrumentationRegistry.getInstrumentation().targetContext.getString(R.string.splash_wordmark)
     private val totalDurationMillis = SplashPhase.entries.sumOf { it.durationMillis }
     private val untilExitMillis = totalDurationMillis - SplashPhase.Exiting.durationMillis
 
@@ -50,7 +53,7 @@ class SplashScreenTest {
 
         composeTestRule.mainClock.advanceTimeBy(untilExitMillis - REVEAL_MARGIN_MILLIS)
 
-        composeTestRule.onNodeWithContentDescription("MOISESAI.").assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(wordmark).assertIsDisplayed()
     }
 
     private fun showSplash(onFinished: () -> Unit) {
