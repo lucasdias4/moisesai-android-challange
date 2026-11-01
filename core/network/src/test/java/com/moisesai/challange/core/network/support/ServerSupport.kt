@@ -1,4 +1,4 @@
-package com.moisesai.challange.core.network
+package com.moisesai.challange.core.network.support
 
 import com.moisesai.challange.core.network.api.ItunesApi
 import com.moisesai.challange.core.network.api.ItunesJson
@@ -16,6 +16,3 @@ internal fun jsonResponse(body: String): MockResponse = MockResponse.Builder()
     .addHeader("Content-Type", "text/javascript; charset=utf-8")
     .body(body)
     .build()
-
-internal fun readFixture(name: String): String =
-    checkNotNull(object {}.javaClass.getResource("/fixtures/$name")) { "Missing fixture $name" }.readText()
