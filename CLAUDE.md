@@ -17,6 +17,7 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Datasources: concrete (no interface), split by context, return the raw response, no dispatcher switch. The repository maps and owns the injected `DispatcherProvider`. (§6)
 - DTOs: one file per class, `@Serializable` and `@SerialName`, no default values, nullable only when real data shows it. Fixed query parameters go in `@GET`. (§6)
 - Room 3, `Db*`, DAOs and the local datasources live in `:core:database`. Types only a datasource uses are `internal`, and so is its constructor. A multi-table write is one transaction, and rows are saved with `@Upsert`, not a replace. (§6)
+- Animations (§4): an `animation` package next to the screen, one animation per file, a single `Phase` timeline, every constant and animated value commented (meaning and why), animated state read in draw or `graphicsLayer`, never in composition. Use the `create-animation` skill.
 - Names: track and album; `id`, `name`, `albumId`, `artUrl`; methods are an action plus what the caller wants (`getTrack`, `searchTracksBySearchText`); parameters named by meaning; models carry their layer (`Ui*`, `*DomainModel`, `Api*`, `Db*`); animation composables and their files end in `Animation` and live in an `animation` package next to their screen. (§3, §8)
 - Clean Code applies everywhere (§8): intent-revealing names, small functions, at most three parameters, no flag arguments, `val` over `var`, no magic values, no dead code, one class per file, `internal` by default, comments explain *why*.
 - UI: colours, typography and shapes from `MaterialTheme`; every screen has `@FullPreview` previews wrapped in `MoisesaiChallangeTheme`; text from `R.string.*` in `:core:strings`, XML theme and colours in `:core:design`. (§4, §7)
@@ -30,4 +31,4 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Question a request that conflicts with a rule or a requirement, say why, then follow the user's decision.
 
 ## Skills (`.claude/skills/`)
-`create-feature-module`, `create-compose-screen`, `create-ui-component`, `add-data-endpoint`, `write-unit-tests`, `clean-code-review`.
+`create-feature-module`, `create-compose-screen`, `create-ui-component`, `create-animation`, `add-data-endpoint`, `write-unit-tests`, `clean-code-review`.

@@ -87,7 +87,7 @@ The Flow stops at the ViewModel: it is collected there and written into the sing
 | Data / API | prefix `Api` | `ApiExercise` |
 | Data / Room | prefix `Db` | `DbExercise` |
 
-**Animations** end in `Animation`: a composable whose job is to animate something, and the file that holds it, share one name such as `EqualizerBarsAnimation` / `EqualizerBarsAnimation.kt`. They live in an `animation` package next to their screen (`splash/animation`), together with the timeline type they depend on (`SplashPhase`), so the screen package depends on `animation` and never the other way round. Screens (`SplashScreen`) keep their own names.
+**Animations** end in `Animation` (the composable and its file, for example `EqualizerBarsAnimation.kt`). Where they live and how they are written is in section 4, "Animations".
 
 Package names are singular, lowercase, no underscores for modules and layers (`feature.songs.presentation`). Presentation subpackages use the names in section 2 (`view_model` with underscore is the one exception).
 
@@ -114,6 +114,18 @@ One word for one thing, in every layer:
 - Navigation is driven by lambdas passed in from the root `NavHost`; ViewModels and feature composables never own the `NavController`.
 - Screen composables are stateless: `uiState` plus callbacks. `modifier: Modifier = Modifier` is the first optional parameter.
 - Top-level screen composables have `@FullPreview` previews wrapped in `MoisesaiChallangeTheme { }`.
+
+### Animations
+
+The reference implementation is the splash in `:app` (`splash/animation`). Follow the `create-animation` skill.
+
+- **Package and names.** Animations live in an `animation` package next to the screen that uses them (`splash/animation`). One animation per file; the composable and its file end in `Animation` (`EqualizerBarsAnimation`). They are `internal`, and the screen package depends on `animation`, never the other way round.
+- **One timeline.** An animation with steps has one `<Screen>Phase` enum (`SplashPhase`) in the `animation` package, each phase with its `durationMillis`. The screen walks the phases in order with a single `LaunchedEffect`; every animation is stateless and only reacts to the current phase (`phase >= Collapsing`). No animation keeps its own timer for the whole sequence.
+- **Comments.** Animation numbers do not explain themselves, so every constant, every animated state and every non-obvious call has a short, direct comment saying what the value does in the picture (its range, `0 = hidden, 1 = shown`) and why it is that way. This is the *why* rule of section 8 applied to motion: the comment is never a restatement of the code.
+- **Performance.** Read animated values in `graphicsLayer { }` or in a draw block (`Canvas`, `drawBehind`), not in composition, so a frame redraws and never recomposes. Draw many identical shapes on one `Canvas`. Animate `alpha`, scale and translation, not layout.
+- **Theme and text.** Colours from `MaterialTheme`, durations, sizes and ratios as named constants, text from `:core:strings`. Never a hex colour or a magic number.
+- **Accessibility.** An animation that is decoration adds no semantics. Text that is animated piece by piece (letter by letter) is read once, with a `contentDescription` on the container.
+- **Tests.** An instrumented test sets `mainClock.autoAdvance = false` when an infinite animation exists, and advances the clock by the sum of the phase durations: it must fail if the sequence never finishes or finishes too early. Test the visible text and the finish callback, not the pixels.
 
 ## 5. Domain
 
@@ -259,7 +271,7 @@ Robert C. Martin's *Clean Code* applies to every file, Kotlin idioms included. W
 
 ### Comments and formatting
 
-- **Comments explain why** (hidden constraint, workaround, invariant), never what. Good code does not need a *what* comment.
+- **Comments explain why** (hidden constraint, workaround, invariant), never what. Good code does not need a *what* comment. Animation code is covered by the rule in section 4: it comments the meaning and the reason of every value, because motion numbers cannot be read from the code alone.
 - **No commented-out code, no journal or banner comments, no noise** (`// constructor`). Version control keeps history.
 - **KDoc only on public API whose contract is not obvious.**
 - **Formatting is the Kotlin official style.** Related code stays close together; blank lines separate concepts, not lines of one idea. No unused imports, parameters or code (delete it; YAGNI).

@@ -33,7 +33,8 @@ List the files: `git status --short`, `git diff --stat`, or `find <module>/src -
 | Visibility | `internal` or `private` unless another module needs it? |
 | Variables | `val` over `var`? Declared near use? No magic numbers or strings (fixed query parameters in the `@GET`)? |
 | Nullability | Each nullable field backed by real data or the docs? No `= null` defaults on DTOs? |
-| Comments | Only *why*? No commented-out code, no `TODO` left, no noise, no comment that duplicates the name? |
+| Comments | Only *why*? No commented-out code, no `TODO` left, no noise, no comment that duplicates the name? (Animation files are the exception: every constant, animated value and non-obvious call has a short comment on its meaning and reason.) |
+| Animations | In an `animation` package next to the screen, one per file, name and file end in `Animation`? One `Phase` timeline? Animated state read in draw or `graphicsLayer`? See `create-animation`. |
 | Duplication | Anything written three times extracted? |
 | Dead code | Unused fields, error types, dispatchers, dependencies, imports, files? |
 | Layering | Datasource raw and interface-free, no dispatcher; repository maps; ViewModel calls use cases only; no feature imports another? |
