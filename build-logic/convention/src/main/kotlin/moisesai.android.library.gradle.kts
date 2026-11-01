@@ -26,11 +26,9 @@ androidComponents {
     }
 }
 
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
 dependencies {
-    "testImplementation"(libs.findLibrary("junit").get())
-    "testImplementation"(libs.findLibrary("mockk").get())
-    "testImplementation"(libs.findLibrary("kotlinx-coroutines-test").get())
-    "testImplementation"(libs.findLibrary("turbine").get())
+    "testImplementation"(libs.library("junit"))
+    "testImplementation"(libs.library("mockk"))
+    "testImplementation"(libs.library("kotlinx-coroutines-test"))
+    "testImplementation"(libs.library("turbine"))
 }

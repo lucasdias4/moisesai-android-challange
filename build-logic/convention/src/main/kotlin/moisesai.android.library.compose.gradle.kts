@@ -9,13 +9,11 @@ android {
     }
 }
 
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
 dependencies {
-    "implementation"(platform(libs.findLibrary("androidx-compose-bom").get()))
-    "implementation"(libs.findLibrary("androidx-compose-material3").get())
-    "implementation"(libs.findLibrary("androidx-compose-ui").get())
-    "implementation"(libs.findLibrary("androidx-compose-ui-graphics").get())
-    "implementation"(libs.findLibrary("androidx-compose-ui-tooling-preview").get())
-    "debugImplementation"(libs.findLibrary("androidx-compose-ui-tooling").get())
+    "implementation"(platform(libs.library("androidx-compose-bom")))
+    "implementation"(libs.library("androidx-compose-material3"))
+    "implementation"(libs.library("androidx-compose-ui"))
+    "implementation"(libs.library("androidx-compose-ui-graphics"))
+    "implementation"(libs.library("androidx-compose-ui-tooling-preview"))
+    "debugImplementation"(libs.library("androidx-compose-ui-tooling"))
 }

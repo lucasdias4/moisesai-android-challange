@@ -38,6 +38,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:common"))
+    implementation(project(":core:network")) // TEMPORARY: used only by TemporaryNetworkCheck
     implementation(project(":core:design"))
     implementation(project(":feature:songs"))
     implementation(project(":feature:songdetails"))

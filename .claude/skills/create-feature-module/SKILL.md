@@ -24,7 +24,7 @@ Feature name: lower case, no underscores (e.g. `songs`). It becomes the module `
 
 1. **Check for conflicts.** Confirm `feature/<name>` and the include do not already exist.
 2. **Register the module** in `settings.gradle.kts`: `include(":feature:<name>")`.
-3. **Build file** `feature/<name>/build.gradle.kts`: apply `id("moisesai.android.feature")` and set the `namespace`. The plugin already provides Android library, Compose, Hilt/KSP and the `:core:design`, `:core:common` and `:core:shared-domain-model` dependencies. Add `:core:network` / `:core:database` only when the feature has data, and the `:library:*` modules it uses (e.g. `:library:player`) in the feature's own build file. Never depend on another `:feature:*` module.
+3. **Build file** `feature/<name>/build.gradle.kts`: apply `id("moisesai.android.feature")` and set the `namespace`. The plugin already provides Android library, Compose, Hilt/KSP and the `:core:design`, `:core:common` and `:core:shared-domain-model` dependencies. Add `:core:network`, `:core:database` or `:core:player` only when the feature uses them, in the feature's own build file. Never depend on another `:feature:*` module.
 4. **Package skeleton** under `feature/<name>/src/main/java/com/moisesai/challange/feature/<name>/`:
 
    ```text
@@ -37,6 +37,7 @@ Feature name: lower case, no underscores (e.g. `songs`). It becomes the module `
 5. **DI module** `feature/<name>/.../di/<Name>Module.kt` binding repository interfaces to their implementations, once Hilt is configured.
 6. **Wire into `:app`**: add `implementation(project(":feature:<name>"))` and register the feature's navigation graph in the root `NavHost`. This is the only place features meet; routes carry ids only.
 7. **Fill it**: screens with `create-compose-screen`, data with `add-data-endpoint`.
+8. **Clean code check** (`ARCHITECTURE.md` §8): the module contains only what is used now: no placeholder classes, no empty packages, no unused dependencies.
 
 ## Report
 

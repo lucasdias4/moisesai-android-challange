@@ -20,7 +20,7 @@ The endpoint (method + path), request and response JSON, and which screen needs 
 
 ## Prerequisites
 
-The template has no networking. Before the first endpoint, add to `gradle/libs.versions.toml` and the owning module's `build.gradle.kts` (`:core:network` for Retrofit/OkHttp, `:core:database` for Room, the feature module for test libraries): Retrofit, a JSON converter (Gson, Moshi or kotlinx.serialization), OkHttp, `kotlinx-coroutines-core`, and for tests MockK and `kotlinx-coroutines-test`. Add the `INTERNET` permission to the `:app` `AndroidManifest.xml`. Pick the converter once and record it in `ARCHITECTURE.md` §1. Until a DI library is added, build the object graph by hand in one place.
+Networking already exists in `:core:network` (Retrofit, OkHttp, kotlinx.serialization, MockWebServer for tests); a new endpoint reuses it. If a dependency is missing, add to `gradle/libs.versions.toml` and the owning module's `build.gradle.kts` (`:core:network` for Retrofit/OkHttp, `:core:database` for Room, the feature module for test libraries): Retrofit, a JSON converter (Gson, Moshi or kotlinx.serialization), OkHttp, `kotlinx-coroutines-core`, and for tests MockK and `kotlinx-coroutines-test`. Add the `INTERNET` permission to the `:app` `AndroidManifest.xml`. Pick the converter once and record it in `ARCHITECTURE.md` §1. Until a DI library is added, build the object graph by hand in one place.
 
 When the source is a local database, also add Room (runtime, ktx, compiler via KSP), and Turbine for Flow tests.
 
@@ -44,6 +44,25 @@ data class ApiStreak(
 
 Prefix `Api`. Keep the property names or serialization annotations matching the JSON keys exactly.
 
+Use the simplest thing that parses the JSON:
+
+- **Fields renamed:** `@SerialName("json_key")` on the property. (`@SerializedName` is Gson's annotation; with kotlinx.serialization it does nothing.)
+- **Unknown or extra keys:** set `ignoreUnknownKeys = true` on the `Json` instance. Do not model fields the app does not use.
+- **Fields that may be absent:** make them nullable and set `explicitNulls = false` on the `Json` instance. A missing key then reads as `null`, so the DTO needs no `= null` default. Give a non-null property no default either, so a malformed response fails loudly instead of looking empty. Decide nullability from real data, not caution: scan a few hundred real items, make a field non-null when it is always present, and nullable only when the docs or the data show it can be absent.
+- **A list that mixes kinds** (for example a lookup that returns an album first and then its tracks, told apart by a `wrapperType` field): do **not** write a custom `KSerializer`. Declare a `@Serializable sealed interface`, give each subtype `@SerialName("<discriminator value>")`, and configure the `Json` instance once:
+
+```kotlin
+val ApiJson = Json {
+    ignoreUnknownKeys = true
+    classDiscriminator = "wrapperType"
+    serializersModule = SerializersModule {
+        polymorphicDefaultDeserializer(ApiItem::class) { ApiUnknownItem.serializer() }
+    }
+}
+```
+
+  The default deserializer maps any kind the app does not use to an `@Serializable data object`, so a new kind from the server never breaks parsing. A hand-written serializer is only justified when the discriminator is not a plain string field.
+
 ### 3. Service (`:core:network`, `core/network/api/Service.kt`)
 
 A Retrofit interface with a `suspend` function returning the `Api*` model.
@@ -52,14 +71,23 @@ For a Room source instead: a `Db<Name>` entity and a DAO in `:core:database` (`c
 
 ### 4. DataSource
 
-The remote datasource interface and its iTunes implementation live in `:core:network`, so the API can be replaced there. A feature's `data/datasource/<Domain>LocalDataSource.kt` wraps a DAO the same way. Both follow:
+Remote datasources live in `:core:network`, split by context (`TrackRemoteDataSource`, `AlbumRemoteDataSource`); a feature's `data/datasource/<Context>LocalDataSource.kt` wraps a DAO. A datasource is a **concrete class with no interface**, injected by constructor: the Retrofit service and the DAO are already the abstractions, and the replaceable boundary is the repository interface in the feature's `domain`.
+
+Name datasource methods as an action plus what the caller wants, in the app's words: `getTrack(id)` (one, by id), `searchTracksBySearchText(searchText, limit)` (many, by text), `getAlbumWithTracks(id)` (says what comes back). Name the Retrofit service methods after the endpoint instead (`lookupTrack`, `searchTracksBySearchText`). Put the shared `runCatching` plumbing in one extension or helper (`remoteCall { ... }`) instead of repeating it:
 
 ```kotlin
 suspend fun getExercises(lessonId: String): Result<List<ApiExercise>> =
-    withContext(Dispatchers.IO) {
-        runCatching { api.getExercises(lessonId) }
-            .onFailure { if (it is CancellationException) throw it }
-    }
+    remoteCall { api.getExercises(lessonId) }
+```
+
+where the helper is:
+
+```kotlin
+internal suspend fun <T> remoteCall(request: suspend () -> T): Result<T> =
+    runCatching { request() }.fold(
+        onSuccess = { Result.success(it) },
+        onFailure = { Result.failure(it.toRemoteError()) }, // rethrows CancellationException
+    )
 ```
 
 Flow variant (`runCatching` cannot see errors in later emissions, so use `.catch`):
@@ -69,12 +97,11 @@ fun observeExercises(lessonId: String): Flow<Result<List<DbExercise>>> =
     dao.observeByLesson(lessonId)
         .map { Result.success(it) }
         .catch { if (it is CancellationException) throw it else emit(Result.failure(it)) }
-        .flowOn(Dispatchers.IO)
 ```
 
-A Room one-shot (read by id, or a write) uses the suspend form above with the DAO in place of the API, e.g. `runCatching { dao.upsert(exercise) }` returning `Result<Unit>`. For writes, the repository maps domain to `Db*` (`toDb()`) before calling the datasource.
+A Room one-shot (read by id, or a write) uses the suspend form with the DAO in place of the API, e.g. `runCatching { dao.upsert(exercise) }` returning `Result<Unit>`. For writes, the repository maps domain to `Db*` (`toDb()`) before calling the datasource.
 
-The datasource owns `Dispatchers.IO` (`withContext` for suspend, `.flowOn` for Flow) and returns raw `Api*` / `Db*` models. Any `runCatching`, `catch (e: Exception)` or Flow `.catch` must rethrow `CancellationException` first.
+A datasource does not switch dispatchers: Retrofit and Room suspend and `Flow` calls are main-safe. The repository injects a `DispatcherProvider` and switches only when it does blocking or CPU-heavy work. A datasource returns the raw response or entities as they are, with no filtering, `firstOrNull()` or invented aggregate types: reading a mixed response is the repository mapper's job (shared extensions such as `ApiResponse.tracks()` live in `:core:network` as public extensions). Any `runCatching`, `catch (e: Exception)` or Flow `.catch` must rethrow `CancellationException` first.
 
 ### 5. Mapper (feature `data/mapper/Api<Name>Mapper.kt`)
 
@@ -119,7 +146,19 @@ One public method, verb name; `Get` never persists. `suspend operator fun invoke
 
 Unit tests mock the network, so they cannot show that the keys match. Call the real endpoint once (staging or a local server) with the real Retrofit `Service`, e.g. from a JVM test gated on an environment variable so it skips when unset, and check the result matches the specification. Report this as done or blocked.
 
-### 10. Report
+### 10. Clean code check
+
+Re-read what you wrote against `ARCHITECTURE.md` §8:
+
+- Names reveal intent and follow one vocabulary: datasources and repositories `get`/`search`/`save`/`observe` plus the thing (`getTrack`, `searchTracksBySearchText`), the Retrofit service named after the endpoint, use cases `<Verb><Noun>`. No `Manager`, `Helper` or `Util`.
+- Each function does one thing at one level of abstraction: request, mapping and error handling are separate functions.
+- No magic strings: fixed query parameters live in the Retrofit annotation (`@GET("search?media=music&entity=song")`) or a named constant.
+- No flag or nullable-as-default parameters: two functions beat one with a switch.
+- Mappers are pure and one-purpose; DTOs carry only the fields the app uses.
+- No dead code: an unused field, function or error type is deleted.
+- Tests: one concept each, named as sentences, no logic, no network.
+
+### 11. Report
 
 Files changed per layer, any audit finding (a swallowed `CancellationException`, a `Result<T>` function that also throws), and whether step 9 was run.
 
@@ -130,5 +169,6 @@ Files changed per layer, any audit finding (a swallowed `CancellationException`,
 - A Flow never throws to its collector: failures are emitted as `Result.failure`
 - `Flow` only for real streams; one-shot calls stay `suspend`
 - Repositories never call the Retrofit interface or a DAO directly
+- A datasource has no interface and does not switch dispatchers; the repository owns the injected `DispatcherProvider`
 - A feature never imports another feature's data or domain; shared types come from `core:*`
 - A failing repository method returns `Result<T>` (`Result<Unit>` for void), never `T?`, and never both returns and throws

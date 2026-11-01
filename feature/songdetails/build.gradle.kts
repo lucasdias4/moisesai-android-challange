@@ -9,5 +9,5 @@ android {
 dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:database"))
-    implementation(project(":library:player"))
+    implementation(project(":core:player"))
 }

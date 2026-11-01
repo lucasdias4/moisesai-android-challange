@@ -24,9 +24,9 @@ An Android app that searches songs through the Apple iTunes Search API, plays th
 | --- | --- |
 | Kotlin, Jetpack Compose, coroutines | Set up |
 | MVVM with clean-architecture layering | Conventions defined and documented; first feature pending |
-| Modularization | Done: 3 feature modules, 5 core modules, 1 library module |
+| Modularization | Done: 3 feature modules, 6 core modules |
 | Tests | Tooling ready (JUnit, MockK, coroutines-test, Turbine, MockWebServer); first real tests arrive with the data layers |
-| Network abstraction layer | Pending (`:core:network`) |
+| Network abstraction layer | Done: `:core:network` (Retrofit, OkHttp, kotlinx.serialization) with concrete `TrackRemoteDataSource` and `AlbumRemoteDataSource` (the replaceable boundary is the repository interface in each feature's domain), tested against live-captured JSON |
 | Offline-first cache, recently played on home | Pending (`:core:database`) |
 | API pagination | Pending |
 | Splash, Songs, Song details (player), More-options sheet, Album | Pending |
@@ -103,9 +103,8 @@ graph TD
         shared[":core:shared-domain-model"]
         network[":core:network"]
         database[":core:database"]
+        player[":core:player"]
     end
-
-    player[":library:player"]
 
     app --> songs & songdetails & album & design
     songs --> network & database
@@ -127,12 +126,12 @@ Solid arrows are the explicit module dependencies. Dotted arrows are the shared 
 | `:core:shared-domain-model` | Pure Kotlin shared domain models (`*DomainModel`). A JVM module, so Android imports do not compile there |
 | `:core:network` | HTTP client setup, the API service and DTOs, the remote data source behind an interface |
 | `:core:database` | The Room database, entities and DAOs |
-| `:library:player` | Reusable playback engine behind a `PlayerController` interface. It knows nothing about the app |
+| `:core:player` | Reusable playback engine behind a `PlayerController` interface. It knows nothing about the app |
 
 ### Dependency rules
 
 - Features never depend on or import each other. They are connected by routes and callbacks in `:app`, and routes carry ids only.
-- `core` and `library` modules never depend on a feature.
+- `core` modules never depend on a feature.
 - Inside a feature the direction is `presentation -> domain <- data`. Presentation never imports data, and domain has no Android imports.
 
 Because layers are packages, Gradle cannot enforce the last rule. An architecture test for it is planned.
@@ -159,15 +158,14 @@ Folders are created with their first file, so a feature only shows the packages 
 | SDK | `minSdk` 24, `targetSdk` 36, `compileSdk` 37 |
 | Testing | JUnit 4, MockK, `kotlinx-coroutines-test`, Turbine, MockWebServer |
 
-Networking, persistence and playback libraries are added with the modules that use them.
+Networking: Retrofit, OkHttp and kotlinx.serialization in `:core:network`. Persistence and playback libraries are added with the modules that use them.
 
 ## Repository layout
 
 ```text
 app/                 the application module
 feature/             songs, songdetails, album
-core/                design, common, shared-domain-model, network, database
-library/player/      the playback engine
+core/                design, common, shared-domain-model, network, database, player
 build-logic/         convention plugins shared by every module
 gradle/              wrapper and the version catalog (libs.versions.toml)
 ARCHITECTURE.md      the full architecture reference
@@ -190,10 +188,20 @@ Each entry says what was chosen, why, and what it costs. New entries are added i
 - **Why:** a feature can be read, tested and changed on its own, and the dependency rules are visible in the build files.
 - **Trade-off:** several small modules mean more build files. Layers inside a feature are packages, so Gradle does not enforce the layer rules. An architecture test is planned for that.
 
-### A thin `core`, and `library` for generic code
+### A thin `core`
 
-- **Why:** the three features share the song models, the iTunes client and one Room database. Without a shared layer they would import each other or duplicate code. Code that knows nothing about the app, such as the player engine, lives in `library`.
+- **Why:** the three features share the song models, the iTunes client and one Room database. Without a shared layer they would import each other or duplicate code.
 - **Trade-off:** `core` can turn into a dumping ground. The rule is infrastructure and shared models only, never feature logic.
+
+### Datasources are concrete classes; the repository interface is the replaceable boundary
+
+- **Why:** a datasource wraps one source that is already an abstraction (the Retrofit service, a Room DAO), so an interface on top adds a file without adding a seam. Clean Architecture puts the seam where the domain meets the data layer: the repository interface. Replacing the API means rewriting the datasources, the `Api*` models and the mappers; the domain, ViewModels and UI do not change.
+- **Trade-off:** the replaceable boundary is one layer higher than a datasource interface would make it, and the `Api*` models are iTunes-shaped. Tests fake the layer below (MockWebServer, in-memory Room) or mock the concrete class with MockK.
+
+### Datasources do not switch dispatchers
+
+- **Why:** Retrofit and Room suspend calls are main-safe, so a `withContext` in the datasource only adds noise. The repository injects a `DispatcherProvider` and switches only for blocking or CPU-heavy work.
+- **Trade-off:** the rule is easy to forget in a new datasource that wraps genuinely blocking code.
 
 ### Convention plugins in `build-logic`
 

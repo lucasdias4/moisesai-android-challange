@@ -26,7 +26,7 @@ class AppErrorMapperTest {
 
     @Test
     fun `app error is returned unchanged`() {
-        val error = AppError.Empty()
+        val error = AppError.Network()
 
         assertSame(error, error.toAppError())
     }

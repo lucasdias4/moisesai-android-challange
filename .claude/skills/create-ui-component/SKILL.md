@@ -107,7 +107,17 @@ private fun ComponentNameDisabledPreview() {
 }
 ```
 
-### 6. Report
+### 6. Clean code check
+
+Re-read the component against `ARCHITECTURE.md` §8:
+
+- The name says what it shows (a noun), and no parameter is a boolean that switches between two looks.
+- Few parameters (at most three beyond `modifier`), the rest grouped or defaulted deliberately.
+- No magic numbers: spacing and sizes are named constants or theme values.
+- Small: split anything longer than one screen of code, and put each preview next to what it previews.
+- No unused parameters, imports or commented-out code.
+
+### 7. Report
 
 - Created file path and import path (`com.moisesai.challange.core.design.components.*`)
 - Public composable names

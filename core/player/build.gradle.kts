@@ -3,5 +3,5 @@ plugins {
 }
 
 android {
-    namespace = "com.moisesai.challange.library.player"
+    namespace = "com.moisesai.challange.core.player"
 }

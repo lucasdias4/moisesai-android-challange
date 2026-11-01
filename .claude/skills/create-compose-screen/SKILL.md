@@ -319,7 +319,18 @@ private fun <Feature>ErrorPreview() {
 }
 ```
 
-### 10. Output summary
+### 10. Clean code check
+
+Re-read what you wrote against `ARCHITECTURE.md` §8 before reporting:
+
+- Composables are small and named for what they show; a composable that scrolls past one screen of code is split.
+- No composable takes more than a few parameters; related ones become a parameter object or `UiState`.
+- No boolean flag that switches a composable between two looks: use an enum or two composables.
+- No magic numbers or strings: dimensions and text come from the theme and `R.string.*`, or a named constant.
+- The ViewModel has one responsibility (UI state), `val` over `var`, and no unused functions.
+- No commented-out code, unused imports or `TODO` placeholders left behind.
+
+### 11. Output summary
 
 List every file created under `feature/<feature>/` with its purpose, and remind the user to:
 

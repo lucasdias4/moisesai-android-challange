@@ -17,8 +17,6 @@ kotlin {
     }
 }
 
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
 dependencies {
-    "testImplementation"(libs.findLibrary("junit").get())
+    "testImplementation"(libs.library("junit"))
 }
