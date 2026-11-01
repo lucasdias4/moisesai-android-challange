@@ -9,14 +9,11 @@ android {
     namespace = "com.moisesai.challange.core.database"
 }
 
-// Room writes the schema here on every build. It is git-ignored: once the database has a released version,
-// keep that version's file so a migration can be validated against it.
 room3 {
     schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
-    // api: the local datasources return Result<..AppError..>, so consumers need the type.
     api(project(":core:common"))
     implementation(project(":core:data-common"))
 
