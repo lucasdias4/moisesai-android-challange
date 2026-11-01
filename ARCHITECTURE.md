@@ -252,7 +252,7 @@ Robert C. Martin's *Clean Code* applies to every file, Kotlin idioms included. W
 ### Tests (F.I.R.S.T.)
 
 - **Fast, Independent, Repeatable, Self-validating, Timely.** No test depends on another or on the network, the clock or the order of execution.
-- **One concept per test**, with a name that reads as a sentence (backticks). Arrange, act and assert are visible.
+- **One concept per test**, with the name and the body both in **Given / When / Then** form (section 9).
 - **No logic in tests** (no loops or conditionals around assertions). Test code gets the same cleanliness rules as production code.
 - A test that only restates a constant or a getter is deleted. So is a test that still passes when the code under test is broken: break the code on purpose and the test must fail (section 9).
 
@@ -278,7 +278,9 @@ Robert C. Martin's *Clean Code* applies to every file, Kotlin idioms included. W
 
 **What a remote datasource test covers:** the request that is sent (path and query), the mapping of a real response, an empty result, and each error mapping (HTTP status, dropped connection, malformed body, missing required field). Pure helpers such as `remoteCall` get their own tests with no network.
 
-**How tests are written:** one concept per test, named as a sentence in backticks; helpers shared by several test classes live in one `<Module>TestSupport.kt` file; no logic in tests.
+**How tests are written: Given / When / Then.** Every unit test body has three parts, each marked with a comment: `// Given` (the setup: inputs, fakes, the response the server will give), `// When` (the one action under test, a single call) and `// Then` (the assertions). One `When` per test is what makes it one concept. The name states the same three parts as one sentence in backticks: `` `GIVEN <state>, WHEN <action>, THEN <outcome>` ``, with the three keywords in uppercase and the rest in lowercase, for example `` `GIVEN an unknown track id, WHEN getting the track, THEN the response is successful and has no results` ``. No logic in tests: no loops or conditionals around assertions.
+
+**What to test, and where.** Test through the public entry points. A class with its own logic gets a test class in a package that mirrors the production package (`datasource`, `extension`); a class that is only configuration or a data holder (an annotated service interface, a DTO, the `Json` setup, Hilt wiring) has no test class of its own and is covered through the entry points that use it, with real fixtures. Test helpers live in a `support` package and exist only when two or more test classes use them; a helper with one user is private in that class.
 
 **Prove the tests can fail.** Break the production code on purpose (for example make the error mapping return `Unknown` for everything), confirm the right tests fail, then restore it. A test that passes either way is deleted or rewritten.
 

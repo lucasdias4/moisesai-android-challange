@@ -18,7 +18,7 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Names: track and album; `id`, `name`, `albumId`, `artUrl`; methods are an action plus what the caller wants (`getTrack`, `searchTracksBySearchText`); parameters named by meaning; models carry their layer (`Ui*`, `*DomainModel`, `Api*`, `Db*`). (§3, §8)
 - Clean Code applies everywhere (§8): intent-revealing names, small functions, at most three parameters, no flag arguments, `val` over `var`, no magic values, no dead code, one class per file, `internal` by default, comments explain *why*.
 - UI: colours, typography and shapes from `MaterialTheme`; every screen has `@FullPreview` previews wrapped in `MoisesaiChallangeTheme`; text from `R.string.*`. (§4, §7)
-- Tests: one concept each, named as sentences, fixtures from the real API, none that pass with the code broken. (§9)
+- Tests: Given / When / Then in both the name (`GIVEN ..., WHEN ..., THEN ...`, keywords uppercase) and the body, one action each; fixtures from the real API; none that pass with the code broken. (§9, `write-unit-tests`)
 
 ## Working agreements
 - Rules are defined in `ARCHITECTURE.md`. To change one: edit it there first, then its short version here and the examples in the skills, then search for the old wording.
@@ -27,4 +27,4 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Question a request that conflicts with a rule or a requirement, say why, then follow the user's decision.
 
 ## Skills (`.claude/skills/`)
-`create-feature-module`, `create-compose-screen`, `create-ui-component`, `add-data-endpoint`, `clean-code-review`.
+`create-feature-module`, `create-compose-screen`, `create-ui-component`, `add-data-endpoint`, `write-unit-tests`, `clean-code-review`.

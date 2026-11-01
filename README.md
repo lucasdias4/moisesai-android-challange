@@ -177,7 +177,7 @@ CLAUDE.md            short contributor and AI-assistant conventions
 
 - [`ARCHITECTURE.md`](ARCHITECTURE.md) is the complete reference: layering, `suspend` versus `Flow`, error handling, naming, theming and testing.
 - [`CLAUDE.md`](CLAUDE.md) is the short rule list that new code follows.
-- `.claude/skills/` holds the procedures for adding a feature module, a screen, a shared UI component a data endpoint, and a Clean Code review.
+- `.claude/skills/` holds the procedures for adding a feature module, a screen, a shared UI component a data endpoint, unit tests (Given / When / Then), and a Clean Code review.
 
 ## Decisions and trade-offs
 
