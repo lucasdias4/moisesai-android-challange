@@ -4,7 +4,7 @@ Android app (Jetpack Compose), package `com.moisesai.challange`, theme `Moisesai
 This is the short list. The full rules are in `ARCHITECTURE.md` (section numbers below); if they disagree, `ARCHITECTURE.md` wins.
 
 ## Current state
-Code in `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:network`, `:core:database`. Empty so far: `:core:shared-domain-model`, `:core:player` and the three `:feature:*`. `MainActivity` shows a `TemporaryDataCheck` (delete it with the first real screen). Local and git-ignored: `PLAN.md`, `misc-notes.md`, `core/network/itunes-api-samples.md`.
+Code in `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:network`, `:core:database`, `:core:shared-domain-model` (`TrackDomainModel`), and `AlbumDomainModel` in `:feature:album`. Empty so far: `:core:player`, `:feature:songs` and `:feature:songdetails`. `MainActivity` shows a `TemporaryDataCheck` (delete it with the first real screen). Local and git-ignored: `PLAN.md`, `misc-notes.md`, `core/network/itunes-api-samples.md`.
 
 ## Layering and modules (§2)
 `Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API`

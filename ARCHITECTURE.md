@@ -4,8 +4,8 @@
 
 ## 1. Current state
 
-- **Modules:** `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:network` and `:core:database` have code. Empty so far: `:core:shared-domain-model` (JVM-only), `:core:player` and the three `:feature:*`. Package `com.moisesai.challange`.
-- **Done:** `build-logic` convention plugins, Hilt in `:app`, test tooling, the theme and `@FullPreview` in `:core:design`, `AppError` and `DispatcherProvider` in `:core:common` (the provider is for repositories and has no user yet), the datasource error helpers in `:core:data-common`, the remote layer in `:core:network` and the local layer in `:core:database` (section 6).
+- **Modules:** `:app`, `:core:common`, `:core:data-common`, `:core:design`, `:core:network`, `:core:database` and `:core:shared-domain-model` (JVM-only) have code. Empty so far: `:core:player` and the three `:feature:*`. Package `com.moisesai.challange`.
+- **Done:** `build-logic` convention plugins, Hilt in `:app`, test tooling, the theme and `@FullPreview` in `:core:design`, `AppError` and `DispatcherProvider` in `:core:common` (the provider is for repositories and has no user yet), the datasource error helpers in `:core:data-common`, the remote layer in `:core:network` and the local layer in `:core:database` (section 6), the shared `TrackDomainModel` in `:core:shared-domain-model` and `AlbumDomainModel` in `:feature:album` (`domain/model`, because only the album feature uses it); their fields match `ApiTrack`/`DbTrack` and `ApiAlbum`, so the mappers are one-to-one.
 - **Not present yet:** repositories, use cases, ViewModels, navigation and the real screens. `MainActivity` shows a `TemporaryDataCheck` (section 11).
 - **Versions and SDKs:** `gradle/libs.versions.toml` and `app/build.gradle.kts`. JDK per `gradle/gradle-daemon-jvm.properties`.
 
@@ -33,7 +33,7 @@ Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API
 :core:design               theme, @FullPreview, shared components
 :core:common               AppError, DispatcherProvider: what every layer may use
 :core:data-common          safeCall, asSafeResult, toAppError: error handling for datasources only
-:core:shared-domain-model  pure Kotlin shared domain models only (TrackDomainModel, AlbumDomainModel): no logic, no Android
+:core:shared-domain-model  pure Kotlin shared domain models only (TrackDomainModel): no logic, no Android
 :core:network              OkHttp/Retrofit setup, ItunesApi, Api* DTOs, remote datasources (track, album)
 :core:database             Room 3 AppDatabase, Db* entities, DAOs, local datasources (track, search, recent track)
 :core:player               playback engine: PlayerController interface + Media3 ExoPlayer implementation (knows no feature or iTunes code)

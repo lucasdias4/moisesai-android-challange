@@ -38,6 +38,7 @@ An Android app that searches songs through the Apple iTunes Search API, plays th
 - [x] Hilt in `:app`
 - [x] Test tooling wired into every module
 - [x] Architecture documentation and contributor conventions
+- [x] Data layers: `:core:network`, `:core:database` and the shared `TrackDomainModel` in `:core:shared-domain-model`
 
 This table is updated as each feature lands.
 
