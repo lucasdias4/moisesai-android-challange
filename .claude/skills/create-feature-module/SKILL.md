@@ -24,7 +24,7 @@ Feature name: lower case, no underscores (e.g. `songs`). It becomes the module `
 
 1. **Check for conflicts.** Confirm `feature/<name>` and the include do not already exist.
 2. **Register the module** in `settings.gradle.kts`: `include(":feature:<name>")`.
-3. **Build file** `feature/<name>/build.gradle.kts`: apply `id("moisesai.android.feature")` and set the `namespace`. The plugin already provides Android library, Compose, Hilt/KSP and the `:core:design`, `:core:common` and `:core:shared-model` dependencies. Add `:core:network` / `:core:database` only when the feature has data, and the `:library:*` modules it uses (e.g. `:library:player`) in the feature's own build file. Never depend on another `:feature:*` module.
+3. **Build file** `feature/<name>/build.gradle.kts`: apply `id("moisesai.android.feature")` and set the `namespace`. The plugin already provides Android library, Compose, Hilt/KSP and the `:core:design`, `:core:common` and `:core:shared-domain-model` dependencies. Add `:core:network` / `:core:database` only when the feature has data, and the `:library:*` modules it uses (e.g. `:library:player`) in the feature's own build file. Never depend on another `:feature:*` module.
 4. **Package skeleton** under `feature/<name>/src/main/java/com/moisesai/challange/feature/<name>/`:
 
    ```text
@@ -46,4 +46,4 @@ Files created, the module's dependencies, and what is left (graph registration, 
 
 - A feature module never depends on another feature module
 - `presentation` never imports `data`; `domain` has no Android imports
-- Shared models go to `:core:shared-model`, shared UI to `:core:design`, entities to `:core:database`, DTOs to `:core:network`
+- Shared models go to `:core:shared-domain-model`, shared UI to `:core:design`, entities to `:core:database`, DTOs to `:core:network`

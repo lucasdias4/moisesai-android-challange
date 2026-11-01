@@ -2,7 +2,7 @@
 
 ## 1. Current state
 
-- Today: `:app`, `:core:common`, `:core:design`, plus empty `:core:shared-model` (JVM-only), `:core:network`, `:core:database`, `:library:player`, and empty `:feature:songs`, `:feature:songdetails`, `:feature:album` (feature convention plugin: Compose, Hilt/KSP, `:core:design`, `:core:common`, `:core:shared-model`). Package `com.moisesai.challange`.
+- Today: `:app`, `:core:common`, `:core:design`, plus empty `:core:shared-domain-model` (JVM-only), `:core:network`, `:core:database`, `:library:player`, and empty `:feature:songs`, `:feature:songdetails`, `:feature:album` (feature convention plugin: Compose, Hilt/KSP, `:core:design`, `:core:common`, `:core:shared-domain-model`). Package `com.moisesai.challange`.
 - Present: `MainActivity`; `:core:common` (`AppError`, dispatchers); `:core:design` (theme in `core/design/.../theme/{Color,Theme,Type}.kt`, `@FullPreview` in `.../preview/FullPreview.kt`); build-logic convention plugins; Compose, Material 3.
 - Hilt: configured in `:app` (`@HiltAndroidApp` `MoisesaiChallangeApplication`, `@AndroidEntryPoint` `MainActivity`), KSP for the compiler; no bindings yet.
 - Not present yet: networking, database (Room), ViewModels, navigation, domain/data code, and the module split below.
@@ -26,16 +26,16 @@ Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API
 ### Modules
 
 ```text
-:app                  Application, MainActivity, NavHost (the only place features meet), DI root, splash
-:feature:songs        search, pagination, recents list, More-options sheet
-:feature:songdetails  song details screen (player): play/pause, seek slider, timeline, skip (uses :library:player)
-:feature:album        album header and track list
-:core:design          theme, @FullPreview, shared components
-:core:common          AppError, dispatchers, small extensions
-:core:shared-model    pure Kotlin shared models only (TrackDomainModel, AlbumDomainModel): no logic, no Android
-:core:network         OkHttp/Retrofit setup, ItunesApi, Api* DTOs, remote datasource interface + iTunes implementation
-:core:database        Room AppDatabase, Db* entities, DAOs
-:library:player       reusable playback engine: PlayerController interface + Media3 ExoPlayer implementation (no feature or iTunes knowledge)
+:app                       Application, MainActivity, NavHost (the only place features meet), DI root, splash
+:feature:songs             search, pagination, recents list, More-options sheet
+:feature:songdetails       song details screen (player): play/pause, seek slider, timeline, skip (uses :library:player)
+:feature:album             album header and track list
+:core:design               theme, @FullPreview, shared components
+:core:common               AppError, dispatchers, small extensions
+:core:shared-domain-model  pure Kotlin shared domain models only (TrackDomainModel, AlbumDomainModel): no logic, no Android
+:core:network              OkHttp/Retrofit setup, ItunesApi, Api* DTOs, remote datasource interface + iTunes implementation
+:core:database             Room AppDatabase, Db* entities, DAOs
+:library:player            reusable playback engine: PlayerController interface + Media3 ExoPlayer implementation (no feature or iTunes knowledge)
 ```
 
 ### Feature package layout
@@ -47,12 +47,12 @@ com.moisesai.challange.feature.<name>
 └── data/           datasource/  repository/  mapper/
 ```
 
-Core packages: `com.moisesai.challange.core.{design,common,sharedmodel,network,database}`.
+Core packages: `com.moisesai.challange.core.{design,common,shareddomainmodel,network,database}`.
 
 ### Dependency rules
 
 - `feature:*` depends on `core:*` and `library:*`. Features never depend on or import each other. `:app` connects them with type-safe routes and lambdas (ids only: Player receives a track id, Album a collection id).
-- `core:*` and `library:*` never depend on a feature. `core:shared-model` depends on nothing. `library:*` modules are generic and reusable: they know nothing about tracks, iTunes or the app's models (`:library:player` plays a URL).
+- `core:*` and `library:*` never depend on a feature. `core:shared-domain-model` depends on nothing. `library:*` modules are generic and reusable: they know nothing about tracks, iTunes or the app's models (`:library:player` plays a URL).
 - Inside a feature: `presentation -> domain <- data`. Presentation never imports data.
 - State shared by several features goes through `core:*` (a shared model, or a Room table behind a DAO); each feature keeps its own repository interface and use cases over it. Songs reads recents and Player writes them through the same DAO, not through each other.
 - Layers are packages, so Gradle does not enforce the third rule: an architecture test (Konsist or ArchUnit) does (section 9).
@@ -103,7 +103,7 @@ Package names are singular, lowercase, no underscores for modules and layers (`f
 - Pure Kotlin, no Android imports. Models end in `DomainModel`.
 - One public method per use case; verb names (`GetExercisesUseCase`); `Get` never persists, use `Save`/`Submit`.
 - `suspend operator fun invoke(...): Result<T>` for one-shot calls, `operator fun invoke(...): Flow<Result<T>>` for streams (see "Suspend or Flow?" in §2).
-- Repository interfaces live in the feature's `domain/repository`; use cases in its `domain/usecase`. Models shared by several features live in `:core:shared-model`; a model used by one feature stays in that feature's `domain`.
+- Repository interfaces live in the feature's `domain/repository`; use cases in its `domain/usecase`. Models shared by several features live in `:core:shared-domain-model`; a model used by one feature stays in that feature's `domain`.
 
 ## 6. Data
 
@@ -164,7 +164,7 @@ Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `M
 
 ## 9. Testing
 
-- Unit tests: JUnit 4, MockK, `kotlinx-coroutines-test` and Turbine come from the `moisesai.android.library` convention plugin, so every Android module has them. MockWebServer (`mockwebserver3`) is added in `:core:network` only. `:core:shared-model` (JVM) has JUnit only. ViewModels, use cases and repositories are always tested.
+- Unit tests: JUnit 4, MockK, `kotlinx-coroutines-test` and Turbine come from the `moisesai.android.library` convention plugin, so every Android module has them. MockWebServer (`mockwebserver3`) is added in `:core:network` only. `:core:shared-domain-model` (JVM) has JUnit only. ViewModels, use cases and repositories are always tested.
 - Tests live in the module that owns the code: network with MockWebServer in `:core:network`, in-memory Room in `:core:database`, use cases, repositories and ViewModels in their feature module.
 - An architecture test (Konsist or ArchUnit) fails when presentation imports data, domain imports Android, a feature imports another feature, or `core:*` imports a feature.
 - Commands: `./gradlew test`, `./gradlew lint`, `./gradlew connectedAndroidTest`. Gradle wrapper only.

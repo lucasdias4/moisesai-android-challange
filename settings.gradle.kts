@@ -27,7 +27,7 @@ rootProject.name = "Moisesai Challange"
 include(":app")
 include(":core:common")
 include(":core:design")
-include(":core:shared-model")
+include(":core:shared-domain-model")
 include(":core:network")
 include(":core:database")
 include(":library:player")

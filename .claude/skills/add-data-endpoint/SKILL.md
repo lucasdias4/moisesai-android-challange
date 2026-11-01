@@ -3,7 +3,7 @@ name: add-data-endpoint
 description: Wire a backend endpoint or field through the app's data layers (Api model, Service, datasource, mapper, repository, use case, tests) and prove the JSON matches the API. Use when a new or changed API response/request must reach the app, or when writing or auditing datasource/repository suspend code.
 ---
 
-Take an endpoint or field to the UI through the layers in `ARCHITECTURE.md` §5 and §6. This skill is the procedure and the coroutine-safety checklist. Ownership is split by module: `Api*`, the Retrofit service and the remote datasource live in `:core:network`; `Db*` entities and DAOs in `:core:database`; datasource, mapper, repository and use case in the consuming feature module (`feature.<name>.data` / `.domain`); models shared by several features in `:core:shared-model`.
+Take an endpoint or field to the UI through the layers in `ARCHITECTURE.md` §5 and §6. This skill is the procedure and the coroutine-safety checklist. Ownership is split by module: `Api*`, the Retrofit service and the remote datasource live in `:core:network`; `Db*` entities and DAOs in `:core:database`; datasource, mapper, repository and use case in the consuming feature module (`feature.<name>.data` / `.domain`); models shared by several features in `:core:shared-domain-model`.
 
 ## When to use
 
@@ -86,7 +86,7 @@ A pure extension function with no injected dependencies.
 
 ### 6. Domain and repository
 
-- Domain model `<Name>DomainModel` in `:core:shared-model` when several features use it, otherwise in the feature's `domain/model` (pure Kotlin)
+- Domain model `<Name>DomainModel` in `:core:shared-domain-model` when several features use it, otherwise in the feature's `domain/model` (pure Kotlin)
 - The repository interface in the feature's `domain/repository`
 - Implementation in the feature's `data/repository/<Domain>RepositoryImpl.kt`:
 

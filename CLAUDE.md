@@ -7,7 +7,7 @@ Full reference: `ARCHITECTURE.md`.
 One Gradle module, `:app`, today. Hilt is set up in `:app` (no bindings yet); no network, no ViewModel and no navigation yet. The theme and `@FullPreview` (`core/design/.../preview/FullPreview.kt`, phone, dark, small and tablet previews) live in `:core:design`. The target is the feature-based module layout below, built step by step; new code follows it. The iTunes challenge plan is in `PLAN.md`.
 
 ## Modules (by feature, not by layer)
-`:app` (Application, NavHost, DI root, splash), `:feature:<name>` (songs, songdetails, album), `:core:design`, `:core:common`, `:core:shared-model` (shared pure-Kotlin models), `:core:network`, `:core:database`, `:library:player` (reusable Media3 playback engine behind a `PlayerController`).
+`:app` (Application, NavHost, DI root, splash), `:feature:<name>` (songs, songdetails, album), `:core:design`, `:core:common`, `:core:shared-domain-model` (shared pure-Kotlin models), `:core:network`, `:core:database`, `:library:player` (reusable Media3 playback engine behind a `PlayerController`).
 Each feature module holds its own layers as **packages**: `com.moisesai.challange.feature.<name>.{presentation,domain,data}`. There is no global `:domain` or `:data` module.
 
 ## Layering (the convention new code follows)

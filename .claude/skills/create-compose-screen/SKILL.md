@@ -82,7 +82,7 @@ data class Ui<Model>(
 package com.moisesai.challange.feature.<feature>.presentation.mapper
 
 import com.moisesai.challange.feature.<feature>.presentation.model.Ui<Model>
-import com.moisesai.challange.core.sharedmodel.<DomainModel>DomainModel // or feature.<feature>.domain.model for a feature-only model
+import com.moisesai.challange.core.shareddomainmodel.<DomainModel>DomainModel // or feature.<feature>.domain.model for a feature-only model
 
 fun <DomainModel>DomainModel.toUiModel(): Ui<Model> = Ui<Model>(
     id = id,

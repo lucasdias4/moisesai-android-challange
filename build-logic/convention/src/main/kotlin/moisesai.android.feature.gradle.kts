@@ -12,7 +12,7 @@ val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 dependencies {
     "implementation"(project(":core:design"))
     "implementation"(project(":core:common"))
-    "implementation"(project(":core:shared-model"))
+    "implementation"(project(":core:shared-domain-model"))
     "implementation"(libs.findLibrary("hilt-android").get())
     "ksp"(libs.findLibrary("hilt-compiler").get())
 }
