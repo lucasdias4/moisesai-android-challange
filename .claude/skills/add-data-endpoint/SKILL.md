@@ -92,7 +92,7 @@ Helpers that read a response (`ApiResponse.tracks()`, `album()`) are public beca
 
 ### 7. Mapper and repository (feature `data/`)
 
-- Mapper: pure extension functions, `fun ApiTrack.toDomain(): TrackDomainModel`, in `data/mapper/`.
+- Mapper: pure extension functions, `fun ApiTrack.toDomain(): TrackDomainModel`, in `data/mapper/`. It is never `suspend` and never switches threads. A model built from a list is named after the model: `List<DbTrack>.toTrackPageDomainModel(pageSize)`. Helpers on a standard type go in `data/extension/<Type>Extension.kt` (`String.normalizeSearchText()`).
 - Repository interface in the feature's `domain/repository`; implementation in `data/repository/`:
 
 ```kotlin
@@ -101,7 +101,18 @@ override suspend fun searchTracks(searchText: String): Result<List<TrackDomainMo
         .map { response -> response.tracks().map { it.toDomain() } }
 ```
 
-- The repository injects `DispatcherProvider` and uses `withContext(dispatchers.io)` only for blocking or CPU-heavy work. It uses `.map` and `fold`, never `runCatching` or `mapCatching`.
+- The repository injects `DispatcherProvider` and wraps the mapper call: `withContext(dispatchers.default) { response.toDbTracks() }` for CPU-heavy work (such as mapping a long list), `dispatchers.io` only for blocking work. It uses `.map`, `fold` and early returns, never `runCatching`, `mapCatching` or a `flatMap` helper.
+- Chain failing steps with an early return, and name the steps by where data comes from:
+
+```kotlin
+private suspend fun getTrack(trackId: Long): Result<TrackDomainModel?> {
+    val cachedTrack = trackLocalDataSource.getTrack(trackId).getOrElse { return Result.failure(it) }
+    return if (cachedTrack != null) Result.success(cachedTrack.toDomain()) else getTrackFromApiAndSaveToCache(trackId)
+}
+```
+
+- The public method says what the caller wants (`getTrack`); private steps say how (`getCachedPage`, `getTrackFromApiAndSaveToCache`). Name a condition that has a meaning (`isSearchCached`, `isAnyTrackFailed`), end a possibly empty value with `OrNull`, and name a response after its call (`searchTracksResponse`).
+- A lookup that finds nothing is a success (`null` or an empty list). With several lookups, fail only when nothing can be shown and one failed.
 
 ### 8. Domain model and use case
 
@@ -119,7 +130,7 @@ Run the `clean-code-review` skill on the files you wrote. Report the files chang
 ## Hard constraints
 
 - `CancellationException` is never swallowed; a Flow never throws to its collector
-- A datasource has no interface, returns the raw response, and does not switch dispatchers
+- A datasource has no interface, returns the raw response, and does not switch dispatchers; a mapper never does either
 - An empty result is a successful empty list, never an error
 - Repositories never call the Retrofit interface or a DAO directly, and never use `runCatching`
 - A failing repository method returns `Result<T>` (`Result<Unit>` for void), never `T?`

@@ -3,7 +3,7 @@ name: create-animation
 description: Create or change a Moisesai Challange Compose animation - an `animation` package next to its screen, one file per animation with the `Animation` suffix, a single `Phase` timeline, commented values, draw-phase state reads, accessibility and a clock-driven test. Use when a screen needs motion (splash, loading, transitions, micro-interactions) or when reviewing an animation.
 ---
 
-Build motion following `ARCHITECTURE.md` §4 "Animations". The reference implementation is the splash: `app/src/main/java/com/moisesai/challange/splash/` (`SplashScreen.kt` and `animation/`). Read it before writing a new one.
+Build motion following `ARCHITECTURE.md` §4 "Animations". The Figma design has no animation of its own, so the app has none at the moment; the examples below show the shape to follow.
 
 ---
 
@@ -42,7 +42,7 @@ Build motion following `ARCHITECTURE.md` §4 "Animations". The reference impleme
 ```
 
 - The package is called `animation` and sits next to the screen (`splash/animation`). The screen imports from it; it never imports the screen.
-- Every composable that is an animation, and its file, ends in `Animation`: `EqualizerBarsAnimation`, `AuroraGlowAnimation`, `TitleAnimation`. A Modifier that animates follows it too (`Modifier.splashExitAnimation(phase)` in `SplashExitAnimation.kt`).
+- Every composable that is an animation, and its file, ends in `Animation`: `BarsAnimation`, `GlowAnimation`, `TitleAnimation`. A Modifier that animates follows it too (`Modifier.splashExitAnimation(phase)` in `SplashExitAnimation.kt`).
 - Everything is `internal`. The `<Screen>Phase` enum lives in this package, because the animations depend on it.
 
 ### 2. Write one timeline
@@ -79,7 +79,7 @@ private const val ENTRY_MILLIS = 1_400
 private const val ENTRY_START_SCALE = 0.6f
 
 @Composable
-internal fun AuroraGlowAnimation(
+internal fun GlowAnimation(
     phase: SplashPhase,
     modifier: Modifier = Modifier,
 ) {
@@ -137,8 +137,8 @@ The screen stays small: it owns the phase, stacks the animations and applies the
 
 ```kotlin
 Box(modifier = Modifier.splashExitAnimation(phase), contentAlignment = Alignment.Center) {
-    AuroraGlowAnimation(phase = phase)
-    EqualizerBarsAnimation(phase = phase)
+    GlowAnimation(phase = phase)
+    BarsAnimation(phase = phase)
     TitleAnimation(phase = phase)
 }
 ```

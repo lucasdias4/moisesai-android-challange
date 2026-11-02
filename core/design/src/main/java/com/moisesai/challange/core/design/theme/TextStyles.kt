@@ -31,7 +31,6 @@ private fun designStyle(weight: Int, fontSize: Float, lineHeightPercent: Float) 
 /** The text styles of the design, under its names: `Display/Display 24` is `display24`, `Text/Text 16` is `text16`. */
 @Immutable
 class TextStyles(
-    val display12: TextStyle,
     val display14: TextStyle,
     val display16: TextStyle,
     val display18: TextStyle,
@@ -41,11 +40,9 @@ class TextStyles(
     val text12: TextStyle,
     val text14: TextStyle,
     val text16: TextStyle,
-    val text28: TextStyle,
 )
 
 internal val TextStylesDefault = TextStyles(
-    display12 = designStyle(DISPLAY_WEIGHT, 12f, 140f),
     display14 = designStyle(DISPLAY_WEIGHT, 14f, 120f),
     display16 = designStyle(DISPLAY_WEIGHT, 16f, 120f),
     display18 = designStyle(DISPLAY_WEIGHT, 18f, 108f),
@@ -55,5 +52,4 @@ internal val TextStylesDefault = TextStyles(
     text12 = designStyle(TEXT_WEIGHT, 12f, 140f),
     text14 = designStyle(TEXT_WEIGHT, 14f, 120f),
     text16 = designStyle(TEXT_WEIGHT, 16f, 120f),
-    text28 = designStyle(TEXT_WEIGHT, 28f, 120f),
 )

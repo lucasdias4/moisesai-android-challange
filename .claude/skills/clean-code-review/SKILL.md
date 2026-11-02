@@ -27,18 +27,19 @@ List the files: `git status --short`, `git diff --stat`, or `find <module>/src -
 
 | Area | Ask |
 |---|---|
-| Names | Does the name say what it is for? Nouns for types, verbs for functions, booleans as questions? Vocabulary kept (track/album, `id`/`name`, `albumId`)? Parameters named by meaning, wire names only in annotations? No `Manager`, `Helper`, `Util`, `Handler`, `Data`, `Info`? |
+| Names | Does the name say what it is for? Nouns for types, verbs for functions, booleans as questions? Vocabulary kept (track/album, `id`/`name`, `albumId`)? Parameters named by meaning, wire names only in annotations? No `Manager`, `Helper`, `Util`, `Handler`, `Data`, `Info`? Does a name say where data comes from (`getTrackFromApiAndSaveToCache`)? Is a condition with a meaning a named `val` (`isSearchCached`)? Does a possibly empty value end in `OrNull`? Is a response named after its call? |
 | Functions | Small, one thing, one level of abstraction? At most three parameters? No flag or nullable-as-default parameter? Command or query, not both? Error handling separate from logic? |
 | Classes and files | One class per file? One responsibility, high cohesion? Packages by kind (`api`, `model`, `extension`, `datasource`, `di`)? Extension files named `...Extensions.kt` or `...Extension.kt`? |
+| Layer placement | Mappers pure, never `suspend`, no thread switch (the repository wraps them in `withContext(dispatchers.default)`)? Early returns, not a `flatMap` helper? One section file per screen part, not one file per state? |
 | Visibility | `internal` or `private` unless another module needs it? |
-| Variables | `val` over `var`? Declared near use? No magic numbers or strings (fixed query parameters in the `@GET`)? |
+| Variables | `val` over `var`? Declared near use? No magic numbers or strings (fixed query parameters in the `@GET`)? Each value of a fixed list named, and a value two classes must share in one constant? |
 | Nullability | Each nullable field backed by real data or the docs? No `= null` defaults on DTOs? |
 | Comments | Only *why*? No commented-out code, no `TODO` left, no noise, no comment that duplicates the name? (Animation files are the exception: every constant, animated value and non-obvious call has a short comment on its meaning and reason.) |
 | Animations | In an `animation` package next to the screen, one per file, name and file end in `Animation`? One `Phase` timeline? Animated state read in draw or `graphicsLayer`? See `create-animation`. |
 | Components | Name and file end in `Component`, in the `component` package, with `@FullPreview` previews in the same file? Screen, layout, icon, modifier and preview files in their own packages? |
 | Duplication | Anything written three times extracted? |
 | Dead code | Unused fields, error types, dispatchers, dependencies, imports, files? |
-| Layering | Datasource raw and interface-free, no dispatcher; repository maps; ViewModel calls use cases only; no feature imports another? |
+| Layering | Use cases free of checks the ViewModel already does? Datasource raw and interface-free, no dispatcher; repository maps; ViewModel calls use cases only; no feature imports another? |
 | Tests | One concept each, sentence names, fixtures real, shared support, no logic, none passing with the code broken? |
 
 ### 4. Decide what to ask

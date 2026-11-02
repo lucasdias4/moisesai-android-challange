@@ -49,24 +49,22 @@ Match the real requirements; do not apply one template to every screen.
 - Error: `error != null`
 - Empty: `isLoading = false`, empty list, no error
 
+When the states exclude each other (a screen that loads one thing), use a sealed `Ui<Screen>UiState` with `Loading`, `Error(type: UiErrorType)` and `Content`, and draw them with `LoadingIndicatorComponent` and `ErrorMessageComponent` from `:core:design`. Map `Throwable` to `UiErrorType` in `presentation/mapper/ErrorTypeMapper.kt`.
+
 ### 2. Create the package
 
 ```
 feature/<feature>/src/main/java/com/moisesai/challange/feature/<feature>/presentation/
 ├── composable/screen/<Feature>Screen.kt
-├── composable/screen/big_header_section/   # the big title and subtitle: first item of the list, scrolls away
-├── composable/screen/search_field_section/    # the search field, pinned near the top once the list has scrolled past its slot
-├── composable/screen/compact_header_section/  # the small title that takes the big header's place once the list has scrolled
-├── composable/screen/songs_list_section/              # the list of the screen: SongsListSection.kt
-├── composable/screen/songs_list_section/variant/      # SongsListFor<State>Variant.kt: the list for each state of the screen, only if it has several
-├── composable/screen/songs_list_section/extension/     # helpers on the list: the variant for each state and the item keys
-├── composable/screen/helper/                  # behaviour the screen needs but does not draw: the ambient tint, the load-more effect
+├── composable/screen/header_section/           # the name of the screen, with room for the status bar
+├── composable/screen/search_field_section/    # the search field with the space the design leaves around it
+├── composable/screen/songs_list_section/      # the list: one SongsListSection.kt, a private function per state and a preview per state
+├── composable/screen/song_options_section/    # the sheet with the choices for a song, over the screen
+├── composable/screen/helper/                  # behaviour the screen needs but does not draw: the load-more effect
 ├── composable/component/<Name>Component.kt   # one per file, with its previews
-├── composable/component/preview_helper/      # PreviewSurface and sample data
-├── composable/component/{layout,modifier,icon}/   # spacing constants, modifiers and icons the components share
-├── composable/animation/<Name>Animation.kt   # motion, one animation per file, built with the create-animation skill
-├── composable/animation/<name>/              # an animation that needs more than one file (its state, phase or helpers) gets its own package
-├── composable/model/                         # what composables take or share: the actions holder, list and scroll contexts, small types
+├── composable/component/preview_helper/      # sample data and the list the section previews draw on
+├── composable/animation/<Name>Animation.kt   # only if the design has motion; built with the create-animation skill
+├── composable/callback/                      # <Feature>Callbacks: everything the user can do on the screen
 ├── model/Ui<Model>.kt                        # Ui models, the UiState and its sealed states
 ├── view_model/<Feature>ViewModel.kt
 ├── navigation/<Feature>Navigation.kt
@@ -279,7 +277,10 @@ import com.moisesai.challange.feature.<feature>.presentation.view_model.<Feature
 import kotlinx.serialization.Serializable
 
 @Serializable
-object <Feature>Route
+data class <Feature>Route(val <name>Id: Long) // `object` when the screen needs no id
+
+// The key under which the ViewModel reads the id from its SavedStateHandle.
+internal val <Name>IdKey = <Feature>Route::<name>Id.name
 
 fun NavGraphBuilder.<feature>Graph(
     onSomeAction: () -> Unit,
@@ -292,11 +293,11 @@ fun NavGraphBuilder.<feature>Graph(
 }
 ```
 
-Register `<feature>Graph(...)` in the root `NavHost` in `:app`; navigation callbacks are lambdas supplied there, and routes carry ids only. `hiltViewModel()` replaces `viewModel { ... }` after Hilt is added.
+Use `hiltViewModel()` and read the id with `savedStateHandle[<Name>IdKey]`. Register `<feature>Graph(...)` in the root `NavHost` in `:app` and describe the flow between screens in its KDoc; navigation callbacks are lambdas supplied there, and routes carry ids only. `hiltViewModel()` replaces `viewModel { ... }` after Hilt is added.
 
 ### 9. Previews
 
-Every screen file has `@FullPreview` previews, each wrapped in `MoisesaiChallangeTheme { }`. At minimum: content, loading, error.
+Every screen file has `@FullPreview` previews, each wrapped in `MoisesaiChallangeTheme { }`. At minimum: content, loading, error. Each preview is the screen (or section) in one state, built by one private helper (`<Name>Preview(state)`); never one preview file per state.
 
 ```kotlin
 @FullPreview

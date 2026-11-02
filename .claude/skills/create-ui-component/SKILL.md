@@ -60,6 +60,8 @@ fun ComponentName(
 
 Prefer an enum or sealed type over boolean flags that select a variant.
 
+A component that adds items to a list is a `LazyListScope` extension named in lower camel case (`songRowListComponent`) with a preview that draws it inside a `LazyColumn`. A component that several features need (loading, error with retry) lives in `:core:design`, not in a feature.
+
 ### 4. Theme it
 
 Colours from `MaterialTheme.colorScheme`:
@@ -78,7 +80,7 @@ Surface(color = MaterialTheme.colorScheme.surface) {
 - A component whose job is an animation is not a shared component: use the `create-animation` skill (`animation` package next to its screen, name and file end in `Animation`)
 - Shapes: `MaterialTheme.shapes`, never hardcoded corner radii
 - If the palette needs a new colour, add it in `core/design/theme/Color.kt` and `Theme.kt`, not as a literal at the call site
-- The Aurora Neon palette and typeface come from `MoisesaiChallangeTheme` (dark only, no dynamic colour); never read `isSystemInDarkTheme()` in a component
+- The palette, text styles and shapes of the Figma design come from `MoisesaiChallangeTheme` (`MaterialTheme.design`) (dark only, no dynamic colour); never read `isSystemInDarkTheme()` in a component
 
 ### 5. Previews
 

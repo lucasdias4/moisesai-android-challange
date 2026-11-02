@@ -1,9 +1,9 @@
-package com.moisesai.challange.core.design.graphics
+package com.moisesai.challange.core.design.extension
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class CssBoxShadowTest {
+class CssBoxShadowExtensionTest {
 
     @Test
     fun `GIVEN a css blur of 50 pixels, WHEN converted, THEN the blur radius is the one whose gaussian has a deviation of 25`() {

@@ -2,6 +2,6 @@
 <resources>
 
     <style name="Theme.MoisesaiChallange" parent="android:Theme.Material.NoActionBar">
-        <item name="android:windowBackground">@color/aurora_night</item>
+        <item name="android:windowBackground">@color/background_00</item>
     </style>
 </resources>

@@ -7,6 +7,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.haze) // backdrop blur of the glass surfaces
-    implementation(libs.coil.compose) // reads the artwork colours that light the ambient background
+    implementation(project(":core:strings")) // the description of the back button
+    implementation(libs.haze) // blurs what is behind a surface (the action sheet)
 }

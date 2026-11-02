@@ -64,6 +64,8 @@ Written from the caller's point of view, not as a method name. Examples:
 - `` `GIVEN the server answers 500, WHEN getting a track, THEN the result is a network error` ``
 - `` `GIVEN a response without an album, WHEN reading the album, THEN it is null` ``
 
+A JVM test name cannot contain `.`, `:`, `;` or `/` (write "7.4" as "7400 milliseconds").
+
 The name and the markers must agree: what the name calls `GIVEN` is what `// Given` sets up, and so on.
 
 ## What to test, and where
@@ -71,7 +73,7 @@ The name and the markers must agree: what the name calls `GIVEN` is what `// Giv
 1. **Test through the public entry points.** A class with its own logic gets a test class; the test package mirrors the production package (`datasource`, `extension`).
 2. **No test class for configuration or data holders:** an annotated Retrofit interface, a DTO, the `Json` configuration, Hilt wiring. They are covered through the datasource tests with real fixtures: if a JSON key, a query parameter or a Json option is wrong, those tests fail.
 3. **Fake the layer below, not the class under test.** A remote datasource: the real Retrofit, OkHttp and JSON stack against `MockWebServer`. A repository: the datasource mocked with MockK (final Kotlin classes can be mocked). A use case: the repository mocked. A ViewModel: the use cases mocked, the `StateFlow` asserted. A Room datasource: an in-memory database on the device (an instrumented test, see below).
-4. **Pure helpers get their own tests with plain objects** and no network (`safeRemoteCall`, `toRemoteError`, `safeCall`, `asSafeResult`, `ApiResponse.tracks()`).
+4. **Pure helpers get their own tests with plain objects** and no network (`safeRemoteCall`, `toRemoteError`, `safeCall`, `asSafeResult`, `ApiResponse.tracks()`). So does a mapper or extension with logic (`toTrackPageDomainModel` and its `hasNext`, `String.normalizeSearchText()`). A ViewModel that reads a route id is built with `SavedStateHandle(mapOf(<Name>IdKey to id))`.
 5. **Fixtures are real captures** under `src/test/resources/fixtures/`, trimmed only by removing list items. Synthetic JSON is only for cases the real API will not produce (a malformed body, a missing required field).
 6. **Shared helpers live in a `support` package** and exist only when two or more test classes use them. A helper with one user is private in that test class.
 7. **Delete a test that adds no value:** one that restates a constant, or that still passes when the code under test is broken.
