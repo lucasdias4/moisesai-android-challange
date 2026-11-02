@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
@@ -44,6 +45,7 @@ dependencies {
     implementation(project(":feature:songs"))
     implementation(project(":feature:songdetails"))
     implementation(project(":feature:album"))
+    implementation(libs.kotlinx.serialization.json) // typed navigation route
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(platform(libs.androidx.compose.bom))
