@@ -11,8 +11,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.moisesai.challange.feature.album.presentation.navigation.AlbumRoute
 import com.moisesai.challange.feature.album.presentation.navigation.albumScreen
-import com.moisesai.challange.feature.songdetails.presentation.navigation.PlayerRoute
-import com.moisesai.challange.feature.songdetails.presentation.navigation.playerScreen
+import com.moisesai.challange.feature.songdetails.presentation.navigation.SongDetailsRoute
+import com.moisesai.challange.feature.songdetails.presentation.navigation.songDetailsScreen
 import com.moisesai.challange.feature.songs.presentation.navigation.SongsRoute
 import com.moisesai.challange.feature.songs.presentation.navigation.songsScreen
 import com.moisesai.challange.splash.navigation.SplashRoute
@@ -25,8 +25,8 @@ private const val SCREEN_FADE_MILLIS = 300
  * The only place where the screens meet: it decides where each one leads.
  *
  * ```
- * Splash --after a moment--> Songs --song--------> Player --"View album"--> Album --song--> Player (replaces the first one)
- *                            Songs --"View album"-----------------------> Album
+ * Splash --after a moment--> Songs --track-----> Song details --"View album"--> Album --track--> Song details (replaces the first one)
+ *                            Songs --"View album"-----------------------------> Album
  * ```
  * Back returns to the screen before. The splash is not one of them: it leaves the back stack when it ends.
  */
@@ -42,16 +42,16 @@ internal fun AppNavHost(modifier: Modifier = Modifier) {
     ) {
         splashScreen(onFinished = navController::openSongsReplacingTheSplash)
         songsScreen(
-            onTrackClick = navController::openPlayer,
+            onTrackClick = navController::openSongDetails,
             onViewAlbumClick = navController::openAlbum,
         )
-        playerScreen(
+        songDetailsScreen(
             onBackClick = navController::popBackStack,
             onViewAlbumClick = navController::openAlbum,
         )
         albumScreen(
             onBackClick = navController::popBackStack,
-            onTrackClick = navController::openPlayerReplacingThePlayerBefore,
+            onTrackClick = navController::openSongDetailsReplacingTheOneBefore,
         )
     }
 }
@@ -63,18 +63,18 @@ private fun NavController.openSongsReplacingTheSplash() {
     }
 }
 
-private fun NavController.openPlayer(trackId: Long) {
-    navigate(PlayerRoute(trackId))
+private fun NavController.openSongDetails(trackId: Long) {
+    navigate(SongDetailsRoute(trackId))
 }
 
 private fun NavController.openAlbum(albumId: Long) {
     navigate(AlbumRoute(albumId))
 }
 
-// Only one song plays at a time, so a song chosen from an album takes the place of the player the user came from:
-// going back from it leads to where that player was opened, not to a player of a song that stopped.
-private fun NavController.openPlayerReplacingThePlayerBefore(trackId: Long) {
-    navigate(PlayerRoute(trackId)) {
-        popUpTo<PlayerRoute> { inclusive = true }
+// Only one track plays at a time, so a track chosen from an album takes the place of the song details it came from:
+// going back from it leads to where those song details were opened, not to the details of a track that stopped.
+private fun NavController.openSongDetailsReplacingTheOneBefore(trackId: Long) {
+    navigate(SongDetailsRoute(trackId)) {
+        popUpTo<SongDetailsRoute> { inclusive = true }
     }
 }
