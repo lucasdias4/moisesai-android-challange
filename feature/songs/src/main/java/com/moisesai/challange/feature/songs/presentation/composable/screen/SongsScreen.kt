@@ -13,8 +13,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import com.moisesai.challange.core.design.components.glassSource
-import com.moisesai.challange.core.design.components.rememberGlassState
+import com.moisesai.challange.core.design.extension.glassSource
+import com.moisesai.challange.core.design.model.rememberUiGlassState
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
 import com.moisesai.challange.core.design.theme.design
@@ -49,7 +49,7 @@ internal fun SongsScreen(uiState: UiSongsUiState, callbacks: SongsCallbacks, mod
     LoadMoreEffect(listState = listState, onLoadMore = callbacks.onLoadMore)
     ClearQueryOnBackEffect(query = uiState.query, onQueryChange = callbacks.onQueryChange)
 
-    val glassState = rememberGlassState()
+    val glassState = rememberUiGlassState()
 
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.design.colors.background00)) {
         Column(modifier = Modifier.fillMaxSize().glassSource(glassState)) {

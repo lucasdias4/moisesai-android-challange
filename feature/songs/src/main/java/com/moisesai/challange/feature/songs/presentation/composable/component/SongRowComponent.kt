@@ -23,9 +23,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.moisesai.challange.core.design.icon.DesignIcons
+import com.moisesai.challange.core.design.R as DesignR
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
@@ -111,7 +112,7 @@ private fun MoreButton(onClick: () -> Unit) {
         contentAlignment = Alignment.Center,
     ) {
         Icon(
-            imageVector = DesignIcons.MoreSmall,
+            painter = painterResource(DesignR.drawable.ic_more_small),
             contentDescription = stringResource(R.string.common_more_options),
             modifier = Modifier.size(MoreIconSize),
             tint = MaterialTheme.design.colors.element03,

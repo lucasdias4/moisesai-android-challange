@@ -21,8 +21,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.moisesai.challange.core.design.icon.DesignIcons
+import com.moisesai.challange.core.design.R as DesignR
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
@@ -55,7 +56,7 @@ internal fun SearchFieldComponent(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
-            imageVector = DesignIcons.Search,
+            painter = painterResource(DesignR.drawable.ic_search),
             contentDescription = null,
             modifier = Modifier.size(SearchIconSize),
             tint = colors.alphaInvert25,
