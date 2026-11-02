@@ -5,8 +5,11 @@ import com.moisesai.challange.feature.songs.domain.repository.SuggestedTracksRep
 import javax.inject.Inject
 
 // The first songs offered to someone with no history. They are picked by hand: well known songs whose covers look good.
-// iTunes ids of: As (Stevie Wonder), ocean eyes (Billie Eilish) and Flower In A Hurricane (Justice).
-private val SUGGESTED_TRACK_IDS = listOf(1440788744L, 1440899467L, 6827658231L)
+private const val SUGGESTED_TRACK_ID_1 = 1440788744L // As (Stevie Wonder)
+private const val SUGGESTED_TRACK_ID_2 = 1440899467L // ocean eyes (Billie Eilish)
+private const val SUGGESTED_TRACK_ID_3 = 6827658231L // Flower In A Hurricane (Justice)
+
+private val SUGGESTED_TRACK_IDS = listOf(SUGGESTED_TRACK_ID_1, SUGGESTED_TRACK_ID_2, SUGGESTED_TRACK_ID_3)
 
 internal class GetSuggestedTracksUseCase @Inject constructor(
     private val suggestedTracksRepository: SuggestedTracksRepository,

@@ -53,8 +53,21 @@ Match the real requirements; do not apply one template to every screen.
 
 ```
 feature/<feature>/src/main/java/com/moisesai/challange/feature/<feature>/presentation/
-├── composable/<Feature>Screen.kt
-├── model/Ui<Model>.kt
+├── composable/screen/<Feature>Screen.kt
+├── composable/screen/big_header_section/   # the big title and subtitle: first item of the list, scrolls away
+├── composable/screen/search_field_section/    # the search field, pinned near the top once the list has scrolled past its slot
+├── composable/screen/compact_header_section/  # the small title that takes the big header's place once the list has scrolled
+├── composable/screen/songs_list_section/              # the list of the screen: SongsListSection.kt
+├── composable/screen/songs_list_section/variant/      # SongsListFor<State>Variant.kt: the list for each state of the screen, only if it has several
+├── composable/screen/songs_list_section/extension/     # helpers on the list: the variant for each state and the item keys
+├── composable/screen/helper/                  # behaviour the screen needs but does not draw: the ambient tint, the load-more effect
+├── composable/component/<Name>Component.kt   # one per file, with its previews
+├── composable/component/preview_helper/      # PreviewSurface and sample data
+├── composable/component/{layout,modifier,icon}/   # spacing constants, modifiers and icons the components share
+├── composable/animation/<Name>Animation.kt   # motion, one animation per file, built with the create-animation skill
+├── composable/animation/<name>/              # an animation that needs more than one file (its state, phase or helpers) gets its own package
+├── composable/model/                         # what composables take or share: the actions holder, list and scroll contexts, small types
+├── model/Ui<Model>.kt                        # Ui models, the UiState and its sealed states
 ├── view_model/<Feature>ViewModel.kt
 ├── navigation/<Feature>Navigation.kt
 └── mapper/<Model>Mapper.kt        # only if a domain model needs UI mapping
@@ -177,10 +190,10 @@ Before writing the screen, list the components it needs (cards, rows, banners, e
 
 ### 7. Screen composable
 
-`composable/<Feature>Screen.kt` is **stateless**: it receives `uiState` and callbacks.
+`composable/screen/<Feature>Screen.kt` is **stateless**: it receives `uiState` and callbacks.
 
 ```kotlin
-package com.moisesai.challange.feature.<feature>.presentation.composable
+package com.moisesai.challange.feature.<feature>.presentation.composable.screen
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -261,7 +274,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
-import com.moisesai.challange.feature.<feature>.presentation.composable.<Feature>Screen
+import com.moisesai.challange.feature.<feature>.presentation.composable.screen.<Feature>Screen
 import com.moisesai.challange.feature.<feature>.presentation.view_model.<Feature>ViewModel
 import kotlinx.serialization.Serializable
 

@@ -28,13 +28,13 @@ private const val PRIMARY_GLOW_STOP = 0.55f
 
 private val GlowSize = 340.dp
 
-/** A soft magenta and lime halo that grows behind the wordmark once the bars start to collapse. */
+/** A soft magenta and lime halo that grows behind the title once the bars start to collapse. */
 @Composable
 internal fun AuroraGlowAnimation(
     phase: SplashPhase,
     modifier: Modifier = Modifier,
 ) {
-    // 0 = hidden, 1 = fully shown. Starts at Collapsing so the glow is ready when the wordmark arrives.
+    // 0 = hidden, 1 = fully shown. Starts at Collapsing so the glow is ready when the title arrives.
     val entryProgress by animateFloatAsState(
         targetValue = if (phase >= SplashPhase.Collapsing) 1f else 0f,
         animationSpec = tween(ENTRY_MILLIS, easing = FastOutSlowInEasing),

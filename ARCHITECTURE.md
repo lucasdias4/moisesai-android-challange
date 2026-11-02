@@ -89,6 +89,8 @@ The Flow stops at the ViewModel: it is collected there and written into the sing
 
 **Animations** end in `Animation` (the composable and its file, for example `EqualizerBarsAnimation.kt`). Where they live and how they are written is in section 4, "Animations".
 
+**Components** (a reusable piece of a screen: a field, a card, a row, a chip, a state) end in `Component`, the composable and its file (`SearchFieldComponent.kt`), and live in a `component` package inside `composable`. The package layout of `presentation/composable` is in section 4.
+
 Package names are singular, lowercase, no underscores for modules and layers (`feature.songs.presentation`). Presentation subpackages use the names in section 2 (`view_model` with underscore is the one exception).
 
 ### Vocabulary
@@ -114,6 +116,8 @@ One word for one thing, in every layer:
 - Navigation is driven by lambdas passed in from the root `NavHost`; ViewModels and feature composables never own the `NavController`.
 - Screen composables are stateless: `uiState` plus callbacks. `modifier: Modifier = Modifier` is the first optional parameter.
 - Top-level screen composables have `@FullPreview` previews wrapped in `MoisesaiChallangeTheme { }`.
+- `presentation/composable` is split by role: `screen` (the parent screen with its previews, and one package per section of it: `songs_list_section` with a `variant` package, one `SongsListFor<State>Variant` per state the list can be in, and an `extension` package for what the list needs; `big_header_section`, `compact_header_section` and `search_field_section`; and `helper` for behaviour the screen needs but does not draw, such as the ambient tint and the load-more effect), `component` (every `*Component`, one per file, plus the small types only they use, with `layout` for the measurements, `modifier` for custom modifiers, `icon` for vector graphics and `preview_helper` for sample data and the surface previews draw on), `animation` (one `*Animation` per file; an animation that needs more than one file gets its own package, such as `reveal`, `content_swap` and `header_collapse`) and `model` (what composables take or share: the action holder `SongsActions`, contexts such as `ListContext` and `ScrollContext`, and the small types only composables use).
+- Every component has `@FullPreview` previews at the bottom of its own file (private parts such as a badge or a button have their own too), wrapped in the `PreviewSurface` of the `preview_helper` package, with the sample data from there. A preview shows a component in its resting look: arrival animations start already finished.
 
 ### Animations
 
@@ -223,7 +227,7 @@ DataSources catch (`runCatching` for suspend, `.catch` for Flow). Repositories a
 
 ## 7. Theming
 
-Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `MaterialTheme.typography` and `MaterialTheme.shapes`. Change the palette in `core/design/theme/Color.kt` and `Theme.kt`, not at call sites. The visual identity is **Aurora Neon**: glass surfaces and soft glows with one fixed dark colour scheme (lime and magenta on near-black) and the Space Grotesk typeface, with Inter Black for the display styles (Space Grotesk has no heavier weight than Bold); both are bundled in `:core:design` (`res/font`). There is no dynamic colour and no light scheme, so the system bars are drawn for dark content. The XML half of the theme (`themes.xml` and the one colour it needs, `colors.xml`) lives next to `Color.kt` in `:core:design`. All user-facing text lives in `:core:strings`, one `strings_<screen>.xml` file per screen with a `<screen>_` prefix on every name, and is read with `stringResource(R.string.<name>)` using that module's `R`. Never hardcode hex colours, corner radii, font sizes or user-facing text.
+Screens take colours, typography and shapes from `MaterialTheme.colorScheme`, `MaterialTheme.typography` and `MaterialTheme.shapes`. Change the palette in `core/design/theme/Color.kt` and `Theme.kt`, not at call sites. The visual identity is **Aurora Neon**: glass surfaces and soft glows with one fixed dark colour scheme (lime and magenta on near-black) and the Space Grotesk typeface, with Inter Black for the display styles (Space Grotesk has no heavier weight than Bold); both are bundled in `:core:design` (`res/font`). There is no dynamic colour and no light scheme, so the system bars are drawn for dark content. The XML half of the theme (`themes.xml` and the one colour it needs, `colors.xml`) lives next to `Color.kt` in `:core:design`. All user-facing text lives in `:core:strings`, one `strings_<screen>.xml` file per screen with a `<screen>_` prefix on every name, and is read with `stringResource(R.string.<name>)` using that module's `R`. The agreed visual concept (screens, states, tokens, motion and the order to build it) is in `app/visual-concept/`; it is a reference and is not compiled. Never hardcode hex colours, corner radii, font sizes or user-facing text.
 
 ---
 

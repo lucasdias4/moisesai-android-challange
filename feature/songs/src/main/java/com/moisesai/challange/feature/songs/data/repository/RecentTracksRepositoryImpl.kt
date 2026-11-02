@@ -18,6 +18,10 @@ internal class RecentTracksRepositoryImpl @Inject constructor(
 
     override fun observeRecentTracks(limit: Int): Flow<Result<List<TrackDomainModel>>> =
         recentlyPlayedTrackLocalDataSource.observeRecentlyPlayedTracks(limit)
-            .map { result -> result.map { tracks -> tracks.map(DbTrack::toDomain) } }
+            .map { result ->
+                result.map { tracks ->
+                    tracks.map(DbTrack::toDomain)
+                }
+            }
             .flowOn(dispatchers.io)
 }

@@ -35,6 +35,7 @@ List the files: `git status --short`, `git diff --stat`, or `find <module>/src -
 | Nullability | Each nullable field backed by real data or the docs? No `= null` defaults on DTOs? |
 | Comments | Only *why*? No commented-out code, no `TODO` left, no noise, no comment that duplicates the name? (Animation files are the exception: every constant, animated value and non-obvious call has a short comment on its meaning and reason.) |
 | Animations | In an `animation` package next to the screen, one per file, name and file end in `Animation`? One `Phase` timeline? Animated state read in draw or `graphicsLayer`? See `create-animation`. |
+| Components | Name and file end in `Component`, in the `component` package, with `@FullPreview` previews in the same file? Screen, layout, icon, modifier and preview files in their own packages? |
 | Duplication | Anything written three times extracted? |
 | Dead code | Unused fields, error types, dispatchers, dependencies, imports, files? |
 | Layering | Datasource raw and interface-free, no dispatcher; repository maps; ViewModel calls use cases only; no feature imports another? |

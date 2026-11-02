@@ -1,0 +1,14 @@
+<resources>
+    <string name="songs_title">Songs</string>
+    <string name="songs_search_placeholder">Search</string>
+    <string name="songs_loading">Searching…</string>
+    <string name="songs_error_network_title">You seem to be offline</string>
+    <string name="songs_error_network_message">Check your connection and try again.</string>
+    <string name="songs_error_unknown_title">Something went wrong</string>
+    <string name="songs_error_unknown_message">We could not load songs. Please try again.</string>
+    <string name="songs_retry">Try again</string>
+    <string name="songs_no_results_title">No songs found</string>
+    <string name="songs_no_results_message">Nothing matches “%1$s”. Try another search.</string>
+    <string name="songs_partial_error">Could not update the list. Showing saved results.</string>
+    <string name="songs_track_description">%1$s by %2$s</string>
+</resources>

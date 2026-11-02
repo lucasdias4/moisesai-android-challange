@@ -134,7 +134,8 @@ For a full review, use the `clean-code-review` skill.
 
 - Expose callbacks instead of performing actions
 - No business logic in composables
-- Every public composable has `@FullPreview` previews in the same file
+- Every component's name and file end in `Component` (`SearchFieldComponent.kt`); in a feature it lives in `presentation/composable/component`
+- Every component, private parts included, has `@FullPreview` previews in the same file, on the feature's `PreviewSurface` and sample data (`presentation/composable/component/preview_helper`)
 - Never hardcode colours, typography or shapes when a theme token exists
 - `modifier: Modifier = Modifier` is the first optional parameter
 - Prefer extending an existing component over duplicating it

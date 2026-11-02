@@ -2,7 +2,7 @@ package com.moisesai.challange.feature.songs.data.repository
 
 import com.moisesai.challange.core.database.datasource.TrackLocalDataSource
 import com.moisesai.challange.core.network.datasource.TrackRemoteDataSource
-import com.moisesai.challange.core.network.extension.tracks
+import com.moisesai.challange.core.network.extension.getOnlyTracks
 import com.moisesai.challange.core.shareddomainmodel.TrackDomainModel
 import com.moisesai.challange.feature.songs.data.mapper.toDb
 import com.moisesai.challange.feature.songs.data.mapper.toDomain
@@ -22,23 +22,41 @@ internal class SuggestedTracksRepositoryImpl @Inject constructor(
 ) : SuggestedTracksRepository {
 
     override suspend fun getSuggestedTracks(trackIds: List<Long>): Result<List<TrackDomainModel>> {
-        // The lookups do not depend on each other, so they run together.
-        val outcomes = coroutineScope { trackIds.map { id -> async { resolveTrack(id) } }.awaitAll() }
-        val tracks = outcomes.mapNotNull { it.getOrNull() }
-        val firstFailure = outcomes.firstNotNullOfOrNull { it.exceptionOrNull() }
+        val trackResults = getTrackResults(trackIds)
+        val notNullTracks = trackResults.mapNotNull { it.getOrNull() }
+        val isAnyTrackFailed = trackResults.any { it.isFailure }
         // A few tracks are enough to show; it only counts as a failure when there is nothing to show.
-        return if (tracks.isEmpty() && firstFailure != null) Result.failure(firstFailure) else Result.success(tracks)
+        val foundNoTracksAndSomeLookupFailed = notNullTracks.isEmpty() && isAnyTrackFailed
+        return if (foundNoTracksAndSomeLookupFailed) {
+            Result.failure(trackResults.firstNotNullOf { it.exceptionOrNull() })
+        } else {
+            Result.success(notNullTracks)
+        }
     }
 
-    private suspend fun resolveTrack(trackId: Long): Result<TrackDomainModel?> =
-        trackLocalDataSource.getTrack(trackId).flatMap { saved ->
-            if (saved != null) Result.success(saved.toDomain()) else fetchAndSaveTrack(trackId)
+    // The lookups do not depend on each other, so they run together.
+    private suspend fun getTrackResults(trackIds: List<Long>): List<Result<TrackDomainModel?>> =
+        coroutineScope {
+            trackIds.map { trackId ->
+                async {
+                    getTrack(trackId)
+                }
+            }.awaitAll()
         }
 
-    private suspend fun fetchAndSaveTrack(trackId: Long): Result<TrackDomainModel?> =
-        trackRemoteDataSource.getTrack(trackId)
-            .map { response -> response.tracks().firstOrNull()?.toDb() }
-            .flatMap { track ->
-                if (track == null) Result.success(null) else trackLocalDataSource.saveTrack(track).map { track.toDomain() }
-            }
+    // Null when iTunes does not know the track either.
+    private suspend fun getTrack(trackId: Long): Result<TrackDomainModel?> {
+        val cachedTrack = trackLocalDataSource.getTrack(trackId).getOrElse { return Result.failure(it) }
+        return if (cachedTrack != null) {
+            Result.success(cachedTrack.toDomain())
+        } else {
+            getTrackFromApiAndSaveToCache(trackId)
+        }
+    }
+
+    private suspend fun getTrackFromApiAndSaveToCache(trackId: Long): Result<TrackDomainModel?> {
+        val response = trackRemoteDataSource.getTrack(trackId).getOrElse { return Result.failure(it) }
+        val track = response.getOnlyTracks().firstOrNull()?.toDb() ?: return Result.success(null)
+        return trackLocalDataSource.saveTrack(track).map { track.toDomain() }
+    }
 }
