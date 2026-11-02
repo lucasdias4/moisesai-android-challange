@@ -1,8 +1,8 @@
 package com.moisesai.challange.core.network.datasource
 
 import com.moisesai.challange.core.common.AppError
-import com.moisesai.challange.core.network.extension.album
-import com.moisesai.challange.core.network.extension.tracks
+import com.moisesai.challange.core.network.extension.getOnlyAlbum
+import com.moisesai.challange.core.network.extension.getOnlyTracks
 import com.moisesai.challange.core.network.model.ApiAlbum
 import com.moisesai.challange.core.network.model.ApiTrack
 import com.moisesai.challange.core.network.support.Fixtures
@@ -54,7 +54,7 @@ class AlbumRemoteDataSourceTest {
         server.enqueue(jsonResponse(readFixture(Fixtures.LOOKUP_ALBUM)))
 
         // When
-        val album = dataSource.getAlbumWithTracks(albumId = 6828810178).getOrThrow().album()!!
+        val album = dataSource.getAlbumWithTracks(albumId = 6828810178).getOrThrow().getOnlyAlbum()!!
 
         // Then
         assertEquals(6828810178, album.id)
@@ -76,7 +76,7 @@ class AlbumRemoteDataSourceTest {
         // Then
         val kinds: List<KClass<*>> = response.results.map { it::class }
         assertEquals(listOf(ApiAlbum::class, ApiTrack::class, ApiTrack::class, ApiTrack::class), kinds)
-        assertEquals(listOf(1, 2, 3), response.tracks().map { it.trackNumber })
+        assertEquals(listOf(1, 2, 3), response.getOnlyTracks().map { it.trackNumber })
     }
 
     @Test

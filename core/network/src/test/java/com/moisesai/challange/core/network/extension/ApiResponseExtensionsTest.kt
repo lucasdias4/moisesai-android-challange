@@ -16,7 +16,7 @@ class ApiResponseExtensionsTest {
         val response = ApiResponse(listOf(anAlbum(id = 1), aTrack(id = 10), ApiUnknownItem, aTrack(id = 11)))
 
         // When
-        val tracks = response.tracks()
+        val tracks = response.getOnlyTracks()
 
         // Then
         assertEquals(listOf(10L, 11L), tracks.map { it.id })
@@ -28,7 +28,7 @@ class ApiResponseExtensionsTest {
         val response = ApiResponse(listOf(aTrack(id = 10), anAlbum(id = 1), anAlbum(id = 2)))
 
         // When
-        val album = response.album()
+        val album = response.getOnlyAlbum()
 
         // Then
         assertEquals(1L, album?.id)
@@ -40,7 +40,7 @@ class ApiResponseExtensionsTest {
         val response = ApiResponse(listOf(aTrack(id = 10), ApiUnknownItem))
 
         // When
-        val album = response.album()
+        val album = response.getOnlyAlbum()
 
         // Then
         assertNull(album)

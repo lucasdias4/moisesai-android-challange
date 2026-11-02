@@ -1,6 +1,6 @@
 package com.moisesai.challange.core.network.datasource
 
-import com.moisesai.challange.core.network.extension.tracks
+import com.moisesai.challange.core.network.extension.getOnlyTracks
 import com.moisesai.challange.core.network.model.ApiUnknownItem
 import com.moisesai.challange.core.network.support.Fixtures
 import com.moisesai.challange.core.network.support.createTestApi
@@ -55,7 +55,7 @@ class TrackRemoteDataSourceTest {
 
         // When
         val track = dataSource.searchTracksBySearchText(searchText = "jack johnson", limit = 3)
-            .getOrThrow().tracks().first()
+            .getOrThrow().getOnlyTracks().first()
 
         // Then
         assertEquals(6828811031, track.id)
@@ -77,7 +77,7 @@ class TrackRemoteDataSourceTest {
 
         // When
         val tracks = dataSource.searchTracksBySearchText(searchText = "jack johnson", limit = 3)
-            .getOrThrow().tracks()
+            .getOrThrow().getOnlyTracks()
 
         // Then
         assertEquals(listOf(6828811031, 6828811033, 6828810577), tracks.map { it.id })
@@ -101,7 +101,7 @@ class TrackRemoteDataSourceTest {
         server.enqueue(jsonResponse(responseJson(trackJson())))
 
         // When
-        val track = dataSource.searchTracksBySearchText(searchText = "x", limit = 1).getOrThrow().tracks().single()
+        val track = dataSource.searchTracksBySearchText(searchText = "x", limit = 1).getOrThrow().getOnlyTracks().single()
 
         // Then
         assertNull(track.artUrl)
@@ -142,7 +142,7 @@ class TrackRemoteDataSourceTest {
         server.enqueue(jsonResponse(readFixture(Fixtures.LOOKUP_TRACK)))
 
         // When
-        val track = dataSource.getTrack(trackId = 6828811031).getOrThrow().tracks().single()
+        val track = dataSource.getTrack(trackId = 6828811031).getOrThrow().getOnlyTracks().single()
 
         // Then
         assertEquals(6828811031, track.id)
