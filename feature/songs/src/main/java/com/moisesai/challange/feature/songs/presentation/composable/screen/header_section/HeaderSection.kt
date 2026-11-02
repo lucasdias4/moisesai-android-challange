@@ -10,8 +10,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.feature.songs.presentation.composable.component.ScreenTitleComponent
-import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
 
 // The design leaves this much between the status bar and the title.
 private val SpaceBelowStatusBar = 20.dp

@@ -4,6 +4,7 @@ import com.moisesai.challange.feature.songs.presentation.model.UiTrack
 
 internal fun aUiTrack(id: Long, name: String, artistName: String, durationText: String) = UiTrack(
     id = id,
+    albumId = id,
     name = name,
     artistName = artistName,
     artUrl = null,

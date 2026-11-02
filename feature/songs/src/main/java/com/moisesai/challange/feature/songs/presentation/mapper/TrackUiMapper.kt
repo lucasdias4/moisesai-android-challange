@@ -18,6 +18,7 @@ private const val CARD_ART_SIZE = "600x600bb"
 
 internal fun TrackDomainModel.toUiModel() = UiTrack(
     id = id,
+    albumId = albumId,
     name = name.withoutTrailingNote(),
     artistName = artistName.mainArtist(),
     artUrl = artUrl?.replace(ITUNES_ART_SIZE, ROW_ART_SIZE),

@@ -1,9 +1,9 @@
-package com.moisesai.challange.feature.songs.data.repository
+package com.moisesai.challange.feature.songs.data.extension
 
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-class SearchTextNormalizerTest {
+class StringExtensionTest {
 
     @Test
     fun `GIVEN a search text with capitals, WHEN normalised, THEN it is lowercase`() {
@@ -11,7 +11,7 @@ class SearchTextNormalizerTest {
         val searchText = "Daft Punk"
 
         // When
-        val normalized = normalizeSearchText(searchText)
+        val normalized = searchText.normalizeSearchText()
 
         // Then
         assertEquals("daft punk", normalized)
@@ -23,7 +23,7 @@ class SearchTextNormalizerTest {
         val searchText = "  levitating  "
 
         // When
-        val normalized = normalizeSearchText(searchText)
+        val normalized = searchText.normalizeSearchText()
 
         // Then
         assertEquals("levitating", normalized)
@@ -35,7 +35,7 @@ class SearchTextNormalizerTest {
         val searchText = "kendrick \t  lamar"
 
         // When
-        val normalized = normalizeSearchText(searchText)
+        val normalized = searchText.normalizeSearchText()
 
         // Then
         assertEquals("kendrick lamar", normalized)

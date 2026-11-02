@@ -14,9 +14,9 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.core.strings.R
-import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
 
 private val LoaderVerticalPadding = 32.dp
 private val LoaderSize = 32.dp

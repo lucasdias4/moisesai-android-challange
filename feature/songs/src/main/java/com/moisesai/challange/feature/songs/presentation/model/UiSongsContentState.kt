@@ -2,8 +2,8 @@ package com.moisesai.challange.feature.songs.presentation.model
 
 
 /**
- * What the Songs screen is showing, with only the data that look needs. Each one has its own songs list variant in
- * `composable/screen/songs_list_section`.
+ * What the Songs screen is showing, with only the data that look needs. `SongsListSection` decides what the list
+ * draws for each one.
  */
 internal sealed interface UiSongsContentState {
 

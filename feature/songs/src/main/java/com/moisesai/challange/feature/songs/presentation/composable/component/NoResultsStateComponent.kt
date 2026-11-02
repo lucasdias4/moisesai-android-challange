@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.strings.R
-import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
 
 /** Shown when a search worked and found nothing for [searchText]. */
 @Composable

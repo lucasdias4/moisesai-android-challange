@@ -6,11 +6,9 @@ import com.moisesai.challange.core.database.datasource.SavedSearchLocalDataSourc
 import com.moisesai.challange.core.database.entity.DbSavedSearch
 import com.moisesai.challange.core.database.entity.DbTrack
 import com.moisesai.challange.core.network.datasource.TrackRemoteDataSource
-import com.moisesai.challange.core.network.extension.tracks
-import com.moisesai.challange.core.network.model.ApiResponse
-import com.moisesai.challange.core.network.model.ApiTrack
-import com.moisesai.challange.feature.songs.data.mapper.toDb
-import com.moisesai.challange.feature.songs.data.mapper.toDomain
+import com.moisesai.challange.feature.songs.data.extension.normalizeSearchText
+import com.moisesai.challange.feature.songs.data.mapper.toDbTracks
+import com.moisesai.challange.feature.songs.data.mapper.toTrackPageDomainModel
 import com.moisesai.challange.feature.songs.domain.model.TrackPageDomainModel
 import com.moisesai.challange.feature.songs.domain.repository.TrackSearchRepository
 import javax.inject.Inject
@@ -27,40 +25,50 @@ private const val FIRST_PAGE = 0
 internal class TrackSearchRepositoryImpl @Inject constructor(
     private val trackRemoteDataSource: TrackRemoteDataSource,
     private val savedSearchLocalDataSource: SavedSearchLocalDataSource,
+    // Injected to facilitate unit testing
     private val timeProvider: TimeProvider,
     private val dispatchers: DispatcherProvider,
 ) : TrackSearchRepository {
 
     override suspend fun searchTracksBySearchText(searchText: String, page: Int, pageSize: Int): Result<TrackPageDomainModel> {
-        val savedSearchText = normalizeSearchText(searchText)
-        // Later pages only read the saved copy, so the list does not change while the user scrolls.
-        if (page != FIRST_PAGE) return readPage(savedSearchText, page, pageSize)
-        return savedSearchLocalDataSource.getSavedSearch(savedSearchText).flatMap { savedSearch ->
-            if (savedSearch == null) refreshTracksBySearchText(savedSearchText, pageSize) else readPage(savedSearchText, FIRST_PAGE, pageSize)
+        val normalizedSearchText = searchText.normalizeSearchText()
+        // Later pages only read the cached copy, so the list does not change while the user scrolls.
+        return if (page == FIRST_PAGE) {
+            getFirstPageFromCacheOrApi(normalizedSearchText, pageSize)
+        } else {
+            getCachedPage(normalizedSearchText, page, pageSize)
         }
     }
 
-    override suspend fun refreshTracksBySearchText(searchText: String, pageSize: Int): Result<TrackPageDomainModel> {
-        val savedSearchText = normalizeSearchText(searchText)
-        return fetchAndSaveSearch(savedSearchText).flatMap { readPage(savedSearchText, FIRST_PAGE, pageSize) }
+    override suspend fun refreshTracksBySearchText(searchText: String, pageSize: Int): Result<TrackPageDomainModel> =
+        getFirstPageFromApi(searchText.normalizeSearchText(), pageSize)
+
+    private suspend fun getFirstPageFromCacheOrApi(normalizedSearchText: String, pageSize: Int): Result<TrackPageDomainModel> {
+        val cachedSearch = savedSearchLocalDataSource.getSavedSearch(normalizedSearchText).getOrElse { return Result.failure(it) }
+        val isSearchCached = cachedSearch != null
+        return if (isSearchCached) {
+            getCachedPage(normalizedSearchText, FIRST_PAGE, pageSize)
+        } else {
+            getFirstPageFromApi(normalizedSearchText, pageSize)
+        }
     }
 
-    private suspend fun fetchAndSaveSearch(savedSearchText: String): Result<Unit> =
-        trackRemoteDataSource.searchTracksBySearchText(savedSearchText, SEARCH_FETCH_LIMIT)
-            .map { response -> toDbTracks(response) }
-            .flatMap { tracks ->
-                savedSearchLocalDataSource.saveSearch(DbSavedSearch(savedSearchText, timeProvider.currentTimeMillis()), tracks)
-            }
+    private suspend fun getFirstPageFromApi(normalizedSearchText: String, pageSize: Int): Result<TrackPageDomainModel> {
+        getSearchFromApiAndSaveToCache(normalizedSearchText).onFailure { return Result.failure(it) }
+        return getCachedPage(normalizedSearchText, FIRST_PAGE, pageSize)
+    }
 
-    // Mapping up to 200 tracks is the only work here that is not a datasource call, so it is the only switch of dispatcher.
-    private suspend fun toDbTracks(response: ApiResponse): List<DbTrack> =
-        withContext(dispatchers.io) { response.tracks().map(ApiTrack::toDb) }
+    private suspend fun getSearchFromApiAndSaveToCache(normalizedSearchText: String): Result<Unit> {
+        val searchTracksResponse = trackRemoteDataSource.searchTracksBySearchText(normalizedSearchText, SEARCH_FETCH_LIMIT)
+            .getOrElse { return Result.failure(it) }
+        // Switch dispatchers for this potentially heavy operation.
+        // It currently processes 200 items, but this number may grow in the future.
+        val tracks = withContext(dispatchers.default) { searchTracksResponse.toDbTracks() }
+        return savedSearchLocalDataSource.saveSearch(DbSavedSearch(normalizedSearchText, timeProvider.currentTimeMillis()), tracks)
+    }
 
-    private suspend fun readPage(savedSearchText: String, page: Int, pageSize: Int): Result<TrackPageDomainModel> =
+    private suspend fun getCachedPage(normalizedSearchText: String, page: Int, pageSize: Int): Result<TrackPageDomainModel> =
         // One row more than the page tells whether a next page exists, without a count query.
-        savedSearchLocalDataSource.getSavedSearchTracksPage(savedSearchText, limit = pageSize + 1, offset = page * pageSize)
-            .map { tracks -> tracks.toTrackPage(pageSize) }
-
-    private fun List<DbTrack>.toTrackPage(pageSize: Int) =
-        TrackPageDomainModel(tracks = take(pageSize).map(DbTrack::toDomain), hasNext = size > pageSize)
+        savedSearchLocalDataSource.getSavedSearchTracksPage(normalizedSearchText, limit = pageSize + 1, offset = page * pageSize)
+            .map { tracks -> tracks.toTrackPageDomainModel(pageSize) }
 }

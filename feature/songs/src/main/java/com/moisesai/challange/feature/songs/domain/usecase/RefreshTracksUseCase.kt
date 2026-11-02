@@ -1,5 +1,6 @@
 package com.moisesai.challange.feature.songs.domain.usecase
 
+import com.moisesai.challange.feature.songs.domain.model.Constants
 import com.moisesai.challange.feature.songs.domain.model.TrackPageDomainModel
 import com.moisesai.challange.feature.songs.domain.repository.TrackSearchRepository
 import javax.inject.Inject
@@ -9,6 +10,5 @@ internal class RefreshTracksUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(searchText: String): Result<TrackPageDomainModel> =
-        if (searchText.isBlank()) Result.success(NoTracksPage)
-        else trackSearchRepository.refreshTracksBySearchText(searchText, SEARCH_PAGE_SIZE)
+        trackSearchRepository.refreshTracksBySearchText(searchText, Constants.SEARCH_PAGE_SIZE)
 }

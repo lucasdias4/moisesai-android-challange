@@ -9,9 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.core.strings.R
-import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsError
 
 /** Shown when a search failed and there is nothing else to show: what went wrong, and a button to try again. */

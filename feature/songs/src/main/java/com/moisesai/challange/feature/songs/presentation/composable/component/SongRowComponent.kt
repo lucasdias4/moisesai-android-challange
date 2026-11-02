@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,10 +27,10 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.moisesai.challange.core.design.icon.DesignIcons
 import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.core.strings.R
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.LongTitleSample
-import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SampleTracks
 import com.moisesai.challange.feature.songs.presentation.model.UiTrack
 
@@ -40,23 +42,30 @@ private val SpaceBetweenTextAndMoreButton = 8.dp
 private val MoreButtonSize = 36.dp
 private val MoreIconSize = 20.dp
 
-/** One song in a list: its cover, its name, its artist and the "more" icon. The whole row can be clicked. */
+/**
+ * One song in a list: its cover, its name, its artist and the "more" button. Tapping the song calls [onClick], tapping
+ * the button calls [onMoreClick].
+ */
 @Composable
-internal fun SongRowComponent(track: UiTrack, onClick: () -> Unit, modifier: Modifier = Modifier) {
+internal fun SongRowComponent(track: UiTrack, onClick: () -> Unit, onMoreClick: () -> Unit, modifier: Modifier = Modifier) {
     val songDescription = stringResource(R.string.songs_track_description, track.name, track.artistName)
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.small)
-            .clickable(onClick = onClick)
-            .semantics(mergeDescendants = true) { contentDescription = songDescription }
-            .padding(vertical = RowVerticalPadding),
+        modifier = modifier.fillMaxWidth().padding(vertical = RowVerticalPadding),
         horizontalArrangement = Arrangement.spacedBy(SpaceBetweenTextAndMoreButton),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Cover(artUrl = track.artUrl)
-        SongNames(track = track, modifier = Modifier.weight(1f))
-        MoreIcon()
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .clip(MaterialTheme.shapes.small)
+                .clickable(onClick = onClick)
+                .semantics(mergeDescendants = true) { contentDescription = songDescription },
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Cover(artUrl = track.artUrl)
+            SongNames(track = track, modifier = Modifier.weight(1f))
+        }
+        MoreButton(onClick = onMoreClick)
     }
 }
 
@@ -94,13 +103,16 @@ private fun SongNames(track: UiTrack, modifier: Modifier = Modifier) {
     }
 }
 
-// A round touch area of 36 with the three dots in the middle. It only shows for now: the action sheet will open from it.
+// A round button of 36 with the three dots in the middle.
 @Composable
-private fun MoreIcon() {
-    Box(modifier = Modifier.size(MoreButtonSize), contentAlignment = Alignment.Center) {
+private fun MoreButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier.size(MoreButtonSize).clip(CircleShape).clickable(role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
         Icon(
-            imageVector = DesignIcons.More,
-            contentDescription = null,
+            imageVector = DesignIcons.MoreSmall,
+            contentDescription = stringResource(R.string.common_more_options),
             modifier = Modifier.size(MoreIconSize),
             tint = MaterialTheme.design.colors.element03,
         )
@@ -109,10 +121,10 @@ private fun MoreIcon() {
 
 @FullPreview
 @Composable
-private fun SongRowPreview() = PreviewSurface { SongRowComponent(track = SampleTracks.first(), onClick = {}) }
+private fun SongRowPreview() = PreviewSurface { SongRowComponent(track = SampleTracks.first(), onClick = {}, onMoreClick = {}) }
 
 @FullPreview
 @Composable
 private fun SongRowWithLongNamesPreview() = PreviewSurface {
-    SongRowComponent(track = LongTitleSample, onClick = {})
+    SongRowComponent(track = LongTitleSample, onClick = {}, onMoreClick = {})
 }

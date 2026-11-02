@@ -13,6 +13,7 @@ import com.moisesai.challange.feature.songs.presentation.model.UiSearchResultsSt
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsContentState
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsError
 import com.moisesai.challange.feature.songs.presentation.model.UiSuggestionsState
+import com.moisesai.challange.feature.songs.presentation.model.UiTrackOptionsState
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -720,6 +721,40 @@ class SongsViewModelTest {
             UiSongsContentState.FirstLaunch(UiSuggestionsState.Loaded(listOf(levitating.toUiModel()))),
             viewModel.uiState.value.content,
         )
+    }
+
+    @Test
+    fun `GIVEN the screen starts, WHEN nothing was chosen, THEN no sheet of choices is shown`() = runTest(dispatcher) {
+        // Given / When
+        val viewModel = createViewModel()
+
+        // Then
+        assertEquals(UiTrackOptionsState.Hidden, viewModel.uiState.value.trackOptions)
+    }
+
+    @Test
+    fun `GIVEN a song, WHEN its options are chosen, THEN the sheet of choices is shown for it`() = runTest(dispatcher) {
+        // Given
+        val viewModel = createViewModel()
+
+        // When
+        viewModel.onTrackOptionsClick(levitating.toUiModel())
+
+        // Then
+        assertEquals(UiTrackOptionsState.Visible(levitating.toUiModel()), viewModel.uiState.value.trackOptions)
+    }
+
+    @Test
+    fun `GIVEN the sheet of choices is shown, WHEN it is dismissed, THEN it is hidden`() = runTest(dispatcher) {
+        // Given
+        val viewModel = createViewModel()
+        viewModel.onTrackOptionsClick(levitating.toUiModel())
+
+        // When
+        viewModel.onTrackOptionsDismiss()
+
+        // Then
+        assertEquals(UiTrackOptionsState.Hidden, viewModel.uiState.value.trackOptions)
     }
 
     private fun TestScope.createViewModel() =

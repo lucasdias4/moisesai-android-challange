@@ -11,8 +11,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
-import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
 
 private val TitleRowHeight = 48.dp
 private val TitleRowHorizontalPadding = 24.dp

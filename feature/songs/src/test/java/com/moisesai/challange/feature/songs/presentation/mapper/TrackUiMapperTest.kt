@@ -45,6 +45,18 @@ class TrackUiMapperTest {
     }
 
     @Test
+    fun `GIVEN a track of an album, WHEN mapped to ui, THEN the ui track keeps the album id`() {
+        // Given
+        val track = aTrackDomainModel()
+
+        // When
+        val uiTrack = track.toUiModel()
+
+        // Then
+        assertEquals(track.albumId, uiTrack.albumId)
+    }
+
+    @Test
     fun `GIVEN a track without a cover, WHEN mapped to ui, THEN both cover urls are null`() {
         // Given
         val track = aTrackDomainModel(artUrl = null)

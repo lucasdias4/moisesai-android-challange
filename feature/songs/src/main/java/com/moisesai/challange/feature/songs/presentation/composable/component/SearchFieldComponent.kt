@@ -24,9 +24,9 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.icon.DesignIcons
 import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.core.strings.R
-import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
 
 private val FieldHeight = 44.dp
 private val FieldHorizontalPadding = 16.dp

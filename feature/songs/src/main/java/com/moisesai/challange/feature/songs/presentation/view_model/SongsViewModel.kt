@@ -15,6 +15,7 @@ import com.moisesai.challange.feature.songs.presentation.model.UiSongsContentSta
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsError
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsUiState
 import com.moisesai.challange.feature.songs.presentation.model.UiSuggestionsState
+import com.moisesai.challange.feature.songs.presentation.model.UiTrackOptionsState
 import com.moisesai.challange.feature.songs.presentation.model.UiTrack
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -45,7 +46,13 @@ internal class SongsViewModel @Inject constructor(
     private val getSuggestedTracks: GetSuggestedTracksUseCase,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(UiSongsUiState(content = UiSongsContentState.FirstLaunch(UiSuggestionsState.Loading)))
+    private val _uiState = MutableStateFlow(
+        UiSongsUiState(
+            query = "",
+            content = UiSongsContentState.FirstLaunch(UiSuggestionsState.Loading),
+            trackOptions = UiTrackOptionsState.Hidden,
+        ),
+    )
     val uiState: StateFlow<UiSongsUiState> = _uiState.asStateFlow()
 
     // Typing is slow to settle, so it waits; a submitted search (keyboard action, a suggestion) starts at once.
@@ -75,6 +82,14 @@ internal class SongsViewModel @Inject constructor(
 
     fun onSearchSubmit() {
         submittedSearchText.tryEmit(_uiState.value.query)
+    }
+
+    fun onTrackOptionsClick(track: UiTrack) {
+        _uiState.update { it.copy(trackOptions = UiTrackOptionsState.Visible(track)) }
+    }
+
+    fun onTrackOptionsDismiss() {
+        _uiState.update { it.copy(trackOptions = UiTrackOptionsState.Hidden) }
     }
 
     fun loadMore() {
