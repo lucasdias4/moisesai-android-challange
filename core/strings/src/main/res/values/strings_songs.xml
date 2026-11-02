@@ -11,4 +11,5 @@
     <string name="songs_no_results_message">Nothing matches “%1$s”. Try another search.</string>
     <string name="songs_partial_error">Could not update the list. Showing saved results.</string>
     <string name="songs_track_description">%1$s by %2$s</string>
+    <string name="songs_view_album">View album</string>
 </resources>

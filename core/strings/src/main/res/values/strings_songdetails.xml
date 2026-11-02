@@ -1,0 +1,8 @@
+<resources>
+    <string name="songdetails_title">Now playing</string>
+    <string name="songdetails_play">Play</string>
+    <string name="songdetails_pause">Pause</string>
+    <string name="songdetails_previous">Previous song</string>
+    <string name="songdetails_next">Next song</string>
+    <string name="songdetails_repeat">Repeat</string>
+</resources>
