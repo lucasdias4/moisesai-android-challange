@@ -2,6 +2,8 @@ package com.moisesai.challange.di
 
 import com.moisesai.challange.core.common.DefaultDispatcherProvider
 import com.moisesai.challange.core.common.DispatcherProvider
+import com.moisesai.challange.core.common.SystemTimeProvider
+import com.moisesai.challange.core.common.TimeProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -12,4 +14,7 @@ import dagger.hilt.components.SingletonComponent
 internal object CommonModule {
     @Provides
     fun provideDispatcherProvider(): DispatcherProvider = DefaultDispatcherProvider
+
+    @Provides
+    fun provideTimeProvider(): TimeProvider = SystemTimeProvider
 }
