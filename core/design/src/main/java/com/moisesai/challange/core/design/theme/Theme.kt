@@ -4,63 +4,23 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.graphics.Color
-
-private val AuroraColorScheme = darkColorScheme(
-    primary = AuroraLime,
-    onPrimary = AuroraNight,
-    secondary = AuroraMagenta,
-    onSecondary = AuroraNight,
-    tertiary = AuroraMagenta,
-    onTertiary = AuroraNight,
-    background = AuroraNight,
-    onBackground = AuroraMist,
-    surface = AuroraSmoke,
-    onSurface = AuroraMist,
-    surfaceVariant = AuroraCharcoal,
-    onSurfaceVariant = AuroraAsh,
-    outline = AuroraOutline,
-)
 
 private val DesignColorScheme = darkColorScheme(
-    primary = DesignColorsDefault.element07,
-    onPrimary = DesignColorsDefault.element00,
-    background = DesignColorsDefault.background00,
-    onBackground = DesignColorsDefault.text03,
-    surface = DesignColorsDefault.background00,
-    onSurface = DesignColorsDefault.text03,
-    surfaceVariant = DesignColorsDefault.background03,
-    onSurfaceVariant = DesignColorsDefault.text01,
-    outline = DesignColorsDefault.element03,
+    primary = ColorsDefault.element07,
+    onPrimary = ColorsDefault.element00,
+    background = ColorsDefault.background00,
+    onBackground = ColorsDefault.text03,
+    surface = ColorsDefault.background00,
+    onSurface = ColorsDefault.text03,
+    surfaceVariant = ColorsDefault.background03,
+    onSurfaceVariant = ColorsDefault.text01,
+    outline = ColorsDefault.element03,
 )
 
-private val AuroraTokensDefault = AuroraTokens(
-    colors = AuroraColors(
-        glassFill = Color.White.copy(alpha = 0.065f),
-        fieldFill = AuroraSmoke.copy(alpha = 0.45f),
-        chipFill = Color.White.copy(alpha = 0.07f),
-        chipBorder = Color.White.copy(alpha = 0.14f),
-        ghostFill = Color.White.copy(alpha = 0.03f),
-        ghostBorder = Color.White.copy(alpha = 0.22f),
-        badgeFill = AuroraNight.copy(alpha = 0.45f),
-        cardArtist = Color(0xFFD6D6E0),
-        labelLine = Color.White.copy(alpha = 0.20f),
-    ),
-    text = AuroraTextStylesDefault,
-)
-
+/** The look of the app: the colours, shapes and text styles of the Figma design. It is dark only. */
 @Composable
 fun MoisesaiChallangeTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = DesignColorScheme,
-        typography = Typography,
-        shapes = DesignShapes,
-    ) {
-        CompositionLocalProvider(
-            LocalDesign provides DesignTokensDefault,
-            // The Aurora tokens stay only until the screens that still read them are rebuilt from the Figma.
-            LocalAurora provides AuroraTokensDefault,
-            content = content,
-        )
+    MaterialTheme(colorScheme = DesignColorScheme, shapes = Shapes) {
+        CompositionLocalProvider(LocalDesign provides TokensDefault, content = content)
     }
 }

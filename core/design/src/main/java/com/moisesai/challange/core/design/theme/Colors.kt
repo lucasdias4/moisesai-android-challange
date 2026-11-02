@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 
 /** The colours of the design, under the names the Figma file gives them (`Dark/Text/text-03` is `text03`). */
 @Immutable
-class DesignColors(
+class Colors(
     val background00: Color,
     val background03: Color,
     /** A panel that lets what is behind it show: 80% of #262626. */
@@ -25,11 +25,15 @@ class DesignColors(
     val alphaInvert25: Color,
     val alphaInvert50: Color,
     val alphaInvert90: Color,
+    /** `Base/White Alpha`: white at 20%, 60% and 70%. */
+    val whiteAlpha20: Color,
+    val whiteAlpha60: Color,
+    val whiteAlpha70: Color,
     val accentAcqua: Color,
     val accentMint: Color,
 )
 
-internal val DesignColorsDefault = DesignColors(
+internal val ColorsDefault = Colors(
     background00 = Color(0xFF000000),
     background03 = Color(0xFF2D2D2D),
     backgroundAlpha01 = Color(0xFF262626).copy(alpha = 0.8f),
@@ -47,6 +51,9 @@ internal val DesignColorsDefault = DesignColors(
     alphaInvert25 = Color.White.copy(alpha = 0.25f),
     alphaInvert50 = Color.White.copy(alpha = 0.50f),
     alphaInvert90 = Color.White.copy(alpha = 0.90f),
+    whiteAlpha20 = Color.White.copy(alpha = 0.20f),
+    whiteAlpha60 = Color.White.copy(alpha = 0.60f),
+    whiteAlpha70 = Color.White.copy(alpha = 0.70f),
     accentAcqua = Color(0xFF00DAE8),
     accentMint = Color(0xFF0AFFA7),
 )

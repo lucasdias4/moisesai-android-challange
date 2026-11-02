@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.sp
 
 // The design is set in Articulat CF, a commercial font that is not in the project yet. Until its files are added to
 // `res/font`, the system font stands in, so the sizes, weights and line heights are right but the letter shapes are not.
-internal val DesignFontFamily: FontFamily = FontFamily.Default
+internal val AppFontFamily: FontFamily = FontFamily.Default
 
 private const val DISPLAY_WEIGHT = 600
 private const val TEXT_WEIGHT = 500
@@ -21,7 +21,7 @@ private val CenteredLineHeight = LineHeightStyle(
 )
 
 private fun designStyle(weight: Int, fontSize: Float, lineHeightPercent: Float) = TextStyle(
-    fontFamily = DesignFontFamily,
+    fontFamily = AppFontFamily,
     fontWeight = FontWeight(weight),
     fontSize = fontSize.sp,
     lineHeight = (fontSize * lineHeightPercent / 100f).sp,
@@ -30,7 +30,7 @@ private fun designStyle(weight: Int, fontSize: Float, lineHeightPercent: Float) 
 
 /** The text styles of the design, under its names: `Display/Display 24` is `display24`, `Text/Text 16` is `text16`. */
 @Immutable
-class DesignTextStyles(
+class TextStyles(
     val display12: TextStyle,
     val display14: TextStyle,
     val display16: TextStyle,
@@ -44,7 +44,7 @@ class DesignTextStyles(
     val text28: TextStyle,
 )
 
-internal val DesignTextStylesDefault = DesignTextStyles(
+internal val TextStylesDefault = TextStyles(
     display12 = designStyle(DISPLAY_WEIGHT, 12f, 140f),
     display14 = designStyle(DISPLAY_WEIGHT, 14f, 120f),
     display16 = designStyle(DISPLAY_WEIGHT, 16f, 120f),

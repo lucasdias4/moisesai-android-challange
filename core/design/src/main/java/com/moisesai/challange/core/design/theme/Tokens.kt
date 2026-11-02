@@ -7,17 +7,17 @@ import androidx.compose.runtime.staticCompositionLocalOf
 
 /** The colours and text styles of the design that go beyond Material's own roles. */
 @Immutable
-class DesignTokens(
-    val colors: DesignColors,
-    val text: DesignTextStyles,
+class Tokens(
+    val colors: Colors,
+    val text: TextStyles,
 )
 
-internal val DesignTokensDefault = DesignTokens(colors = DesignColorsDefault, text = DesignTextStylesDefault)
+internal val TokensDefault = Tokens(colors = ColorsDefault, text = TextStylesDefault)
 
-internal val LocalDesign = staticCompositionLocalOf<DesignTokens> {
+internal val LocalDesign = staticCompositionLocalOf<Tokens> {
     error("MoisesaiChallangeTheme is missing: the design tokens are only available inside it.")
 }
 
 /** The design tokens: `MaterialTheme.design.colors.text03`, `MaterialTheme.design.text.text16`. */
-val MaterialTheme.design: DesignTokens
+val MaterialTheme.design: Tokens
     @Composable get() = LocalDesign.current
