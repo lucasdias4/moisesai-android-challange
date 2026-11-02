@@ -19,12 +19,12 @@ private val AccentGlowRadius = 28.dp
 
 /** The app name, one letter at a time. The last character is the accent and glows. */
 @Composable
-internal fun WordmarkAnimation(
+internal fun TitleAnimation(
     phase: SplashPhase,
     modifier: Modifier = Modifier,
 ) {
     // The text comes from strings.xml, so it can be translated or renamed in one place.
-    val wordmark = stringResource(R.string.splash_wordmark)
+    val title = stringResource(R.string.splash_title)
     val accentColor = MaterialTheme.colorScheme.primary
     val accentGlow = Shadow(
         color = accentColor.copy(alpha = ACCENT_GLOW_ALPHA),
@@ -35,11 +35,11 @@ internal fun WordmarkAnimation(
 
     // Screen readers should read the name once, not letter by letter,
     // so the letters are hidden and the whole word is the description.
-    Row(modifier = modifier.clearAndSetSemantics { contentDescription = wordmark }) {
-        wordmark.forEachIndexed { index, letter ->
+    Row(modifier = modifier.clearAndSetSemantics { contentDescription = title }) {
+        title.forEachIndexed { index, letter ->
             // The last character (the dot) is the accent.
-            val isAccent = index == wordmark.lastIndex
-            WordmarkLetterAnimation(
+            val isAccent = index == title.lastIndex
+            TitleLetterAnimation(
                 letter = letter,
                 color = if (isAccent) accentColor else letterColor,
                 shadow = if (isAccent) accentGlow else null,

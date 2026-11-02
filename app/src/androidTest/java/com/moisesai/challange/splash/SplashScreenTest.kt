@@ -23,7 +23,7 @@ class SplashScreenTest {
         const val REVEAL_MARGIN_MILLIS = 100L
     }
 
-    private val wordmark = InstrumentationRegistry.getInstrumentation().targetContext.getString(R.string.splash_wordmark)
+    private val title = InstrumentationRegistry.getInstrumentation().targetContext.getString(R.string.splash_title)
     private val totalDurationMillis = SplashPhase.entries.sumOf { it.durationMillis }
     private val untilExitMillis = totalDurationMillis - SplashPhase.Exiting.durationMillis
 
@@ -48,12 +48,12 @@ class SplashScreenTest {
     }
 
     @Test
-    fun GIVEN_the_splash_is_shown_WHEN_the_wordmark_is_revealed_THEN_the_app_name_is_displayed() {
+    fun GIVEN_the_splash_is_shown_WHEN_the_title_is_revealed_THEN_the_app_name_is_displayed() {
         showSplash(onFinished = {})
 
         composeTestRule.mainClock.advanceTimeBy(untilExitMillis - REVEAL_MARGIN_MILLIS)
 
-        composeTestRule.onNodeWithContentDescription(wordmark).assertIsDisplayed()
+        composeTestRule.onNodeWithContentDescription(title).assertIsDisplayed()
     }
 
     private fun showSplash(onFinished: () -> Unit) {

@@ -40,7 +40,7 @@ private const val BOUNCE_MILLIS_VARIANTS = 4
 private const val START_OFFSET_STEP_MILLIS = 70
 // The gap between two bars is 60% of a bar's width.
 private const val BAR_GAP_TO_WIDTH_RATIO = 0.6f
-// How fast the bars fade out when the wordmark appears.
+// How fast the bars fade out when the title appears.
 private const val FADE_OUT_MILLIS = 400
 
 private val BarsAreaHeight = 240.dp
@@ -49,7 +49,7 @@ private val BarsAreaHorizontalPadding = 40.dp
 /**
  * A row of rounded bars, centred vertically. They bounce while [phase] is
  * [SplashPhase.Equalizing], shrink to a row of dots from [SplashPhase.Collapsing]
- * and fade away once the wordmark is revealed.
+ * and fade away once the title is revealed.
  */
 @Composable
 internal fun EqualizerBarsAnimation(
@@ -64,7 +64,7 @@ internal fun EqualizerBarsAnimation(
         animationSpec = tween(SplashPhase.Collapsing.durationMillis.toInt()),
         label = "collapseFraction",
     )
-    // 1 = visible, 0 = gone. Bars leave when the wordmark arrives.
+    // 1 = visible, 0 = gone. Bars leave when the title arrives.
     val fadeOut by animateFloatAsState(
         targetValue = if (phase >= SplashPhase.Revealing) 0f else 1f,
         animationSpec = tween(FADE_OUT_MILLIS),

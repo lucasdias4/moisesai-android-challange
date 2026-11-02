@@ -6,7 +6,7 @@ package com.moisesai.challange.splash.animation
  *
  * - Equalizing: the bars bounce.
  * - Collapsing: the bars shrink to dots and the glow appears.
- * - Revealing: the wordmark springs in.
+ * - Revealing: the title springs in.
  * - Exiting: everything fades out, then the splash is over.
  *
  * Each phase lasts [durationMillis]. Phases are compared by order:

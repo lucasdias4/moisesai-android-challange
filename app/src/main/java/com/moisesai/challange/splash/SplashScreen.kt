@@ -18,13 +18,13 @@ import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
 import com.moisesai.challange.splash.animation.AuroraGlowAnimation
 import com.moisesai.challange.splash.animation.EqualizerBarsAnimation
 import com.moisesai.challange.splash.animation.SplashPhase
-import com.moisesai.challange.splash.animation.WordmarkAnimation
+import com.moisesai.challange.splash.animation.TitleAnimation
 import com.moisesai.challange.splash.animation.splashExitAnimation
 import kotlinx.coroutines.delay
 
 /**
  * Equalizer bars that bounce and collapse while an aurora glow grows, then the
- * wordmark springs in and everything fades out. Calls [onFinished] once, after the last step.
+ * title springs in and everything fades out. Calls [onFinished] once, after the last step.
  */
 @Composable
 internal fun SplashScreen(
@@ -45,7 +45,7 @@ internal fun SplashScreen(
         ) {
             AuroraGlowAnimation(phase = phase)
             EqualizerBarsAnimation(phase = phase)
-            WordmarkAnimation(phase = phase)
+            TitleAnimation(phase = phase)
         }
     }
 }

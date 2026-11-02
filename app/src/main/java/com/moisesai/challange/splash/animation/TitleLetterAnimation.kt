@@ -30,7 +30,7 @@ private val EntryStartOffsetY = 48.dp
  * [phase] becomes [SplashPhase.Revealing], so the letters arrive in sequence.
  */
 @Composable
-internal fun WordmarkLetterAnimation(
+internal fun TitleLetterAnimation(
     letter: Char,
     color: Color,
     shadow: Shadow?,

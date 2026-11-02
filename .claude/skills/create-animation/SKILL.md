@@ -42,7 +42,7 @@ Build motion following `ARCHITECTURE.md` §4 "Animations". The reference impleme
 ```
 
 - The package is called `animation` and sits next to the screen (`splash/animation`). The screen imports from it; it never imports the screen.
-- Every composable that is an animation, and its file, ends in `Animation`: `EqualizerBarsAnimation`, `AuroraGlowAnimation`, `WordmarkAnimation`. A Modifier that animates follows it too (`Modifier.splashExitAnimation(phase)` in `SplashExitAnimation.kt`).
+- Every composable that is an animation, and its file, ends in `Animation`: `EqualizerBarsAnimation`, `AuroraGlowAnimation`, `TitleAnimation`. A Modifier that animates follows it too (`Modifier.splashExitAnimation(phase)` in `SplashExitAnimation.kt`).
 - Everything is `internal`. The `<Screen>Phase` enum lives in this package, because the animations depend on it.
 
 ### 2. Write one timeline
@@ -83,7 +83,7 @@ internal fun AuroraGlowAnimation(
     phase: SplashPhase,
     modifier: Modifier = Modifier,
 ) {
-    // 0 = hidden, 1 = fully shown. Starts at Collapsing so the glow is ready when the wordmark arrives.
+    // 0 = hidden, 1 = fully shown. Starts at Collapsing so the glow is ready when the title arrives.
     val entryProgress by animateFloatAsState(
         targetValue = if (phase >= SplashPhase.Collapsing) 1f else 0f,
         animationSpec = tween(ENTRY_MILLIS, easing = FastOutSlowInEasing),
@@ -128,7 +128,7 @@ Canvas(modifier) { drawBars(bounceFractions, collapseFraction, brush) }
 ### 6. Accessibility
 
 - A decorative animation adds no semantics.
-- Text animated piece by piece is read once: put `clearAndSetSemantics { contentDescription = text }` on the container (see `WordmarkAnimation`).
+- Text animated piece by piece is read once: put `clearAndSetSemantics { contentDescription = text }` on the container (see `TitleAnimation`).
 - Compose follows the system animator scale, so endless animations stop when the user turns animations off. Do not work around it.
 
 ### 7. Wire it into the screen
@@ -139,7 +139,7 @@ The screen stays small: it owns the phase, stacks the animations and applies the
 Box(modifier = Modifier.splashExitAnimation(phase), contentAlignment = Alignment.Center) {
     AuroraGlowAnimation(phase = phase)
     EqualizerBarsAnimation(phase = phase)
-    WordmarkAnimation(phase = phase)
+    TitleAnimation(phase = phase)
 }
 ```
 
