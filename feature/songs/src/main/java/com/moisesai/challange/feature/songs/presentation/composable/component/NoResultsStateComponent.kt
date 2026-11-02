@@ -7,16 +7,16 @@ import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.strings.R
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
 
-/** Shown when a search worked and found nothing. */
+/** Shown when a search worked and found nothing for [searchText]. */
 @Composable
-internal fun NoResultsStateComponent(query: String, modifier: Modifier = Modifier) {
-    StateCardComponent(
+internal fun NoResultsStateComponent(searchText: String, modifier: Modifier = Modifier) {
+    MessageStateComponent(
         title = stringResource(R.string.songs_no_results_title),
-        message = stringResource(R.string.songs_no_results_message, query),
+        message = stringResource(R.string.songs_no_results_message, searchText),
         modifier = modifier,
     )
 }
 
 @FullPreview
 @Composable
-private fun NoResultsStatePreview() = PreviewSurface { NoResultsStateComponent(query = "asfasgs") }
+private fun NoResultsStatePreview() = PreviewSurface { NoResultsStateComponent(searchText = "asfasgs") }

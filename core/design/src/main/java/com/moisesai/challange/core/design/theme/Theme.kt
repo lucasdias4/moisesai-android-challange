@@ -22,6 +22,18 @@ private val AuroraColorScheme = darkColorScheme(
     outline = AuroraOutline,
 )
 
+private val DesignColorScheme = darkColorScheme(
+    primary = DesignColorsDefault.element07,
+    onPrimary = DesignColorsDefault.element00,
+    background = DesignColorsDefault.background00,
+    onBackground = DesignColorsDefault.text03,
+    surface = DesignColorsDefault.background00,
+    onSurface = DesignColorsDefault.text03,
+    surfaceVariant = DesignColorsDefault.background03,
+    onSurfaceVariant = DesignColorsDefault.text01,
+    outline = DesignColorsDefault.element03,
+)
+
 private val AuroraTokensDefault = AuroraTokens(
     colors = AuroraColors(
         glassFill = Color.White.copy(alpha = 0.065f),
@@ -40,10 +52,15 @@ private val AuroraTokensDefault = AuroraTokens(
 @Composable
 fun MoisesaiChallangeTheme(content: @Composable () -> Unit) {
     MaterialTheme(
-        colorScheme = AuroraColorScheme,
+        colorScheme = DesignColorScheme,
         typography = Typography,
-        shapes = AuroraShapes,
+        shapes = DesignShapes,
     ) {
-        CompositionLocalProvider(LocalAurora provides AuroraTokensDefault, content = content)
+        CompositionLocalProvider(
+            LocalDesign provides DesignTokensDefault,
+            // The Aurora tokens stay only until the screens that still read them are rebuilt from the Figma.
+            LocalAurora provides AuroraTokensDefault,
+            content = content,
+        )
     }
 }

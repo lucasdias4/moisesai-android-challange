@@ -9,29 +9,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.moisesai.challange.core.design.preview.FullPreview
-import com.moisesai.challange.core.design.theme.aurora
+import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.core.strings.R
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsError
 
-/** Shown when the first page could not be loaded and there is nothing else to show. */
+/** Shown when a search failed and there is nothing else to show: what went wrong, and a button to try again. */
 @Composable
 internal fun ErrorStateComponent(error: UiSongsError, onRetry: () -> Unit, modifier: Modifier = Modifier) {
-    StateCardComponent(
+    val design = MaterialTheme.design
+    MessageStateComponent(
         title = stringResource(error.titleRes()),
         message = stringResource(error.messageRes()),
         modifier = modifier,
-    ) {
-        Button(
-            onClick = onRetry,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-            ),
-        ) {
-            Text(text = stringResource(R.string.songs_retry), style = MaterialTheme.aurora.text.chip)
-        }
-    }
+        action = {
+            Button(
+                onClick = onRetry,
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(containerColor = design.colors.element07, contentColor = design.colors.element00),
+            ) {
+                Text(text = stringResource(R.string.songs_retry), style = design.text.display14)
+            }
+        },
+    )
 }
 
 @StringRes

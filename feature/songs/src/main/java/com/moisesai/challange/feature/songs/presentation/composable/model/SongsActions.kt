@@ -1,10 +1,9 @@
 package com.moisesai.challange.feature.songs.presentation.composable.model
 
-/** Everything the user can do on the Songs screen, so the screen takes one parameter and not seven. */
+/** Everything the user can do on the Songs screen, so the screen takes one parameter and not six. */
 internal data class SongsActions(
     val onQueryChange: (String) -> Unit,
     val onSearchSubmit: () -> Unit,
-    val onSuggestionClick: (String) -> Unit,
     val onTrackClick: (Long) -> Unit,
     val onLoadMore: () -> Unit,
     val onRefresh: () -> Unit,
@@ -12,6 +11,6 @@ internal data class SongsActions(
 ) {
     companion object {
         /** For previews and tests that do not care about the actions. */
-        val None = SongsActions({}, {}, {}, {}, {}, {}, {})
+        val None = SongsActions({}, {}, {}, {}, {}, {})
     }
 }

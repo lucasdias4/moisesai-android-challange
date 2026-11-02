@@ -1,98 +1,100 @@
 package com.moisesai.challange.feature.songs.presentation.composable.screen.songs_list_section
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.preview.FullPreview
-import com.moisesai.challange.feature.songs.presentation.composable.component.layout.BottomSpacing
-import com.moisesai.challange.feature.songs.presentation.composable.component.layout.ScreenHorizontalPadding
-import com.moisesai.challange.feature.songs.presentation.composable.component.layout.SearchFieldHeight
+import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SampleTracks
-import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SuggestedSample
-import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.previewListContext
-import com.moisesai.challange.feature.songs.presentation.composable.model.ListContext
-import com.moisesai.challange.feature.songs.presentation.composable.model.ScrollContext
-import com.moisesai.challange.feature.songs.presentation.composable.model.rememberScrollContext
-import com.moisesai.challange.feature.songs.presentation.composable.screen.big_header_section.BigHeaderSection
+import com.moisesai.challange.feature.songs.presentation.composable.model.SongsActions
 import com.moisesai.challange.feature.songs.presentation.composable.screen.songs_list_section.extension.isRefreshing
 import com.moisesai.challange.feature.songs.presentation.composable.screen.songs_list_section.extension.showSongsListVariantByState
 import com.moisesai.challange.feature.songs.presentation.model.UiSearchResultsState
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsContentState
-import com.moisesai.challange.feature.songs.presentation.model.UiSongsError
-import com.moisesai.challange.feature.songs.presentation.model.UiSuggestionsState
 
-private const val HEADER_KEY = "header"
-internal const val FIELD_SLOT_KEY = "field-slot"
-private const val BOTTOM_SPACE_KEY = "bottom-space"
-// Pulling down refreshes a search, so it only exists while one is shown; the home has nothing to refresh.
+private val ListStartPadding = 24.dp
+private val ListEndPadding = 16.dp
+private val ListTopPadding = 8.dp
+
+// The design leaves this much room under the last song, for the mini player that will float above the list.
+private val ListBottomPadding = 240.dp
+
+// The songs fade out under the search field: black at 80% where they leave, clear 16 further down.
+private val TopShadowHeight = 16.dp
+private const val TOP_SHADOW_START_ALPHA = 0.8f
+
+/**
+ * The songs of the screen, drawn by the variant that fits [content]. While a search is shown, pulling the list down
+ * asks for the search again.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun SongsListSection(content: UiSongsContentState, context: ListContext, scroll: ScrollContext) {
-    if (content is UiSongsContentState.Search) {
-        PullToRefreshBox(isRefreshing = content.isRefreshing(), onRefresh = context.actions.onRefresh) {
-            SongsColumn(content, context, scroll)
+internal fun SongsListSection(
+    content: UiSongsContentState,
+    actions: SongsActions,
+    listState: LazyListState,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier) {
+        if (content is UiSongsContentState.Search) {
+            PullToRefreshBox(isRefreshing = content.isRefreshing(), onRefresh = actions.onRefresh) {
+                SongsColumn(content, actions, listState)
+            }
+        } else {
+            SongsColumn(content, actions, listState)
         }
-    } else {
-        SongsColumn(content, context, scroll)
+        TopShadow(modifier = Modifier.align(Alignment.TopCenter))
     }
 }
 
 @Composable
-private fun SongsColumn(content: UiSongsContentState, context: ListContext, scroll: ScrollContext) {
+private fun SongsColumn(content: UiSongsContentState, actions: SongsActions, listState: LazyListState) {
     LazyColumn(
-        state = scroll.listState,
-        modifier = Modifier.fillMaxSize().imePadding(),
-        contentPadding = PaddingValues(horizontal = ScreenHorizontalPadding),
+        modifier = Modifier.fillMaxSize(),
+        state = listState,
+        contentPadding = PaddingValues(
+            start = ListStartPadding,
+            top = ListTopPadding,
+            end = ListEndPadding,
+            bottom = ListBottomPadding,
+        ),
     ) {
-        item(key = HEADER_KEY) { BigHeaderSection(scroll.collapseProgress) }
-        // The real field floats above the list; this empty slot keeps its place in the list.
-        item(key = FIELD_SLOT_KEY) { Spacer(Modifier.height(SearchFieldHeight)) }
-        showSongsListVariantByState(context, content)
-        item(key = BOTTOM_SPACE_KEY) { Spacer(Modifier.height(bottomSpacing())) }
+        showSongsListVariantByState(actions, content)
     }
 }
 
 @Composable
-private fun bottomSpacing(): Dp = BottomSpacing + WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
-
-@FullPreview
-@Composable
-private fun SongsListSectionFirstLaunchPreview() = PreviewSurface {
-    SongsListSection(
-        content = UiSongsContentState.FirstLaunch(UiSuggestionsState.Loaded(SuggestedSample)),
-        context = previewListContext(),
-        scroll = rememberScrollContext(),
+private fun TopShadow(modifier: Modifier = Modifier) {
+    val black = MaterialTheme.design.colors.background00
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(TopShadowHeight)
+            .background(Brush.verticalGradient(listOf(black.copy(alpha = TOP_SHADOW_START_ALPHA), black.copy(alpha = 0f)))),
     )
 }
 
 @FullPreview
 @Composable
-private fun SongsListSectionResultsPreview() = PreviewSurface {
+private fun SongsListSectionPreview() = PreviewSurface {
     SongsListSection(
         content = UiSongsContentState.SearchResults(SampleTracks, UiSearchResultsState.HasMore),
-        context = previewListContext(),
-        scroll = rememberScrollContext(),
-    )
-}
-
-@FullPreview
-@Composable
-private fun SongsListSectionFailedSearchPreview() = PreviewSurface {
-    SongsListSection(
-        content = UiSongsContentState.SearchError(UiSongsError.Network),
-        context = previewListContext(),
-        scroll = rememberScrollContext(),
+        actions = SongsActions.None,
+        listState = rememberLazyListState(),
     )
 }

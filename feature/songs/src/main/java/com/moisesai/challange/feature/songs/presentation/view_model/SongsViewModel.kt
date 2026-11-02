@@ -77,14 +77,6 @@ internal class SongsViewModel @Inject constructor(
         submittedSearchText.tryEmit(_uiState.value.query)
     }
 
-    fun onSuggestionClick(searchText: String) {
-        _uiState.update { it.copy(query = searchText) }
-        // The typed text must know it too: otherwise clearing the field later is no change to it, and the screen
-        // would stay on the results of the suggestion.
-        typedSearchText.value = searchText
-        submittedSearchText.tryEmit(searchText)
-    }
-
     fun loadMore() {
         val results = _uiState.value.content as? UiSongsContentState.SearchResults ?: return
         // Any status but HasMore is busy, failed or at the last page, so a failing page is not requested on every scroll.

@@ -190,38 +190,6 @@ class SongsViewModelTest {
     }
 
     @Test
-    fun `GIVEN a suggestion, WHEN it is clicked, THEN the field shows it and its search starts without waiting`() = runTest(dispatcher) {
-        // Given
-        val viewModel = createViewModel()
-        givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-
-        // When
-        viewModel.onSuggestionClick("Levitating")
-        runCurrent()
-
-        // Then
-        assertEquals("Levitating", viewModel.uiState.value.query)
-        coVerify { searchTracks("Levitating", 0) }
-    }
-
-    @Test
-    fun `GIVEN a suggestion was clicked, WHEN the search field is cleared, THEN the screen goes back to the home`() = runTest(dispatcher) {
-        // Given
-        val viewModel = createViewModel()
-        givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        viewModel.onSuggestionClick("Levitating")
-        advanceTimeBy(DEBOUNCE_MILLIS)
-        runCurrent()
-
-        // When
-        viewModel.onQueryChange("")
-        runCurrent()
-
-        // Then
-        assertEquals(UiSongsContentState.FirstLaunch(UiSuggestionsState.Unavailable), viewModel.uiState.value.content)
-    }
-
-    @Test
     fun `GIVEN a search found no song, WHEN it ends, THEN the screen says nothing was found for the searched text`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()

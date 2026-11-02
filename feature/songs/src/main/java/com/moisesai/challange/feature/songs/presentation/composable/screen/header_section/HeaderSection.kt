@@ -1,0 +1,31 @@
+package com.moisesai.challange.feature.songs.presentation.composable.screen.header_section
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.feature.songs.presentation.composable.component.ScreenTitleComponent
+import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.PreviewSurface
+
+// The design leaves this much between the status bar and the title.
+private val SpaceBelowStatusBar = 20.dp
+
+/** The top of the screen: room for the status bar, then the name of the screen. */
+@Composable
+internal fun HeaderSection(title: String, modifier: Modifier = Modifier) {
+    val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+    Column(modifier = modifier) {
+        Spacer(modifier = Modifier.height(statusBarHeight + SpaceBelowStatusBar))
+        ScreenTitleComponent(title = title)
+    }
+}
+
+@FullPreview
+@Composable
+private fun HeaderSectionPreview() = PreviewSurface { HeaderSection(title = "Songs") }
