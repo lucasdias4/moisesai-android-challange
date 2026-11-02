@@ -114,7 +114,7 @@ package com.moisesai.challange.feature.<feature>.presentation.view_model
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moisesai.challange.feature.<feature>.presentation.model.Ui<Model>
-import com.moisesai.challange.feature.<feature>.domain.usecase.<UseCase>
+import com.moisesai.challange.feature.<feature>.domain.usecase.<Name>UseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -128,7 +128,7 @@ data class <Feature>UiState(
 )
 
 class <Feature>ViewModel(
-    private val useCase: <UseCase>,
+    private val <name>UseCase: <Name>UseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(<Feature>UiState())
@@ -141,7 +141,7 @@ class <Feature>ViewModel(
     fun load() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            useCase()
+            <name>UseCase()
                 .onSuccess { data ->
                     _uiState.update { it.copy(items = data.map { item -> item.toUiModel() }, isLoading = false) }
                 }
@@ -162,7 +162,7 @@ fun observe() {
     observeJob?.cancel()
     observeJob = viewModelScope.launch {
         _uiState.update { it.copy(isLoading = true, error = null) }
-        useCase().collect { result ->
+        <name>UseCase().collect { result ->
             result
                 .onSuccess { data ->
                     _uiState.update { it.copy(items = data.map { item -> item.toUiModel() }, isLoading = false, error = null) }
@@ -179,6 +179,7 @@ Use suspend by default; use the Flow form only when the use case really is a str
 
 Rules:
 - One `StateFlow<UiState>`; `isLoading` and `error` are mandatory
+- A use case is held and called with the `UseCase` postfix on the variable too (`getRecentTracksUseCase()`, never `getRecentTracks()`), so the call to the domain stands out from the ViewModel's own functions
 - Business logic stays out of composables; UI logic only in the ViewModel
 - If it later needs Hilt, add `@HiltViewModel` and `@Inject constructor`
 

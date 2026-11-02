@@ -41,10 +41,10 @@ import org.junit.Test
 class SongsViewModelTest {
 
     private val dispatcher: TestDispatcher = StandardTestDispatcher()
-    private val searchTracks = mockk<SearchTracksUseCase>()
-    private val refreshTracks = mockk<RefreshTracksUseCase>()
-    private val getRecentTracks = mockk<GetRecentTracksUseCase>()
-    private val getSuggestedTracks = mockk<GetSuggestedTracksUseCase>()
+    private val searchTracksUseCase = mockk<SearchTracksUseCase>()
+    private val refreshTracksUseCase = mockk<RefreshTracksUseCase>()
+    private val getRecentTracksUseCase = mockk<GetRecentTracksUseCase>()
+    private val getSuggestedTracksUseCase = mockk<GetSuggestedTracksUseCase>()
 
     private val levitating = aTrackDomainModel(id = 1)
     private val otherTrack = aTrackDomainModel(id = 2)
@@ -52,8 +52,8 @@ class SongsViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(dispatcher)
-        every { getRecentTracks() } returns flowOf(Result.success(emptyList()))
-        coEvery { getSuggestedTracks() } returns Result.success(emptyList())
+        every { getRecentTracksUseCase() } returns flowOf(Result.success(emptyList()))
+        coEvery { getSuggestedTracksUseCase() } returns Result.success(emptyList())
     }
 
     @After
@@ -73,7 +73,7 @@ class SongsViewModelTest {
         runCurrent()
 
         // Then
-        coVerify(exactly = 0) { searchTracks(any(), any()) }
+        coVerify(exactly = 0) { searchTracksUseCase(any(), any()) }
     }
 
     @Test
@@ -108,7 +108,7 @@ class SongsViewModelTest {
     fun `GIVEN a slow search, WHEN it has started, THEN the screen is loading with no results`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks("levitating", 0) } coAnswers {
+        coEvery { searchTracksUseCase("levitating", 0) } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(TrackPageDomainModel(listOf(levitating), hasNext = false))
         }
@@ -128,7 +128,7 @@ class SongsViewModelTest {
         val viewModel = createViewModel()
         givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
         searchFor(viewModel, "levitating")
-        coEvery { searchTracks("daft punk", 0) } coAnswers {
+        coEvery { searchTracksUseCase("daft punk", 0) } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
         }
@@ -144,11 +144,11 @@ class SongsViewModelTest {
     fun `GIVEN a search is running, WHEN a newer search text settles, THEN only the newer results are shown`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks("a", 0) } coAnswers {
+        coEvery { searchTracksUseCase("a", 0) } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(TrackPageDomainModel(listOf(levitating), hasNext = false))
         }
-        coEvery { searchTracks("ab", 0) } returns Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
+        coEvery { searchTracksUseCase("ab", 0) } returns Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
         searchFor(viewModel, "a")
 
         // When
@@ -187,7 +187,7 @@ class SongsViewModelTest {
         runCurrent()
 
         // Then
-        coVerify { searchTracks("daft punk", 0) }
+        coVerify { searchTracksUseCase("daft punk", 0) }
     }
 
     @Test
@@ -220,8 +220,8 @@ class SongsViewModelTest {
     fun `GIVEN more pages exist, WHEN loading more, THEN the next page is added to the results`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks("levitating", 0) } returns Result.success(TrackPageDomainModel(listOf(levitating), hasNext = true))
-        coEvery { searchTracks("levitating", 1) } returns Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
+        coEvery { searchTracksUseCase("levitating", 0) } returns Result.success(TrackPageDomainModel(listOf(levitating), hasNext = true))
+        coEvery { searchTracksUseCase("levitating", 1) } returns Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
         searchFor(viewModel, "levitating")
 
         // When
@@ -239,8 +239,8 @@ class SongsViewModelTest {
     fun `GIVEN the next page is slow, WHEN loading more, THEN the results stay and show that more is loading`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks("levitating", 0) } returns Result.success(TrackPageDomainModel(listOf(levitating), hasNext = true))
-        coEvery { searchTracks("levitating", 1) } coAnswers {
+        coEvery { searchTracksUseCase("levitating", 0) } returns Result.success(TrackPageDomainModel(listOf(levitating), hasNext = true))
+        coEvery { searchTracksUseCase("levitating", 1) } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
         }
@@ -258,8 +258,8 @@ class SongsViewModelTest {
     fun `GIVEN the next page is loading, WHEN loading more again, THEN the page is requested once`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks("levitating", 0) } returns Result.success(TrackPageDomainModel(listOf(levitating), hasNext = true))
-        coEvery { searchTracks("levitating", 1) } coAnswers {
+        coEvery { searchTracksUseCase("levitating", 0) } returns Result.success(TrackPageDomainModel(listOf(levitating), hasNext = true))
+        coEvery { searchTracksUseCase("levitating", 1) } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
         }
@@ -272,7 +272,7 @@ class SongsViewModelTest {
         runCurrent()
 
         // Then
-        coVerify(exactly = 1) { searchTracks("levitating", 1) }
+        coVerify(exactly = 1) { searchTracksUseCase("levitating", 1) }
     }
 
     @Test
@@ -287,7 +287,7 @@ class SongsViewModelTest {
         runCurrent()
 
         // Then
-        coVerify(exactly = 0) { searchTracks("levitating", 1) }
+        coVerify(exactly = 0) { searchTracksUseCase("levitating", 1) }
     }
 
     @Test
@@ -300,15 +300,15 @@ class SongsViewModelTest {
         runCurrent()
 
         // Then
-        coVerify(exactly = 0) { searchTracks(any(), any()) }
+        coVerify(exactly = 0) { searchTracksUseCase(any(), any()) }
     }
 
     @Test
     fun `GIVEN loading the next page fails, WHEN loading more again, THEN the results stay and nothing more is requested`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks("levitating", 0) } returns Result.success(TrackPageDomainModel(listOf(levitating), hasNext = true))
-        coEvery { searchTracks("levitating", 1) } returns Result.failure(AppError.Unknown())
+        coEvery { searchTracksUseCase("levitating", 0) } returns Result.success(TrackPageDomainModel(listOf(levitating), hasNext = true))
+        coEvery { searchTracksUseCase("levitating", 1) } returns Result.failure(AppError.Unknown())
         searchFor(viewModel, "levitating")
         viewModel.loadMore()
         runCurrent()
@@ -322,14 +322,14 @@ class SongsViewModelTest {
             resultsOf(levitating, status = UiSearchResultsState.Failed(UiSongsError.Unknown)),
             viewModel.uiState.value.content,
         )
-        coVerify(exactly = 1) { searchTracks("levitating", 1) }
+        coVerify(exactly = 1) { searchTracksUseCase("levitating", 1) }
     }
 
     @Test
     fun `GIVEN a search fails because of the network, WHEN it ends, THEN the network error is shown with no results`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks(any(), any()) } returns Result.failure(AppError.Network())
+        coEvery { searchTracksUseCase(any(), any()) } returns Result.failure(AppError.Network())
 
         // When
         searchFor(viewModel, "levitating")
@@ -342,7 +342,7 @@ class SongsViewModelTest {
     fun `GIVEN a failed search, WHEN retrying, THEN the search runs again and its results are shown`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks("levitating", 0) } returnsMany listOf(
+        coEvery { searchTracksUseCase("levitating", 0) } returnsMany listOf(
             Result.failure(AppError.Network()),
             Result.success(TrackPageDomainModel(listOf(levitating), hasNext = false)),
         )
@@ -361,7 +361,7 @@ class SongsViewModelTest {
         // Given
         val viewModel = createViewModel()
         givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        coEvery { refreshTracks("levitating") } returns Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
+        coEvery { refreshTracksUseCase("levitating") } returns Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
         searchFor(viewModel, "levitating")
 
         // When
@@ -377,7 +377,7 @@ class SongsViewModelTest {
         // Given
         val viewModel = createViewModel()
         givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        coEvery { refreshTracks("levitating") } coAnswers {
+        coEvery { refreshTracksUseCase("levitating") } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
         }
@@ -396,7 +396,7 @@ class SongsViewModelTest {
         // Given
         val viewModel = createViewModel()
         givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        coEvery { refreshTracks("levitating") } coAnswers {
+        coEvery { refreshTracksUseCase("levitating") } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
         }
@@ -409,7 +409,7 @@ class SongsViewModelTest {
         runCurrent()
 
         // Then
-        coVerify(exactly = 1) { refreshTracks("levitating") }
+        coVerify(exactly = 1) { refreshTracksUseCase("levitating") }
     }
 
     @Test
@@ -417,7 +417,7 @@ class SongsViewModelTest {
         // Given
         val viewModel = createViewModel()
         givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = true))
-        coEvery { refreshTracks("levitating") } coAnswers {
+        coEvery { refreshTracksUseCase("levitating") } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = true))
         }
@@ -430,7 +430,7 @@ class SongsViewModelTest {
         runCurrent()
 
         // Then
-        coVerify(exactly = 0) { searchTracks("levitating", 1) }
+        coVerify(exactly = 0) { searchTracksUseCase("levitating", 1) }
     }
 
     @Test
@@ -438,7 +438,7 @@ class SongsViewModelTest {
         // Given
         val viewModel = createViewModel()
         givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        coEvery { refreshTracks("levitating") } returns Result.failure(AppError.Network())
+        coEvery { refreshTracksUseCase("levitating") } returns Result.failure(AppError.Network())
         searchFor(viewModel, "levitating")
 
         // When
@@ -457,7 +457,7 @@ class SongsViewModelTest {
         // Given
         val viewModel = createViewModel()
         givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        coEvery { refreshTracks("levitating") } returnsMany listOf(
+        coEvery { refreshTracksUseCase("levitating") } returnsMany listOf(
             Result.failure(AppError.Network()),
             Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false)),
         )
@@ -478,7 +478,7 @@ class SongsViewModelTest {
         // Given
         val viewModel = createViewModel()
         givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        coEvery { refreshTracks("levitating") } returns Result.success(TrackPageDomainModel(emptyList(), hasNext = false))
+        coEvery { refreshTracksUseCase("levitating") } returns Result.success(TrackPageDomainModel(emptyList(), hasNext = false))
         searchFor(viewModel, "levitating")
 
         // When
@@ -493,7 +493,7 @@ class SongsViewModelTest {
     fun `GIVEN a search failed with nothing to show, WHEN refreshing, THEN the search runs again`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks("levitating", 0) } returnsMany listOf(
+        coEvery { searchTracksUseCase("levitating", 0) } returnsMany listOf(
             Result.failure(AppError.Network()),
             Result.success(TrackPageDomainModel(listOf(levitating), hasNext = false)),
         )
@@ -511,7 +511,7 @@ class SongsViewModelTest {
     fun `GIVEN a search found no song, WHEN refreshing, THEN the search runs again`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks("levitating", 0) } returnsMany listOf(
+        coEvery { searchTracksUseCase("levitating", 0) } returnsMany listOf(
             Result.success(TrackPageDomainModel(emptyList(), hasNext = false)),
             Result.success(TrackPageDomainModel(listOf(levitating), hasNext = false)),
         )
@@ -529,7 +529,7 @@ class SongsViewModelTest {
     fun `GIVEN a search is loading, WHEN refreshing, THEN nothing is requested`() = runTest(dispatcher) {
         // Given
         val viewModel = createViewModel()
-        coEvery { searchTracks("levitating", 0) } coAnswers {
+        coEvery { searchTracksUseCase("levitating", 0) } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(TrackPageDomainModel(listOf(levitating), hasNext = false))
         }
@@ -540,8 +540,8 @@ class SongsViewModelTest {
         runCurrent()
 
         // Then
-        coVerify(exactly = 0) { refreshTracks(any()) }
-        coVerify(exactly = 1) { searchTracks("levitating", 0) }
+        coVerify(exactly = 0) { refreshTracksUseCase(any()) }
+        coVerify(exactly = 1) { searchTracksUseCase("levitating", 0) }
     }
 
     @Test
@@ -554,14 +554,14 @@ class SongsViewModelTest {
         runCurrent()
 
         // Then
-        coVerify(exactly = 0) { refreshTracks(any()) }
-        coVerify(exactly = 0) { searchTracks(any(), any()) }
+        coVerify(exactly = 0) { refreshTracksUseCase(any()) }
+        coVerify(exactly = 0) { searchTracksUseCase(any(), any()) }
     }
 
     @Test
     fun `GIVEN recent tracks exist, WHEN the screen starts, THEN the history is shown with them`() = runTest(dispatcher) {
         // Given
-        every { getRecentTracks() } returns flowOf(Result.success(listOf(levitating)))
+        every { getRecentTracksUseCase() } returns flowOf(Result.success(listOf(levitating)))
 
         // When
         val viewModel = createViewModel()
@@ -573,7 +573,7 @@ class SongsViewModelTest {
     @Test
     fun `GIVEN reading recent tracks fails, WHEN the screen starts, THEN the first launch is shown and no error`() = runTest(dispatcher) {
         // Given
-        every { getRecentTracks() } returns flowOf(Result.failure(AppError.Unknown()))
+        every { getRecentTracksUseCase() } returns flowOf(Result.failure(AppError.Unknown()))
 
         // When
         val viewModel = createViewModel()
@@ -595,7 +595,7 @@ class SongsViewModelTest {
     fun `GIVEN the history is shown, WHEN a song is played, THEN the history shows it`() = runTest(dispatcher) {
         // Given
         val recentTracks = MutableStateFlow(Result.success(listOf(levitating)))
-        every { getRecentTracks() } returns recentTracks
+        every { getRecentTracksUseCase() } returns recentTracks
         val viewModel = createViewModel()
 
         // When
@@ -613,7 +613,7 @@ class SongsViewModelTest {
     fun `GIVEN results are shown, WHEN a song is played, THEN the results stay as they are`() = runTest(dispatcher) {
         // Given
         val recentTracks = MutableStateFlow(Result.success(emptyList<TrackDomainModel>()))
-        every { getRecentTracks() } returns recentTracks
+        every { getRecentTracksUseCase() } returns recentTracks
         givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
         val viewModel = createViewModel()
         searchFor(viewModel, "levitating")
@@ -630,7 +630,7 @@ class SongsViewModelTest {
     fun `GIVEN a song was played during a search, WHEN the search field is cleared, THEN the history shows it`() = runTest(dispatcher) {
         // Given
         val recentTracks = MutableStateFlow(Result.success(emptyList<TrackDomainModel>()))
-        every { getRecentTracks() } returns recentTracks
+        every { getRecentTracksUseCase() } returns recentTracks
         givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
         val viewModel = createViewModel()
         searchFor(viewModel, "levitating")
@@ -648,7 +648,7 @@ class SongsViewModelTest {
     @Test
     fun `GIVEN suggested tracks exist, WHEN the screen starts, THEN the first launch shows them`() = runTest(dispatcher) {
         // Given
-        coEvery { getSuggestedTracks() } returns Result.success(listOf(levitating))
+        coEvery { getSuggestedTracksUseCase() } returns Result.success(listOf(levitating))
 
         // When
         val viewModel = createViewModel()
@@ -663,7 +663,7 @@ class SongsViewModelTest {
     @Test
     fun `GIVEN looking up the suggested tracks fails, WHEN the screen starts, THEN the suggestions are unavailable`() = runTest(dispatcher) {
         // Given
-        coEvery { getSuggestedTracks() } returns Result.failure(AppError.Network())
+        coEvery { getSuggestedTracksUseCase() } returns Result.failure(AppError.Network())
 
         // When
         val viewModel = createViewModel()
@@ -675,7 +675,7 @@ class SongsViewModelTest {
     @Test
     fun `GIVEN no suggested track could be found, WHEN the screen starts, THEN the suggestions are unavailable`() = runTest(dispatcher) {
         // Given
-        coEvery { getSuggestedTracks() } returns Result.success(emptyList())
+        coEvery { getSuggestedTracksUseCase() } returns Result.success(emptyList())
 
         // When
         val viewModel = createViewModel()
@@ -687,7 +687,7 @@ class SongsViewModelTest {
     @Test
     fun `GIVEN the lookup has not finished, WHEN the screen starts, THEN the suggestions are loading`() = runTest(dispatcher) {
         // Given
-        coEvery { getSuggestedTracks() } coAnswers {
+        coEvery { getSuggestedTracksUseCase() } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(listOf(levitating))
         }
@@ -702,7 +702,7 @@ class SongsViewModelTest {
     @Test
     fun `GIVEN the suggestions arrive during a search, WHEN the search field is cleared, THEN the first launch shows them`() = runTest(dispatcher) {
         // Given
-        coEvery { getSuggestedTracks() } coAnswers {
+        coEvery { getSuggestedTracksUseCase() } coAnswers {
             delay(SLOW_SEARCH_MILLIS)
             Result.success(listOf(levitating))
         }
@@ -758,7 +758,7 @@ class SongsViewModelTest {
     }
 
     private fun TestScope.createViewModel() =
-        SongsViewModel(searchTracks, refreshTracks, getRecentTracks, getSuggestedTracks).also { runCurrent() }
+        SongsViewModel(searchTracksUseCase, refreshTracksUseCase, getRecentTracksUseCase, getSuggestedTracksUseCase).also { runCurrent() }
 
     private fun TestScope.searchFor(viewModel: SongsViewModel, searchText: String) {
         viewModel.onQueryChange(searchText)
@@ -767,7 +767,7 @@ class SongsViewModelTest {
     }
 
     private fun givenSearchReturns(page: TrackPageDomainModel) {
-        coEvery { searchTracks(any(), any()) } returns Result.success(page)
+        coEvery { searchTracksUseCase(any(), any()) } returns Result.success(page)
     }
 
     private fun resultsOf(vararg tracks: TrackDomainModel, status: UiSearchResultsState) =

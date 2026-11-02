@@ -40,10 +40,10 @@ private const val FIRST_PAGE = 0
 
 @HiltViewModel
 internal class SongsViewModel @Inject constructor(
-    private val searchTracks: SearchTracksUseCase,
-    private val refreshTracks: RefreshTracksUseCase,
-    private val getRecentTracks: GetRecentTracksUseCase,
-    private val getSuggestedTracks: GetSuggestedTracksUseCase,
+    private val searchTracksUseCase: SearchTracksUseCase,
+    private val refreshTracksUseCase: RefreshTracksUseCase,
+    private val getRecentTracksUseCase: GetRecentTracksUseCase,
+    private val getSuggestedTracksUseCase: GetSuggestedTracksUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -98,7 +98,7 @@ internal class SongsViewModel @Inject constructor(
         if (results.status != UiSearchResultsState.HasMore) return
         updateResults { it.copy(status = UiSearchResultsState.LoadingMore) }
         contentJob = viewModelScope.launch {
-            searchTracks(activeSearchText, nextPage).fold(onSuccess = ::appendPage, onFailure = ::showError)
+            searchTracksUseCase(activeSearchText, nextPage).fold(onSuccess = ::appendPage, onFailure = ::showError)
         }
     }
 
@@ -119,13 +119,13 @@ internal class SongsViewModel @Inject constructor(
         contentJob?.cancel()
         updateResults { it.copy(status = UiSearchResultsState.Refreshing) }
         contentJob = viewModelScope.launch {
-            refreshTracks(activeSearchText).fold(onSuccess = ::showFirstPage, onFailure = ::showError)
+            refreshTracksUseCase(activeSearchText).fold(onSuccess = ::showFirstPage, onFailure = ::showError)
         }
     }
 
     private fun loadSuggestedTracks() {
         viewModelScope.launch {
-            getSuggestedTracks().fold(
+            getSuggestedTracksUseCase().fold(
                 onSuccess = { tracks -> showSuggestions(tracks) },
                 onFailure = { showSuggestions(emptyList()) },
             )
@@ -138,7 +138,7 @@ internal class SongsViewModel @Inject constructor(
     }
 
     private fun observeRecentTracks() {
-        getRecentTracks()
+        getRecentTracksUseCase()
             .onEach { result -> result.onSuccess(::showRecentTracks) }
             .launchIn(viewModelScope)
     }
@@ -164,7 +164,7 @@ internal class SongsViewModel @Inject constructor(
         }
         showContent(UiSongsContentState.SearchLoading)
         contentJob = viewModelScope.launch {
-            searchTracks(searchText, FIRST_PAGE).fold(onSuccess = ::showFirstPage, onFailure = ::showError)
+            searchTracksUseCase(searchText, FIRST_PAGE).fold(onSuccess = ::showFirstPage, onFailure = ::showError)
         }
     }
 
