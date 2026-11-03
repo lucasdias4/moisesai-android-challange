@@ -79,7 +79,7 @@ Each feature follows one direction of dependencies, from the screen down to the 
 Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API
 ```
 
-- A ViewModel talks to use cases only, never to repositories, data sources or the API.
+- A ViewModel talks to use cases, never to repositories, data sources or the API. The one exception is the player: it holds `PlayerController` from `:core:player` directly, and the domain never depends on it.
 - Failures are caught in data sources and travel upward as `Result<T>` (`Flow<Result<T>>` for streams). Coroutine cancellation is always rethrown, never turned into a failure.
 - `suspend` is the default. `Flow` is used only for real streams, such as an observed database query.
 - Mapping happens at the boundaries: data models become domain models in the repository, and domain models become `Ui*` models in the ViewModel. Model names carry their layer: `Ui*`, `*DomainModel`, `Api*`, `Db*`.
