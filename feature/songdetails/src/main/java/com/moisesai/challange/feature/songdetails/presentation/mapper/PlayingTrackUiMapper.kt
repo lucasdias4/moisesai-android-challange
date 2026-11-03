@@ -1,5 +1,7 @@
 package com.moisesai.challange.feature.songdetails.presentation.mapper
 
+import com.moisesai.challange.core.design.extension.mainArtist
+import com.moisesai.challange.core.design.extension.toLargeCoverUrl
 import com.moisesai.challange.core.player.PlaybackState
 import com.moisesai.challange.core.shareddomainmodel.TrackDomainModel
 import com.moisesai.challange.feature.songdetails.presentation.model.UiPlayingTrack
@@ -12,10 +14,6 @@ private const val NOTHING_PLAYED = 0f
 private const val EVERYTHING_PLAYED = 1f
 private const val REMAINING_TIME_PREFIX = "-"
 
-// iTunes gives a 100 pixel cover and serves the same image at any size by changing this part of the url.
-private const val ITUNES_SEARCH_ART_SIZE = "100x100bb"
-private const val PLAYER_ART_SIZE = "600x600bb"
-
 // The names and the cover come from the domain track; the times come from the player, not from the domain.
 // It runs every 250 ms while the audio plays: the player publishes a new state at that pace, the ViewModel collects it
 // and calls this. It also runs on play, pause, seek and end.
@@ -23,7 +21,7 @@ internal fun TrackDomainModel.toUiPlayingTrack(playbackState: PlaybackState) = U
     trackName = name,
     artistName = artistName.mainArtist(),
     albumId = albumId,
-    artUrl = artUrl?.toPlayerArtUrl(),
+    artUrl = artUrl?.toLargeCoverUrl(),
     isPlaying = playbackState is PlaybackState.Playing,
     isRepeatEnabled = playbackState.isRepeatEnabledOrFalse,
     progress = playbackState.progress(),
@@ -35,11 +33,6 @@ internal fun TrackDomainModel.toUiPlayingTrack(playbackState: PlaybackState) = U
 private val PlaybackState.positionMillisOrZero: Long get() = (this as? PlaybackState.Loaded)?.positionMillis ?: NO_MILLIS
 private val PlaybackState.durationMillisOrZero: Long get() = (this as? PlaybackState.Loaded)?.durationMillis ?: NO_MILLIS
 private val PlaybackState.isRepeatEnabledOrFalse: Boolean get() = (this as? PlaybackState.Loaded)?.isRepeatEnabled ?: false
-
-// iTunes lists every artist of a track ("Justice, Tame Impala, SZA"); the design shows the first one.
-private fun String.mainArtist(): String = substringBefore(",").trim()
-
-private fun String.toPlayerArtUrl(): String = replace(ITUNES_SEARCH_ART_SIZE, PLAYER_ART_SIZE)
 
 // Until the length of the audio is known there is nothing to divide by, and nothing has played.
 private fun PlaybackState.progress(): Float {
