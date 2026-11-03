@@ -18,4 +18,5 @@ local.properties
 /misc-notes.md
 .idea/
 /core/network/itunes-api-samples.md
-/core/database/schemas/
+/core/database/schemas/com.moisesai.challange.core.database.AppDatabase/1.json
+/core/database/schemas/com.moisesai.challange.core.database.AppDatabase/2.json
