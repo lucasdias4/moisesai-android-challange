@@ -49,7 +49,7 @@ Match the real requirements; do not apply one template to every screen.
 - Error: `error != null`
 - Empty: `isLoading = false`, empty list, no error
 
-When the states exclude each other (a screen that loads one thing), use a sealed `Ui<Screen>UiState` with `Loading`, `Error(type: UiErrorType)` and `Content`, and draw them with `LoadingIndicatorComponent` and `ErrorMessageComponent` from `:core:design`. Map `Throwable` to `UiErrorType` in `presentation/mapper/ErrorTypeMapper.kt`.
+When the states exclude each other (a screen that loads one thing), use a sealed `Ui<Screen>UiState` with `Loading`, `Error(type: UiErrorType)` and `Success`, and draw them with `LoadingIndicatorComponent` and `ErrorMessageComponent` from `:core:design`. Map a failure with `Throwable.toUiErrorType()` from `:core:design`; do not write a mapper per feature.
 
 ### 2. Create the package
 
@@ -362,7 +362,7 @@ List every file created under `feature/<feature>/` with its purpose, and remind 
 
 - No Activity or Fragment per screen
 - The screen composable is stateless; state collection lives in the navigation graph
-- A ViewModel calls use cases only
+- A ViewModel calls use cases only, except playback: it holds `PlayerController` from `:core:player` directly and a use case never does (`ARCHITECTURE.md` §4)
 - Composables never collect a domain Flow or map models; only the `StateFlow<UiState>` reaches the navigation graph
 - Every screen composable has `@FullPreview` previews wrapped in `MoisesaiChallangeTheme { }`
 - A feature's UI files are nested under `feature/<feature>/presentation/{composable,model,view_model,navigation,mapper}`

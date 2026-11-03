@@ -20,6 +20,7 @@ Compose UI -> ViewModel -> UseCase -> Repository -> DataSource -> API
 ```
 
 - **Presentation -> Domain:** ViewModels never call the API or DataSources. They go through use cases.
+- **Engines:** the player is not data and has no business rule, so a ViewModel holds `PlayerController` (`:core:player`) directly and a use case never does. A use case that only forwards a call to an engine adds a layer and nothing else.
 - **Domain -> Data:** domain knows only repository interfaces; implementations live in `data`.
 - **Modules by feature, layers as packages:** there is no global `:domain` or `:data` module. Each feature module contains its own presentation, domain and data packages.
 
@@ -112,10 +113,11 @@ One word for one thing, in every layer:
 - State: `StateFlow<UiState>` (`_uiState` private, `uiState` exposed), consumed with `collectAsStateWithLifecycle()` in the navigation graph, not in the screen composable.
 - `data class UiState` when states overlap; a `sealed class` when they are mutually exclusive. `isLoading` and `error` exist on every `UiState`.
 - ViewModels hold UI logic only (loading/error state, domain -> UI mapping). Business rules belong in use cases.
+- Playback: the ViewModel holds `PlayerController` itself (constructor, `private val playerController`), collects its `playbackState` and calls it for play, pause, seek, repeat and stop. What the screen's controls mean for the player (clamping a slider position, play or pause by the current state, stopping only the audio this screen loaded) is UI logic and stays in the ViewModel as small named functions. What the screen plays, loads or remembers (the queue, the recent tracks) is still a use case.
 - A ViewModel names every use case it holds with the `UseCase` postfix, in the constructor, in the property and at the call: `private val getRecentTracksUseCase: GetRecentTracksUseCase`, called as `getRecentTracksUseCase()`. Never `getRecentTracks` or `useCase`: the reader must see at once that the call goes to the domain and not to a function of the ViewModel. The same goes for a use case held by a test (`getRecentTracksUseCase = mockk<GetRecentTracksUseCase>()`).
 - A suspend use case is called once inside `viewModelScope.launch`. A `Flow<Result<T>>` use case is collected inside `viewModelScope.launch` (or `stateIn` when the state is purely derived from the stream). Either way each `Result` is folded into `UiState` with `.onSuccess`/`.onFailure`, and domain models are mapped to `Ui*` there. Composables never collect a domain Flow.
 - Navigation is driven by lambdas passed in from the root `NavHost`; ViewModels and feature composables never own the `NavController`. A route is a public `@Serializable data class <Screen>Route(val <name>Id: Long)` (ids only) next to `internal val <Name>IdKey = <Screen>Route::<name>Id.name`, which is the key the ViewModel reads from its `SavedStateHandle`. `AppNavHost` documents the flow between screens.
-- A screen that loads has a sealed `Ui<Screen>UiState` (`Loading`, `Error(type: UiErrorType)`, `Content`). The loader and the error with a retry button are `LoadingIndicatorComponent` and `ErrorMessageComponent` of `:core:design`; each feature maps `Throwable` to `UiErrorType` in its `presentation/mapper`.
+- A screen that loads has a sealed `Ui<Screen>UiState` (`Loading`, `Error(type: UiErrorType)`, `Success`). The loader and the error with a retry button are `LoadingIndicatorComponent` and `ErrorMessageComponent` of `:core:design`; `Throwable.toUiErrorType()` in `:core:design` maps a failure to the `UiErrorType`, so no feature writes its own.
 - Screen composables are stateless: `uiState` plus callbacks. `modifier: Modifier = Modifier` is the first optional parameter.
 - Top-level screen composables have `@FullPreview` previews wrapped in `MoisesaiChallangeTheme { }`.
 - `presentation/composable` is split by role: `screen` (the parent screen with its previews, and one package per section of it: `songs_list_section`, whose single `SongsListSection` file holds what the list draws for each state of the screen as private functions, with one preview per state through one private helper; `header_section`, `search_field_section` and `song_options_section`; and `helper` for behaviour the screen needs but does not draw, such as the load-more effect), `component` (every `*Component`, one per file, plus `preview_helper` for sample data) and `callback` (the class that holds everything the user can do on a screen, such as `SongsCallbacks`). An animation goes in an `animation` package next to `screen`; an animation that needs more than one file gets its own package.
@@ -136,6 +138,7 @@ The Figma design has no animation of its own, so the app has none at the moment.
 ## 5. Domain
 
 - Pure Kotlin, no Android imports. Models end in `DomainModel`.
+- The domain depends on nothing outside the app's own code: its feature's models and repository interfaces, `:core:shared-domain-model` and `:core:common`. Never an engine such as `:core:player`, never Android, Retrofit or Room. Anything that talks to the outside world is a repository interface the `data` layer implements, or something the ViewModel holds.
 - One public method per use case; verb names (`GetExercisesUseCase`); `Get` never persists, use `Save`/`Submit`.
 - `suspend operator fun invoke(...): Result<T>` for one-shot calls, `operator fun invoke(...): Flow<Result<T>>` for streams (see "Suspend or Flow?" in §2).
 - A use case holds business rules only: it does not check again what the ViewModel already decides for the UI (a blank search text goes back to the history before any use case runs). A value that several use cases must share, such as the page size, is one constant in the feature's `domain/model/Constants.kt`, with the reason in a comment.
@@ -285,6 +288,7 @@ Robert C. Martin's *Clean Code* applies to every file, Kotlin idioms included. W
 - **Comments explain why** (hidden constraint, workaround, invariant), never what. Good code does not need a *what* comment. Animation code is covered by the rule in section 4: it comments the meaning and the reason of every value, because motion numbers cannot be read from the code alone.
 - **No commented-out code, no journal or banner comments, no noise** (`// constructor`). Version control keeps history.
 - **KDoc only on public API whose contract is not obvious.**
+- **An `if` that runs statements has braces, one line per branch.** Never `if (isPlaying) playerController.pause() else playerController.resume()`: write `if (isPlaying) {`, the call, `} else {`, the call, `}`. This is about `if`/`else` used as a statement (side effects). A guard clause (`if (x) return`) and an `if` that only picks a value (`val label = if (a) b else c`) may stay on one line.
 - **Formatting is the Kotlin official style.** Related code stays close together; blank lines separate concepts, not lines of one idea. No unused imports, parameters or code (delete it; YAGNI).
 
 ### Error handling

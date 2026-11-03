@@ -46,5 +46,5 @@ Files created, the module's dependencies, and what is left (graph registration, 
 ## Hard constraints
 
 - A feature module never depends on another feature module
-- `presentation` never imports `data`; `domain` has no Android imports
+- `presentation` never imports `data`; `domain` has no Android imports and depends only on its feature, `:core:common` and `:core:shared-domain-model` (never an engine such as `:core:player`)
 - Shared models go to `:core:shared-domain-model`, shared UI to `:core:design`, entities to `:core:database`, DTOs to `:core:network`
