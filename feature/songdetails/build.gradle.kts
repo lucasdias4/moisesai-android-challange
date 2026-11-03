@@ -11,6 +11,6 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:database"))
     implementation(project(":core:player"))
-    implementation(libs.kotlinx.serialization.json) // typed navigation route
-    implementation(libs.coil.compose) // song artwork
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.coil.compose)
 }

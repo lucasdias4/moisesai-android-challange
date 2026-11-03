@@ -10,7 +10,7 @@ android {
 dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:database"))
-    implementation(libs.kotlinx.serialization.json) // typed navigation route
-    implementation(libs.coil.compose) // album artwork
+    implementation(libs.kotlinx.serialization.json)
+    implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
 }
