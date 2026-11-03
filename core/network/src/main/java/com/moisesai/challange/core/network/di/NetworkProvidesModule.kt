@@ -3,6 +3,7 @@ package com.moisesai.challange.core.network.di
 import com.moisesai.challange.core.network.api.ItunesApi
 import com.moisesai.challange.core.network.api.ItunesJson
 import com.moisesai.challange.core.network.api.createItunesApi
+import dagger.Lazy
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,5 +27,5 @@ internal object NetworkProvidesModule {
 
     @Provides
     @Singleton
-    fun provideItunesApi(client: OkHttpClient): ItunesApi = createItunesApi(BASE_URL, client, ItunesJson)
+    fun provideItunesApi(client: Lazy<OkHttpClient>): ItunesApi = createItunesApi(BASE_URL, client::get, ItunesJson)
 }

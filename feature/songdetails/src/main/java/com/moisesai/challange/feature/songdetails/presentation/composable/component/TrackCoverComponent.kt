@@ -2,7 +2,10 @@ package com.moisesai.challange.feature.songdetails.presentation.composable.compo
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -23,13 +26,17 @@ private val CoverSize = 264.dp
 private val CoverCorner = 20.dp
 private val EmptyCoverIconSize = 48.dp
 
-/** The cover of the song that is playing, square with round corners. Without a picture it shows a list icon. */
+/**
+ * The cover of the song that is playing, square with round corners. Without a picture it shows a list icon.
+ * It is [CoverSize] at most and shrinks to the room it is given, so a short screen (landscape, a small phone) still shows it.
+ */
 @Composable
 internal fun TrackCoverComponent(artUrl: String?, modifier: Modifier = Modifier) {
     val coverShape = RoundedCornerShape(CoverCorner)
     Box(
         modifier = modifier
-            .size(CoverSize)
+            .sizeIn(maxWidth = CoverSize, maxHeight = CoverSize)
+            .aspectRatio(1f)
             .clip(coverShape)
             .background(MaterialTheme.design.colors.alphaInvert10),
         contentAlignment = Alignment.Center,
@@ -44,7 +51,7 @@ internal fun TrackCoverComponent(artUrl: String?, modifier: Modifier = Modifier)
         AsyncImage(
             model = artUrl,
             contentDescription = null,
-            modifier = Modifier.size(CoverSize),
+            modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop,
         )
     }

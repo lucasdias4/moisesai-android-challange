@@ -7,8 +7,10 @@ import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import okhttp3.OkHttpClient
 
-internal fun createTestApi(server: MockWebServer): ItunesApi =
-    createItunesApi(server.url("/").toString(), OkHttpClient(), ItunesJson)
+internal fun createTestApi(server: MockWebServer): ItunesApi {
+    val client = OkHttpClient()
+    return createItunesApi(server.url("/").toString(), { client }, ItunesJson)
+}
 
 // iTunes answers with `text/javascript`, which the parser must accept.
 internal fun jsonResponse(body: String): MockResponse = MockResponse.Builder()

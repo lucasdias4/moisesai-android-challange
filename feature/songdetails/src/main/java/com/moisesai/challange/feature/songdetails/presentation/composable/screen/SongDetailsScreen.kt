@@ -2,6 +2,15 @@ package com.moisesai.challange.feature.songdetails.presentation.composable.scree
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
@@ -27,6 +36,8 @@ import com.moisesai.challange.core.strings.R
 import com.moisesai.challange.feature.songdetails.presentation.composable.callback.SongDetailsCallbacks
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.preview_helper.SamplePlayingTrack
 import com.moisesai.challange.feature.songdetails.presentation.composable.screen.cover_section.CoverSection
+import com.moisesai.challange.feature.songdetails.presentation.composable.screen.cover_section.LandscapeSpaceAboveCover
+import com.moisesai.challange.feature.songdetails.presentation.composable.screen.cover_section.PortraitSpaceAboveCover
 import com.moisesai.challange.feature.songdetails.presentation.composable.screen.playback_section.PlaybackSection
 import com.moisesai.challange.feature.songdetails.presentation.composable.screen.track_options_section.TrackOptionsSection
 import com.moisesai.challange.feature.songdetails.presentation.model.UiPlayingTrack
@@ -34,6 +45,9 @@ import com.moisesai.challange.feature.songdetails.presentation.model.UiSongDetai
 
 // The design leaves this much between the top bar and the cover.
 private val SpaceBelowTopBar = 8.dp
+
+// The same room under the cover as the controls leave under themselves, for the system bar.
+private val LandscapeSpaceBelowCover = 53.dp
 
 /**
  * The player: a top bar, then the track that is playing with its cover and its controls, a loader while the track is
@@ -87,9 +101,42 @@ private fun TrackOptionsButton(onClick: () -> Unit) {
 
 @Composable
 private fun ColumnScope.SongDetailsContent(playingTrack: UiPlayingTrack, callbacks: SongDetailsCallbacks) {
-    Spacer(modifier = Modifier.height(SpaceBelowTopBar))
-    CoverSection(artUrl = playingTrack.artUrl, modifier = Modifier.weight(1f))
-    PlaybackSection(playingTrack = playingTrack, callbacks = callbacks)
+    BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
+        val isLandscape = maxWidth > maxHeight
+        if (isLandscape) {
+            LandscapeContent(playingTrack = playingTrack, callbacks = callbacks)
+        } else {
+            PortraitContent(playingTrack = playingTrack, callbacks = callbacks)
+        }
+    }
+}
+
+// The cover takes whatever height the controls leave.
+@Composable
+private fun PortraitContent(playingTrack: UiPlayingTrack, callbacks: SongDetailsCallbacks) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Spacer(modifier = Modifier.height(SpaceBelowTopBar))
+        CoverSection(artUrl = playingTrack.artUrl, spaceAbove = PortraitSpaceAboveCover, modifier = Modifier.weight(1f))
+        PlaybackSection(playingTrack = playingTrack, callbacks = callbacks)
+    }
+}
+
+// There is no height to stack them, so the cover goes beside the controls. The controls scroll when the screen is too
+// short for them (a large font), instead of being cut off.
+@Composable
+private fun LandscapeContent(playingTrack: UiPlayingTrack, callbacks: SongDetailsCallbacks) {
+    Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+        CoverSection(
+            artUrl = playingTrack.artUrl,
+            spaceAbove = LandscapeSpaceAboveCover,
+            modifier = Modifier.weight(1f).fillMaxHeight().padding(bottom = LandscapeSpaceBelowCover),
+        )
+        PlaybackSection(
+            playingTrack = playingTrack,
+            callbacks = callbacks,
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()),
+        )
+    }
 }
 
 private val SampleContent = UiSongDetailsUiState.Success(playingTrack = SamplePlayingTrack, isTrackOptionsVisible = false)
@@ -97,6 +144,10 @@ private val SampleContent = UiSongDetailsUiState.Success(playingTrack = SamplePl
 @FullPreview
 @Composable
 private fun SongDetailsScreenContentPreview() = MoisesaiChallangeTheme { SongDetailsScreen(uiState = SampleContent, callbacks = SongDetailsCallbacks.None) }
+
+@Preview(name = "Phone - Landscape", widthDp = 915, heightDp = 411)
+@Composable
+private fun SongDetailsScreenLandscapePreview() = MoisesaiChallangeTheme { SongDetailsScreen(uiState = SampleContent, callbacks = SongDetailsCallbacks.None) }
 
 @FullPreview
 @Composable

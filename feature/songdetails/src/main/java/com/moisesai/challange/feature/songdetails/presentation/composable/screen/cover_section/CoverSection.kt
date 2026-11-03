@@ -6,22 +6,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.TrackCoverComponent
 
 // The design puts the cover this far below the top bar.
-private val SpaceAboveCover = 82.dp
+internal val PortraitSpaceAboveCover = 82.dp
 
-/** The cover of the track, in the middle of the width. */
+// Landscape has no design and little height: the cover only keeps a small gap from the top bar.
+internal val LandscapeSpaceAboveCover = 8.dp
+
+/** The cover of the track, in the middle of the width, [spaceAbove] below the top of the section. */
 @Composable
-internal fun CoverSection(artUrl: String?, modifier: Modifier = Modifier) {
-    Box(modifier = modifier.fillMaxWidth().padding(top = SpaceAboveCover), contentAlignment = Alignment.TopCenter) {
+internal fun CoverSection(artUrl: String?, spaceAbove: Dp, modifier: Modifier = Modifier) {
+    Box(modifier = modifier.fillMaxWidth().padding(top = spaceAbove), contentAlignment = Alignment.TopCenter) {
         TrackCoverComponent(artUrl = artUrl)
     }
 }
 
 @FullPreview
 @Composable
-private fun CoverSectionPreview() = PreviewSurface { CoverSection(artUrl = null) }
+private fun CoverSectionPreview() = PreviewSurface { CoverSection(artUrl = null, spaceAbove = PortraitSpaceAboveCover) }
