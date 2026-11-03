@@ -1,5 +1,7 @@
 package com.moisesai.challange.feature.album.fixture
 
+import com.moisesai.challange.core.database.entity.DbAlbum
+import com.moisesai.challange.core.database.entity.DbTrack
 import com.moisesai.challange.core.network.model.ApiAlbum
 import com.moisesai.challange.core.network.model.ApiTrack
 import com.moisesai.challange.core.shareddomainmodel.TrackDomainModel
@@ -47,6 +49,26 @@ fun aTrackDomainModel(artistName: String = FIRST_TRACK_ARTISTS) = TrackDomainMod
     id = FIRST_TRACK_ID,
     name = FIRST_TRACK_NAME,
     artistName = artistName,
+    albumId = ALBUM_ID,
+    albumName = ALBUM_NAME,
+    artUrl = ALBUM_ART_URL,
+    previewUrl = FIRST_TRACK_PREVIEW_URL,
+    trackTimeMillis = FIRST_TRACK_DURATION_MILLIS,
+    releaseDate = ALBUM_RELEASE_DATE,
+    trackNumber = 1,
+)
+
+fun aDbAlbum() = DbAlbum(
+    id = ALBUM_ID,
+    name = ALBUM_NAME,
+    artistName = ALBUM_ARTIST,
+    artUrl = ALBUM_ART_URL,
+)
+
+fun aDbTrack() = DbTrack(
+    id = FIRST_TRACK_ID,
+    name = FIRST_TRACK_NAME,
+    artistName = FIRST_TRACK_ARTISTS,
     albumId = ALBUM_ID,
     albumName = ALBUM_NAME,
     artUrl = ALBUM_ART_URL,

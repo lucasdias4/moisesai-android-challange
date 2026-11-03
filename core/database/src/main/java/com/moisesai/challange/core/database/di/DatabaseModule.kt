@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room3.Room
 import androidx.sqlite.driver.AndroidSQLiteDriver
 import com.moisesai.challange.core.database.AppDatabase
+import com.moisesai.challange.core.database.dao.AlbumDao
 import com.moisesai.challange.core.database.dao.RecentlyPlayedTrackDao
 import com.moisesai.challange.core.database.dao.SavedSearchDao
 import com.moisesai.challange.core.database.dao.TrackDao
@@ -31,6 +32,9 @@ internal object DatabaseModule {
 
     @Provides
     fun provideSavedSearchDao(database: AppDatabase): SavedSearchDao = database.savedSearchDao()
+
+    @Provides
+    fun provideAlbumDao(database: AppDatabase): AlbumDao = database.albumDao()
 
     @Provides
     fun provideRecentlyPlayedTrackDao(database: AppDatabase): RecentlyPlayedTrackDao =

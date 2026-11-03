@@ -9,6 +9,7 @@ android {
 
 dependencies {
     implementation(project(":core:network"))
+    implementation(project(":core:database"))
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.coil.compose)
 }
