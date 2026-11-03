@@ -10,5 +10,7 @@ class AlbumRemoteDataSource @Inject internal constructor(
 ) {
     /** The album first, then its tracks in track order. */
     suspend fun getAlbumWithTracks(albumId: Long): Result<ApiResponse> =
-        safeRemoteCall { api.lookupAlbumWithTracks(albumId) }
+        safeRemoteCall {
+            api.lookupAlbumWithTracks(albumId)
+        }
 }
