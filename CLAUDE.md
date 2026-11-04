@@ -26,6 +26,7 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Tests: Given / When / Then in both the name (`GIVEN ..., WHEN ..., THEN ...`, keywords uppercase) and the body, one action each; fixtures from the real API; none that pass with the code broken. (§9, `write-unit-tests`, `write-ui-tests`). The pyramid targets are 100% unit, 50% functional, 30% end to end (README "Testing strategy"): write the test in the same commit as the code.
 
 ## Working agreements
+- A `Stop` hook (`.claude/settings.json`, script in `.claude/hooks/ktlint-check.sh`) runs `./gradlew ktlintCheck` when you finish and a Kotlin file changed. If it reports violations, run `./gradlew ktlintFormat`, fix what is left, then stop.
 - Code style is ktlint (`.editorconfig`, `android_studio` style). Run `./gradlew ktlintFormat` before `ktlintCheck`; the rule exceptions (underscore test names, `view_model` package) live in `.editorconfig`.
 - Rules are defined in `ARCHITECTURE.md`. To change one: edit it there first, then its short version here and the examples in the skills, then search for the old wording.
 - Small steps, one commit each, green on `./gradlew clean assembleDebug testDebugUnitTest lintDebug ktlintCheck connectedDebugAndroidTest`. Suggest a short commit message; do not commit unless asked.

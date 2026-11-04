@@ -352,7 +352,7 @@ Robert C. Martin's *Clean Code* applies to every file, Kotlin idioms included. W
 
 **Architecture test.** Konsist or ArchUnit fails when presentation imports data, domain imports Android, a feature imports another feature, or `core:*` imports a feature.
 
-**Commands.** `./gradlew test`, `./gradlew lint`, `./gradlew connectedAndroidTest`; Gradle wrapper only. Code style is ktlint (`./gradlew ktlintCheck`, `ktlintFormat` to fix; rules in `.editorconfig`). The full local check is `./gradlew clean assembleDebug testDebugUnitTest lintDebug ktlintCheck connectedDebugAndroidTest`. No CI yet.
+**Commands.** `./gradlew test`, `./gradlew lint`, `./gradlew connectedAndroidTest`; Gradle wrapper only. Code style is ktlint (`./gradlew ktlintCheck`, `ktlintFormat` to fix; rules in `.editorconfig`; a Claude `Stop` hook in `.claude/settings.json` runs the check when work ends). The full local check is `./gradlew clean assembleDebug testDebugUnitTest lintDebug ktlintCheck connectedDebugAndroidTest`. No CI yet.
 
 ---
 

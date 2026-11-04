@@ -249,6 +249,7 @@ The project was built with Claude Code, guided by files in the repository so eve
 | [`CLAUDE.md`](CLAUDE.md) | Short rule list read at every session: layering, naming, tests, working agreements |
 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | The full rules. If the two disagree, this one wins |
 | `.claude/skills/` | Step by step procedures Claude follows for recurring tasks |
+| `.claude/settings.json` + `.claude/hooks/` | A `Stop` hook that runs ktlint when Claude finishes |
 
 | Skill | Use it to |
 | --- | --- |
@@ -260,6 +261,8 @@ The project was built with Claude Code, guided by files in the repository so eve
 | `write-unit-tests` | Write Given / When / Then unit tests from real fixtures |
 | `write-ui-tests` | Write functional and end-to-end tests |
 | `clean-code-review` | Review code against Clean Code and these conventions |
+
+**Hook.** When Claude finishes, `.claude/hooks/ktlint-check.sh` runs `./gradlew ktlintCheck`, only if a Kotlin file changed. On violations it hands them back to Claude, which runs `ktlintFormat`, fixes the rest and stops again. A second stop never re-runs it, so it cannot loop.
 
 Working agreements: plan first, small steps, one test per behaviour in the same commit, and `clean-code-review` as the last check.
 
