@@ -1,7 +1,5 @@
 package com.moisesai.challange.feature.songs.presentation.composable.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -25,8 +22,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
+import com.moisesai.challange.core.design.components.CoverImageComponent
 import com.moisesai.challange.core.design.R as DesignR
+import com.moisesai.challange.core.design.animation.SharedCoverAnimation
+import com.moisesai.challange.core.design.animation.pressAnimation
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
@@ -35,10 +34,11 @@ import com.moisesai.challange.feature.songs.presentation.composable.component.pr
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SampleTracks
 import com.moisesai.challange.feature.songs.presentation.model.UiTrack
 
-private val RowVerticalPadding = 8.dp
-private val CoverSize = 52.dp
-private val SpaceBetweenCoverAndText = 16.dp
-private val SpaceBetweenTitleAndArtist = 4.dp
+// The rows of the list and the skeleton that waits for them share these sizes, so nothing moves when the songs arrive.
+internal val SongRowVerticalPadding = 8.dp
+internal val SongRowCoverSize = 52.dp
+internal val SongRowCoverTextGap = 16.dp
+internal val SongRowNamesGap = 4.dp
 private val SpaceBetweenTextAndMoreButton = 8.dp
 private val MoreButtonSize = 36.dp
 private val MoreIconSize = 20.dp
@@ -51,19 +51,20 @@ private val MoreIconSize = 20.dp
 internal fun SongRowComponent(track: UiTrack, onClick: () -> Unit, onMoreClick: () -> Unit, modifier: Modifier = Modifier) {
     val songDescription = stringResource(R.string.songs_track_description, track.name, track.artistName)
     Row(
-        modifier = modifier.fillMaxWidth().padding(vertical = RowVerticalPadding),
+        modifier = modifier.fillMaxWidth().padding(vertical = SongRowVerticalPadding),
         horizontalArrangement = Arrangement.spacedBy(SpaceBetweenTextAndMoreButton),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Row(
             modifier = Modifier
                 .weight(1f)
+                // While pressed, the row shrinks a little and springs back.
+                .pressAnimation(onClick = onClick)
                 .clip(MaterialTheme.shapes.small)
-                .clickable(onClick = onClick)
                 .semantics(mergeDescendants = true) { contentDescription = songDescription },
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Cover(artUrl = track.artUrl)
+            Cover(trackId = track.id, artUrl = track.artUrl)
             SongNames(track = track, modifier = Modifier.weight(1f))
         }
         MoreButton(onClick = onMoreClick)
@@ -71,22 +72,18 @@ internal fun SongRowComponent(track: UiTrack, onClick: () -> Unit, onMoreClick: 
 }
 
 @Composable
-private fun Cover(artUrl: String?) {
-    AsyncImage(
-        model = artUrl,
-        contentDescription = null,
-        modifier = Modifier
-            .size(CoverSize)
-            .clip(MaterialTheme.shapes.small)
-            .background(MaterialTheme.design.colors.alphaInvert10),
-        contentScale = ContentScale.Crop,
-    )
+private fun Cover(trackId: Long, artUrl: String?) {
+    // Shared animation: the cover flies to the player when this song is opened, and back when the player closes.
+    SharedCoverAnimation(trackId = trackId) {
+        // The cover shimmers until the picture arrives and then fades in.
+        CoverImageComponent(artUrl = artUrl, modifier = Modifier.size(SongRowCoverSize).clip(MaterialTheme.shapes.small))
+    }
 }
 
 @Composable
 private fun SongNames(track: UiTrack, modifier: Modifier = Modifier) {
     val design = MaterialTheme.design
-    Column(modifier = modifier.padding(start = SpaceBetweenCoverAndText), verticalArrangement = Arrangement.spacedBy(SpaceBetweenTitleAndArtist)) {
+    Column(modifier = modifier.padding(start = SongRowCoverTextGap), verticalArrangement = Arrangement.spacedBy(SongRowNamesGap)) {
         Text(
             text = track.name,
             style = design.text.text16,
@@ -108,7 +105,8 @@ private fun SongNames(track: UiTrack, modifier: Modifier = Modifier) {
 @Composable
 private fun MoreButton(onClick: () -> Unit) {
     Box(
-        modifier = Modifier.size(MoreButtonSize).clip(CircleShape).clickable(role = Role.Button, onClick = onClick),
+        // While pressed, the button shrinks a little and springs back.
+        modifier = Modifier.size(MoreButtonSize).pressAnimation(role = Role.Button, onClick = onClick).clip(CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         Icon(

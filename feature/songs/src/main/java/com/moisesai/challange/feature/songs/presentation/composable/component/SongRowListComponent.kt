@@ -1,5 +1,6 @@
 package com.moisesai.challange.feature.songs.presentation.composable.component
 
+import com.moisesai.challange.core.design.animation.itemAnimation
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -17,6 +18,8 @@ import com.moisesai.challange.feature.songs.presentation.model.UiTrack
 internal fun LazyListScope.songRowListComponent(tracks: List<UiTrack>, keyPrefix: String, callbacks: SongsCallbacks) {
     itemsIndexed(tracks, key = { position, track -> "$keyPrefix-${track.id}-$position" }) { _, track ->
         SongRowComponent(
+            // The row fades in and out, and glides to its new place when the list changes.
+            modifier = itemAnimation(),
             track = track,
             onClick = { callbacks.onTrackClick(track.id) },
             onMoreClick = { callbacks.onTrackOptionsClick(track) },

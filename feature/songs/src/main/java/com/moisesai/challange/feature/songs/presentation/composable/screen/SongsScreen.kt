@@ -1,5 +1,7 @@
 package com.moisesai.challange.feature.songs.presentation.composable.screen
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -10,17 +12,16 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import com.moisesai.challange.core.design.animation.CollapseAnimation
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
 import com.moisesai.challange.core.design.theme.design
@@ -71,16 +72,14 @@ internal fun SongsScreen(uiState: UiSongsUiState, callbacks: SongsCallbacks, mod
         Column(modifier = Modifier.fillMaxSize()) {
             HeaderSection(
                 title = stringResource(R.string.songs_title),
-                onSearchClick = if (uiState.isSearchFieldVisible) {
-                    null
-                } else {
-                    {
-                        isSearchFieldFocusRequested = true
-                        callbacks.onSearchIconClick()
-                    }
+                isSearchButtonVisible = !uiState.isSearchFieldVisible,
+                onSearchClick = {
+                    isSearchFieldFocusRequested = true
+                    callbacks.onSearchIconClick()
                 },
             )
-            if (uiState.isSearchFieldVisible) {
+            // The search field opens down while it fades in and closes up while it fades out, so the list below glides with it.
+            CollapseAnimation(isVisible = uiState.isSearchFieldVisible) {
                 SearchFieldSection(query = uiState.query, callbacks = callbacks, modifier = Modifier.focusRequester(searchFieldFocusRequester))
             }
             SongsListSection(

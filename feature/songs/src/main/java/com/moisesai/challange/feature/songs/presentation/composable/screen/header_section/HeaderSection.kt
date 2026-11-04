@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.R as DesignR
+import com.moisesai.challange.core.design.animation.PopAnimation
 import com.moisesai.challange.core.design.components.IconButtonComponent
 import com.moisesai.challange.core.strings.R
 import com.moisesai.challange.core.design.preview.FullPreview
@@ -21,17 +22,18 @@ import com.moisesai.challange.feature.songs.presentation.composable.component.Sc
 private val SpaceBelowStatusBar = 20.dp
 
 /**
- * The top of the screen: room for the status bar, then the name of the screen. With [onSearchClick] it also shows the
- * magnifier at the end, for when the search field is tucked away.
+ * The top of the screen: room for the status bar, then the name of the screen. The magnifier at the end pops in while
+ * [isSearchButtonVisible], which is when the search field is tucked away.
  */
 @Composable
-internal fun HeaderSection(title: String, onSearchClick: (() -> Unit)?, modifier: Modifier = Modifier) {
+internal fun HeaderSection(title: String, isSearchButtonVisible: Boolean, onSearchClick: () -> Unit, modifier: Modifier = Modifier) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     Column(modifier = modifier) {
         Spacer(modifier = Modifier.height(statusBarHeight + SpaceBelowStatusBar))
         ScreenTitleComponent(
             title = title,
-            endAction = onSearchClick?.let { onClick -> { SearchButton(onClick = onClick) } },
+            // The search magnifier pops in (it grows while it fades in) when the search field is tucked away, and pops out when the field returns.
+            endAction = { PopAnimation(isVisible = isSearchButtonVisible) { SearchButton(onClick = onSearchClick) } },
         )
     }
 }
@@ -47,8 +49,8 @@ private fun SearchButton(onClick: () -> Unit) {
 
 @FullPreview
 @Composable
-private fun HeaderSectionPreview() = PreviewSurface { HeaderSection(title = "Songs", onSearchClick = null) }
+private fun HeaderSectionPreview() = PreviewSurface { HeaderSection(title = "Songs", isSearchButtonVisible = false, onSearchClick = {}) }
 
 @FullPreview
 @Composable
-private fun HeaderSectionWithSearchPreview() = PreviewSurface { HeaderSection(title = "Songs", onSearchClick = {}) }
+private fun HeaderSectionWithSearchPreview() = PreviewSurface { HeaderSection(title = "Songs", isSearchButtonVisible = true, onSearchClick = {}) }

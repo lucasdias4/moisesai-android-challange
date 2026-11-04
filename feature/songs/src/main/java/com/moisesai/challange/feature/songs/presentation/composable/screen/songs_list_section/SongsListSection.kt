@@ -22,12 +22,12 @@ import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.feature.songs.presentation.composable.component.ErrorStateComponent
-import com.moisesai.challange.feature.songs.presentation.composable.component.LoadingStateComponent
 import com.moisesai.challange.feature.songs.presentation.composable.component.NoResultsStateComponent
 import com.moisesai.challange.feature.songs.presentation.composable.component.PartialErrorMessageComponent
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SampleTracks
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SuggestedSample
 import com.moisesai.challange.feature.songs.presentation.composable.component.songRowListComponent
+import com.moisesai.challange.feature.songs.presentation.composable.component.songRowSkeletonListComponent
 import com.moisesai.challange.feature.songs.presentation.composable.callback.SongsCallbacks
 import com.moisesai.challange.feature.songs.presentation.model.UiSearchResultsState
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsContentState
@@ -50,11 +50,17 @@ private const val TOP_SHADOW_START_ALPHA = 0.8f
 private const val SUGGESTED_SONGS_KEY_PREFIX = "suggested"
 private const val RECENT_SONGS_KEY_PREFIX = "recent"
 private const val FOUND_SONGS_KEY_PREFIX = "found"
-private const val SEARCH_LOADING_KEY = "search-loading"
+private const val SEARCH_LOADING_KEY_PREFIX = "search-loading"
+private const val SUGGESTIONS_LOADING_KEY_PREFIX = "suggestions-loading"
 private const val SEARCH_ERROR_KEY = "search-error"
 private const val NO_RESULTS_KEY = "no-results"
 private const val UPDATE_FAILED_KEY = "update-failed"
-private const val LOADING_MORE_KEY = "loading-more"
+private const val LOADING_MORE_KEY_PREFIX = "loading-more"
+
+// How many skeleton rows wait for songs: enough to fill a tall screen while a search or the suggestions load, and a
+// couple at the end of the list while the next page arrives.
+private const val FULL_SKELETON_ROWS = 10
+private const val NEXT_PAGE_SKELETON_ROWS = 2
 
 /**
  * The songs of the screen, in the way that fits [content]. While a search is shown, pulling the list down
@@ -70,6 +76,7 @@ internal fun SongsListSection(
 ) {
     Box(modifier = modifier) {
         if (content is UiSongsContentState.Search) {
+            // Pulling the list down shows the refresh indicator of Material, and runs the search again.
             PullToRefreshBox(isRefreshing = content.isRefreshing(), onRefresh = callbacks.onRefresh) {
                 SongsColumn(content, callbacks, listState)
             }
@@ -119,10 +126,15 @@ private fun LazyListScope.showItemsFor(content: UiSongsContentState, callbacks: 
     }
 }
 
-// Nothing was played yet: the songs we suggest, once they are found. While they load, or if there are none, nothing is drawn.
+// Nothing was played yet: the songs we suggest, once they are found. While they load there are skeleton rows; if there
+// are none, nothing is drawn.
 private fun LazyListScope.showSuggestedSongs(suggestions: UiSuggestionsState, callbacks: SongsCallbacks) {
-    val loadedSuggestions = suggestions as? UiSuggestionsState.Loaded ?: return
-    songRowListComponent(loadedSuggestions.tracks, SUGGESTED_SONGS_KEY_PREFIX, callbacks)
+    when (suggestions) {
+        // While the suggestions load, skeleton rows with a shimmer stand where the songs will be.
+        UiSuggestionsState.Loading -> songRowSkeletonListComponent(FULL_SKELETON_ROWS, SUGGESTIONS_LOADING_KEY_PREFIX)
+        is UiSuggestionsState.Loaded -> songRowListComponent(suggestions.tracks, SUGGESTED_SONGS_KEY_PREFIX, callbacks)
+        UiSuggestionsState.Unavailable -> Unit
+    }
 }
 
 // Something was played before: the recent songs, the latest first.
@@ -130,9 +142,10 @@ private fun LazyListScope.showRecentSongs(recentTracks: List<UiTrack>, callbacks
     songRowListComponent(recentTracks, RECENT_SONGS_KEY_PREFIX, callbacks)
 }
 
-// A search is running and nothing is known yet: a loader where the songs will be.
+// A search is running and nothing is known yet: skeleton rows where the songs will be.
 private fun LazyListScope.showSearchLoading() {
-    item(key = SEARCH_LOADING_KEY) { LoadingStateComponent() }
+    // While a search runs, skeleton rows with a shimmer stand where the songs will be.
+    songRowSkeletonListComponent(FULL_SKELETON_ROWS, SEARCH_LOADING_KEY_PREFIX)
 }
 
 // A search failed and there is nothing else to show: what went wrong and a way to try again.
@@ -145,12 +158,15 @@ private fun LazyListScope.showNoResults(searchText: String) {
     item(key = NO_RESULTS_KEY) { NoResultsStateComponent(searchText = searchText) }
 }
 
-// A search found songs: one row for each, with a message above them when an update failed and a loader below them
+// A search found songs: one row for each, with a message above them when an update failed and skeleton rows below them
 // while the next page arrives.
 private fun LazyListScope.showFoundSongs(results: UiSongsContentState.SearchResults, callbacks: SongsCallbacks) {
     if (results.status is UiSearchResultsState.Failed) item(key = UPDATE_FAILED_KEY) { PartialErrorMessageComponent() }
     songRowListComponent(results.tracks, FOUND_SONGS_KEY_PREFIX, callbacks)
-    if (results.status == UiSearchResultsState.LoadingMore) item(key = LOADING_MORE_KEY) { LoadingStateComponent() }
+    if (results.status == UiSearchResultsState.LoadingMore) {
+        // While the next page arrives, two skeleton rows with a shimmer wait at the end of the list.
+        songRowSkeletonListComponent(NEXT_PAGE_SKELETON_ROWS, LOADING_MORE_KEY_PREFIX)
+    }
 }
 
 // True while the results are being asked for again, which is when the pull-to-refresh indicator spins.

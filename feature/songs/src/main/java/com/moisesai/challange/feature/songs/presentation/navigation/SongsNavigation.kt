@@ -1,6 +1,8 @@
 package com.moisesai.challange.feature.songs.presentation.navigation
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
+import com.moisesai.challange.core.design.animation.LocalAnimatedVisibilityScope
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,6 +39,9 @@ fun NavGraphBuilder.songsScreen(onTrackClick: (trackId: Long) -> Unit, onViewAlb
                 onRetry = viewModel::retry,
             )
         }
-        SongsScreen(uiState = uiState, callbacks = callbacks)
+        // The covers of this screen fly to and from the next one while this screen is on its way in or out.
+        CompositionLocalProvider(LocalAnimatedVisibilityScope provides this) {
+            SongsScreen(uiState = uiState, callbacks = callbacks)
+        }
     }
 }
