@@ -14,7 +14,7 @@ import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
 
-private val SpaceBetweenNames = 8.dp
+internal val AlbumNamesGap = 8.dp
 
 /** The name of the album and, under it, the name of the artist, both centred. */
 @Composable
@@ -23,7 +23,7 @@ internal fun AlbumNamesComponent(albumName: String, artistName: String, modifier
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpaceBetweenNames),
+        verticalArrangement = Arrangement.spacedBy(AlbumNamesGap),
     ) {
         Text(text = albumName, style = design.text.display20, color = design.colors.text03, textAlign = TextAlign.Center)
         Text(text = artistName, style = design.text.text14, color = design.colors.text03, textAlign = TextAlign.Center)

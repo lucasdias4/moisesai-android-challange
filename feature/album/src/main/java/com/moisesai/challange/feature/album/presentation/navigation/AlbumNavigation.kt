@@ -1,6 +1,8 @@
 package com.moisesai.challange.feature.album.presentation.navigation
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
+import com.moisesai.challange.core.design.animation.LocalAnimatedVisibilityScope
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,6 +25,9 @@ fun NavGraphBuilder.albumScreen(onBackClick: () -> Unit, onTrackClick: (trackId:
         val callbacks = remember(viewModel, onBackClick, onTrackClick) {
             AlbumCallbacks(onBackClick = onBackClick, onTrackClick = onTrackClick, onRetry = viewModel::onRetry)
         }
-        AlbumScreen(uiState = uiState, callbacks = callbacks)
+        // Shared animation: the cover flies between the album track row and the player the track was opened in.
+        CompositionLocalProvider(LocalAnimatedVisibilityScope provides this) {
+            AlbumScreen(uiState = uiState, callbacks = callbacks)
+        }
     }
 }

@@ -18,8 +18,8 @@ import com.moisesai.challange.feature.album.presentation.model.UiAlbumTrack
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 
-private val ListTopPadding = 10.dp
-private val ListHorizontalPadding = 20.dp
+internal val AlbumTracksTopPadding = 10.dp
+internal val AlbumTracksHorizontalPadding = 20.dp
 
 // The tracks fade in at the top and out at the bottom of the list, so they do not look cut where they leave.
 private val TopFadeLength = 38.dp
@@ -35,7 +35,7 @@ internal fun AlbumTracksSection(
 ) {
     LazyColumn(
         modifier = modifier.fadedAtTopAndBottom(),
-        contentPadding = PaddingValues(start = ListHorizontalPadding, top = ListTopPadding, end = ListHorizontalPadding),
+        contentPadding = PaddingValues(start = AlbumTracksHorizontalPadding, top = AlbumTracksTopPadding, end = AlbumTracksHorizontalPadding),
     ) {
         // A list key must be unique: the position keeps it so even if the same track id came twice.
         itemsIndexed(tracks, key = { position, track -> "${track.id}-$position" }) { _, track ->

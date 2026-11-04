@@ -15,23 +15,23 @@ import com.moisesai.challange.feature.album.presentation.model.UiAlbum
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 
-private val SpaceBetweenCoverAndNames = 16.dp
-private val NamesHorizontalPadding = 24.dp
-private val SpaceBelowNames = 8.dp
+internal val AlbumHeaderCoverNamesGap = 16.dp
+internal val AlbumHeaderNamesHorizontalPadding = 24.dp
+internal val AlbumHeaderBottomPadding = 8.dp
 
 /** What the album is: its cover, then its name and its artist. */
 @Composable
 internal fun AlbumHeaderSection(album: UiAlbum, modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.fillMaxWidth().padding(bottom = SpaceBelowNames),
+        modifier = modifier.fillMaxWidth().padding(bottom = AlbumHeaderBottomPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(SpaceBetweenCoverAndNames),
+        verticalArrangement = Arrangement.spacedBy(AlbumHeaderCoverNamesGap),
     ) {
         AlbumCoverComponent(artUrl = album.artUrl)
         AlbumNamesComponent(
             albumName = album.name,
             artistName = album.artistName,
-            modifier = Modifier.padding(horizontal = NamesHorizontalPadding),
+            modifier = Modifier.padding(horizontal = AlbumHeaderNamesHorizontalPadding),
         )
     }
 }
