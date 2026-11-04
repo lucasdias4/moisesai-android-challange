@@ -11,6 +11,7 @@ import com.moisesai.challange.core.player.PlayerController
 import com.moisesai.challange.core.shareddomainmodel.TrackDomainModel
 import com.moisesai.challange.feature.songdetails.domain.model.TrackQueueDomainModel
 import com.moisesai.challange.feature.songdetails.domain.usecase.GetTrackQueueUseCase
+import com.moisesai.challange.feature.songdetails.domain.usecase.GetTrackUseCase
 import com.moisesai.challange.feature.songdetails.domain.usecase.SaveRecentTrackUseCase
 import com.moisesai.challange.feature.songdetails.fixture.LEVITATING_ID
 import com.moisesai.challange.feature.songdetails.fixture.LEVITATING_PREVIEW_URL
@@ -27,6 +28,7 @@ import io.mockk.mockk
 import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
@@ -45,6 +47,7 @@ import org.junit.Test
 class SongDetailsViewModelTest {
 
     private val dispatcher: TestDispatcher = StandardTestDispatcher()
+    private val getTrackUseCase = mockk<GetTrackUseCase>()
     private val getTrackQueueUseCase = mockk<GetTrackQueueUseCase>()
     private val saveRecentTrackUseCase = mockk<SaveRecentTrackUseCase>()
     private val playbackState = MutableStateFlow<PlaybackState>(PlaybackState.Idle)
@@ -67,9 +70,9 @@ class SongDetailsViewModelTest {
     }
 
     @Test
-    fun `GIVEN the queue did not arrive yet, WHEN the screen starts, THEN it is loading`() = runTest(dispatcher) {
+    fun `GIVEN the track did not arrive yet, WHEN the screen starts, THEN it is loading`() = runTest(dispatcher) {
         // Given
-        coEvery { getTrackQueueUseCase(LEVITATING_ID) } returns Result.success(TrackQueueDomainModel(listOf(first), currentIndex = 0))
+        givenQueueOf(first)
 
         // When
         val viewModel = createViewModel()
@@ -95,9 +98,9 @@ class SongDetailsViewModelTest {
     }
 
     @Test
-    fun `GIVEN a queue that fails to load, WHEN the screen starts, THEN the error is shown and nothing plays`() = runTest(dispatcher) {
+    fun `GIVEN a track that fails to load, WHEN the screen starts, THEN the error is shown and nothing plays`() = runTest(dispatcher) {
         // Given
-        coEvery { getTrackQueueUseCase(LEVITATING_ID) } returns Result.failure(AppError.Network())
+        coEvery { getTrackUseCase(LEVITATING_ID) } returns Result.failure(AppError.Network())
         val viewModel = createViewModel()
 
         // When
@@ -438,9 +441,54 @@ class SongDetailsViewModelTest {
     }
 
     @Test
-    fun `GIVEN the queue failed to load, WHEN the user retries and it loads, THEN the chosen track plays`() = runTest(dispatcher) {
+    fun `GIVEN the album is still loading, WHEN the chosen track arrives, THEN it plays and is shown without waiting for the album`() = runTest(dispatcher) {
         // Given
+        coEvery { getTrackUseCase(LEVITATING_ID) } returns Result.success(first)
+        coEvery { getTrackQueueUseCase(LEVITATING_ID) } coAnswers { awaitCancellation() }
+        val viewModel = createViewModel()
+
+        // When
+        runCurrent()
+
+        // Then
+        verify(exactly = 1) { playerController.playFromStart(LEVITATING_PREVIEW_URL) }
+        assertTrue(viewModel.uiState.value is UiSongDetailsUiState.Success)
+    }
+
+    @Test
+    fun `GIVEN the chosen track is playing, WHEN the album arrives, THEN the music is not restarted and the next track is there`() = runTest(dispatcher) {
+        // Given
+        givenQueueOf(first, second)
+        val viewModel = createViewModel()
+
+        // When
+        runCurrent()
+        viewModel.goToNextTrack()
+
+        // Then
+        verify(exactly = 1) { playerController.playFromStart(LEVITATING_PREVIEW_URL) }
+        verify(exactly = 1) { playerController.playFromStart(SECOND_PREVIEW_URL) }
+    }
+
+    @Test
+    fun `GIVEN the album fails to load, WHEN the chosen track plays, THEN it keeps playing alone`() = runTest(dispatcher) {
+        // Given
+        coEvery { getTrackUseCase(LEVITATING_ID) } returns Result.success(first)
         coEvery { getTrackQueueUseCase(LEVITATING_ID) } returns Result.failure(AppError.Network())
+        val viewModel = createViewModel()
+
+        // When
+        runCurrent()
+
+        // Then
+        assertTrue(viewModel.uiState.value is UiSongDetailsUiState.Success)
+        verify(exactly = 1) { playerController.playFromStart(LEVITATING_PREVIEW_URL) }
+    }
+
+    @Test
+    fun `GIVEN the track failed to load, WHEN the user retries and it loads, THEN the chosen track plays`() = runTest(dispatcher) {
+        // Given
+        coEvery { getTrackUseCase(LEVITATING_ID) } returns Result.failure(AppError.Network())
         val viewModel = createViewModel()
         runCurrent()
         givenQueueOf(first)
@@ -455,6 +503,7 @@ class SongDetailsViewModelTest {
     }
 
     private fun givenQueueOf(vararg tracks: TrackDomainModel, startingAt: TrackDomainModel = tracks.first()) {
+        coEvery { getTrackUseCase(LEVITATING_ID) } returns Result.success(startingAt)
         coEvery { getTrackQueueUseCase(LEVITATING_ID) } returns
             Result.success(TrackQueueDomainModel(tracks.toList(), currentIndex = tracks.indexOf(startingAt)))
     }
@@ -472,6 +521,7 @@ class SongDetailsViewModelTest {
 
     private fun createViewModel() = SongDetailsViewModel(
         savedStateHandle = SavedStateHandle(mapOf("trackId" to LEVITATING_ID)),
+        getTrackUseCase = getTrackUseCase,
         getTrackQueueUseCase = getTrackQueueUseCase,
         saveRecentTrackUseCase = saveRecentTrackUseCase,
         playerController = playerController,

@@ -24,6 +24,7 @@ private val MessageVerticalMargin = 12.dp
  */
 @Composable
 internal fun MessageSnackbarHostComponent(hostState: SnackbarHostState, modifier: Modifier = Modifier) {
+    // The message fades and slides in and out by itself (the snackbar animation of Material), and leaves after a few seconds.
     SnackbarHost(
         hostState = hostState,
         modifier = modifier.padding(horizontal = MessageHorizontalMargin, vertical = MessageVerticalMargin),

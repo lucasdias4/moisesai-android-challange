@@ -7,10 +7,13 @@ package com.moisesai.challange.feature.songdetails.presentation.model
  * cannot be played.
  */
 internal data class UiPlayingTrack(
+    val id: Long,
     val trackName: String,
     val artistName: String,
     val albumId: Long,
     val artUrl: String?,
+    /** The small picture of the same cover that the lists already show: it is on screen while [artUrl], the big one, loads. */
+    val thumbnailArtUrl: String?,
     val isPlaying: Boolean,
     val canPlay: Boolean,
     val isRepeatEnabled: Boolean,

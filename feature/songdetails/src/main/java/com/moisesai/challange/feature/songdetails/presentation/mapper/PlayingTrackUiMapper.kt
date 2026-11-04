@@ -18,10 +18,12 @@ private const val REMAINING_TIME_PREFIX = "-"
 // It runs every 250 ms while the audio plays: the player publishes a new state at that pace, the ViewModel collects it
 // and calls this. It also runs on play, pause, seek and end.
 internal fun TrackDomainModel.toUiPlayingTrack(playbackState: PlaybackState) = UiPlayingTrack(
+    id = id,
     trackName = name,
     artistName = artistName.mainArtist(),
     albumId = albumId,
     artUrl = artUrl?.toLargeCoverUrl(),
+    thumbnailArtUrl = artUrl,
     isPlaying = playbackState is PlaybackState.Playing,
     canPlay = playbackState !is PlaybackState.Failed,
     isRepeatEnabled = playbackState.isRepeatEnabledOrFalse,

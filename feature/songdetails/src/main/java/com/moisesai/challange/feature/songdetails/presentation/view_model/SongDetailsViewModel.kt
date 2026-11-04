@@ -9,6 +9,7 @@ import com.moisesai.challange.core.player.PlayerController
 import com.moisesai.challange.core.shareddomainmodel.TrackDomainModel
 import com.moisesai.challange.feature.songdetails.domain.model.TrackQueueDomainModel
 import com.moisesai.challange.feature.songdetails.domain.usecase.GetTrackQueueUseCase
+import com.moisesai.challange.feature.songdetails.domain.usecase.GetTrackUseCase
 import com.moisesai.challange.feature.songdetails.domain.usecase.SaveRecentTrackUseCase
 import com.moisesai.challange.core.design.extension.toUiErrorType
 import com.moisesai.challange.feature.songdetails.presentation.mapper.toUiPlayingTrack
@@ -29,6 +30,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 internal class SongDetailsViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
+    private val getTrackUseCase: GetTrackUseCase,
     private val getTrackQueueUseCase: GetTrackQueueUseCase,
     private val saveRecentTrackUseCase: SaveRecentTrackUseCase,
     private val playerController: PlayerController,
@@ -132,12 +134,22 @@ internal class SongDetailsViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    // The chosen track is on screen and playing at once, without waiting for its album; the album that gives the next and
+    // the previous tracks follows, and only adds the album to the queue: it never restarts the music.
     private fun loadTrackQueueAndPlay() {
         viewModelScope.launch {
-            getTrackQueueUseCase(chosenTrackId)
-                .onSuccess(::startPlaying)
-                .onFailure(::showError)
+            // 1) Get the track the user chose.
+            val chosenTrack = getTrackUseCase(chosenTrackId).onFailure(::showError).getOrNull() ?: return@launch
+            // 2) Play it right away, alone in the queue.
+            startPlaying(TrackQueueDomainModel(listOf(chosenTrack), currentIndex = 0))
+            // 3) Load the album and add it to the queue, so next and previous work. If it fails, the track keeps playing alone.
+            getTrackQueueUseCase(chosenTrackId).onSuccess(::addAlbumToQueue)
         }
+    }
+
+    // Nothing on screen changes: the track that shows is the same one, only the tracks around it are now known.
+    private fun addAlbumToQueue(queue: TrackQueueDomainModel) {
+        trackQueue = queue
     }
 
     private fun startPlaying(queue: TrackQueueDomainModel) {

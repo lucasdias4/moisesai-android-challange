@@ -9,11 +9,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.moisesai.challange.feature.songdetails.presentation.composable.animation.TrackChangeAnimation
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
 
-private val SpaceBetweenNames = 4.dp
+internal val TrackNamesGap = 4.dp
 
 /** The name of the track that is playing, large, and under it the name of the artist, a little faded. */
 @Composable
@@ -23,24 +24,27 @@ internal fun TrackNamesComponent(
     modifier: Modifier = Modifier,
 ) {
     val design = MaterialTheme.design
-    Column(
-        modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(SpaceBetweenNames),
-    ) {
-        Text(
-            text = trackName,
-            style = design.text.display32,
-            color = design.colors.text03,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Text(
-            text = artistName,
-            style = design.text.text16,
-            color = design.colors.whiteAlpha70,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+    // When the track changes, the new names rise into place while they fade in, and the old ones fade out.
+    TrackChangeAnimation(trackName = trackName, artistName = artistName, modifier = modifier.fillMaxWidth()) { shownTrackName, shownArtistName ->
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(TrackNamesGap),
+        ) {
+            Text(
+                text = shownTrackName,
+                style = design.text.display32,
+                color = design.colors.text03,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(
+                text = shownArtistName,
+                style = design.text.text16,
+                color = design.colors.whiteAlpha70,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 

@@ -2,6 +2,7 @@ package com.moisesai.challange.feature.songdetails.presentation.composable.scree
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -23,19 +24,14 @@ private val SectionTopPadding = 12.dp
 // 12 of padding, and 41 more that the design leaves under the controls: room for the system bar.
 private val SectionBottomPadding = 53.dp
 private val SpaceBetweenParts = 20.dp
-private val SpaceBetweenSeekBarAndTimes = 4.dp
+internal val SeekBarTimesGap = 4.dp
 
 /** What is playing and how to control it: the names of the track, how far it has played, and the controls. */
 @Composable
 internal fun PlaybackSection(playingTrack: UiPlayingTrack, callbacks: SongDetailsCallbacks, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = SectionHorizontalPadding, top = SectionTopPadding, end = SectionHorizontalPadding, bottom = SectionBottomPadding),
-        verticalArrangement = Arrangement.spacedBy(SpaceBetweenParts),
-    ) {
+    PlaybackSectionLayout(modifier = modifier) {
         TrackNamesComponent(trackName = playingTrack.trackName, artistName = playingTrack.artistName)
-        Column(verticalArrangement = Arrangement.spacedBy(SpaceBetweenSeekBarAndTimes)) {
+        Column(verticalArrangement = Arrangement.spacedBy(SeekBarTimesGap)) {
             SeekBarComponent(progress = playingTrack.progress, onProgressChangedByUser = callbacks.onTrackProgressBarChangedByUser)
             PlaybackTimesComponent(
                 playedTimeText = playingTrack.playedTimeText,
@@ -44,6 +40,18 @@ internal fun PlaybackSection(playingTrack: UiPlayingTrack, callbacks: SongDetail
         }
         PlaybackControlsComponent(playingTrack = playingTrack, callbacks = callbacks)
     }
+}
+
+/** The margins and the space between the parts of the section; the skeleton that waits for it uses them too, so nothing moves. */
+@Composable
+internal fun PlaybackSectionLayout(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(start = SectionHorizontalPadding, top = SectionTopPadding, end = SectionHorizontalPadding, bottom = SectionBottomPadding),
+        verticalArrangement = Arrangement.spacedBy(SpaceBetweenParts),
+        content = content,
+    )
 }
 
 @FullPreview

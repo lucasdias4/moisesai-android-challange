@@ -2,7 +2,6 @@ package com.moisesai.challange.feature.songdetails.presentation.composable.compo
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +22,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.R as DesignR
+import com.moisesai.challange.core.design.animation.pressAnimation
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
@@ -114,7 +114,8 @@ private fun SkipButton(
         contentDescription = stringResource(contentDescriptionRes),
         modifier = modifier
             .size(SkipIconSize)
-            .clickable(role = Role.Button, onClick = onClick),
+            // While pressed, the skip icon shrinks a little and springs back.
+            .pressAnimation(role = Role.Button, onClick = onClick),
         tint = MaterialTheme.design.colors.text03,
     )
 }

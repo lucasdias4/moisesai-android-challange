@@ -1,6 +1,8 @@
 package com.moisesai.challange.feature.songdetails.presentation.navigation
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.CompositionLocalProvider
+import com.moisesai.challange.core.design.animation.LocalAnimatedVisibilityScope
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -38,6 +40,9 @@ fun NavGraphBuilder.songDetailsScreen(onBackClick: () -> Unit, onViewAlbumClick:
                 onCannotPlayMessageShown = viewModel::onCannotPlayMessageShown,
             )
         }
-        SongDetailsScreen(uiState = uiState, callbacks = callbacks)
+        // Shared animation: the cover flies between the player and the song list or album row the track was opened from.
+        CompositionLocalProvider(LocalAnimatedVisibilityScope provides this) {
+            SongDetailsScreen(uiState = uiState, callbacks = callbacks)
+        }
     }
 }

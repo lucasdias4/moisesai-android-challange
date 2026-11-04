@@ -4,10 +4,12 @@ import com.moisesai.challange.feature.songdetails.presentation.model.UiPlayingTr
 
 // The track of the design, a quarter of the way through. The cover is empty: a preview has no network.
 internal val SamplePlayingTrack = UiPlayingTrack(
+    id = 1L,
     trackName = "Get Lucky",
     artistName = "Daft Punk feat. Pharrell Williams",
     albumId = 1L,
     artUrl = null,
+    thumbnailArtUrl = null,
     isPlaying = false,
     canPlay = true,
     isRepeatEnabled = false,

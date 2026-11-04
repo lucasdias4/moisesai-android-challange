@@ -104,6 +104,19 @@ class PlayingTrackUiMapperTest {
     }
 
     @Test
+    fun `GIVEN a track, WHEN mapped to ui, THEN its id and its small cover are kept for the flight of the cover`() {
+        // Given
+        val track = aTrackDomainModel()
+
+        // When
+        val playingTrack = track.toUiPlayingTrack(PlaybackState.Idle)
+
+        // Then
+        assertEquals(track.id, playingTrack.id)
+        assertEquals(track.artUrl, playingTrack.thumbnailArtUrl)
+    }
+
+    @Test
     fun `GIVEN audio that failed to load, WHEN mapped to ui, THEN the track cannot be played`() {
         // Given
         val playbackState = aFailedState()

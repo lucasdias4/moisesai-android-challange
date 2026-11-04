@@ -1,5 +1,7 @@
 package com.moisesai.challange.feature.songdetails.presentation.composable.component
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -14,10 +16,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.progressBarRangeInfo
@@ -25,18 +26,23 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import com.moisesai.challange.feature.songdetails.presentation.composable.animation.animateHandleScale
+import com.moisesai.challange.feature.songdetails.presentation.composable.animation.animateSeekProgress
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
 
-private val SeekBarHeight = 24.dp
-private val BarLineHeight = 4.dp
+internal val SeekBarHeight = 24.dp
+internal val SeekBarLineHeight = 4.dp
 private val BarLineCorner = 20.dp
 
 // Where the design puts the line and the handle inside the bar of 24: the line 8 from the top, the handle 2.
-private val BarLineTop = 8.dp
+internal val SeekBarLineTop = 8.dp
 private val HandleSize = 16.dp
 private val HandleTop = 2.dp
 
@@ -61,6 +67,11 @@ internal fun SeekBarComponent(
     // While the finger is down the bar follows it, and not the player, which would answer a moment late.
     var draggedProgress by remember { mutableStateOf<Float?>(null) }
     val shownProgress = draggedProgress ?: progress
+    val isHeld = draggedProgress != null
+    // The bar flows to each new value (the player reports it every 250 ms) instead of ticking; while the finger holds it, it follows at once.
+    val flowingProgress = animateSeekProgress(progress = shownProgress, isHeld = isHeld)
+    // The handle grows while the finger holds it, so the user sees it was caught.
+    val handleScale = animateHandleScale(isHeld = isHeld)
     BoxWithConstraints(
         modifier = modifier
             .fillMaxWidth()
@@ -78,10 +89,9 @@ internal fun SeekBarComponent(
                 }
             },
     ) {
-        val filledBarWidth = maxWidth * shownProgress
         BarLine()
-        FilledBarLine(width = filledBarWidth)
-        Handle(startOffset = filledBarWidth - HandleLeftOfFilledBarEnd)
+        FilledBarLine(progress = flowingProgress)
+        Handle(progress = flowingProgress, scale = handleScale, barWidth = constraints.maxWidth.toFloat())
     }
 }
 
@@ -89,32 +99,45 @@ internal fun SeekBarComponent(
 private fun BarLine() {
     Box(
         modifier = Modifier
-            .offset(y = BarLineTop)
+            .offset(y = SeekBarLineTop)
             .fillMaxWidth()
-            .height(BarLineHeight)
+            .height(SeekBarLineHeight)
             .clip(RoundedCornerShape(BarLineCorner))
             .background(MaterialTheme.design.colors.alphaInvert25),
     )
 }
 
+// The filled part is drawn, not laid out: its width follows the progress frame by frame without a new layout.
 @Composable
-private fun FilledBarLine(width: Dp) {
+private fun FilledBarLine(progress: State<Float>) {
+    val color = MaterialTheme.design.colors.whiteAlpha60
     Box(
         modifier = Modifier
-            .offset(y = BarLineTop)
-            .width(width)
-            .height(BarLineHeight)
-            .clip(RoundedCornerShape(BarLineCorner))
-            .background(MaterialTheme.design.colors.whiteAlpha60),
+            .offset(y = SeekBarLineTop)
+            .fillMaxWidth()
+            .height(SeekBarLineHeight)
+            .drawBehind {
+                drawRoundRect(
+                    color = color,
+                    size = Size(width = size.width * progress.value, height = size.height),
+                    cornerRadius = CornerRadius(x = size.height / 2, y = size.height / 2),
+                )
+            },
     )
 }
 
+// The handle is moved and scaled while drawing, for the same reason.
 @Composable
-private fun Handle(startOffset: Dp) {
+private fun Handle(progress: State<Float>, scale: State<Float>, barWidth: Float) {
     Box(
         modifier = Modifier
-            .offset(x = startOffset, y = HandleTop)
+            .offset(y = HandleTop)
             .size(HandleSize)
+            .graphicsLayer {
+                translationX = barWidth * progress.value - HandleLeftOfFilledBarEnd.toPx()
+                scaleX = scale.value
+                scaleY = scale.value
+            }
             .clip(CircleShape)
             .background(MaterialTheme.design.colors.text03),
     )
