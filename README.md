@@ -58,9 +58,9 @@ Each feature owns its presentation, domain and data. Shared code lives in `core:
 
 | Approach | Good | Costs |
 | --- | --- | --- |
-| By feature (**chosen**) | Independent modules, easy parallel work between multiple developers, easy to extract as a library | Shared code needs a `core` module |
-| By layer | Layers enforced by Gradle, faster pace because existing code is reused | Every feature change touches 3 modules, more coupled |
-| Hybrid (presentation by feature, domain and data by layer) | Almost as fast as by layer, and the architecture of a feature is easy to change if the app grows and needs to be divided by feature | More modules and wiring |
+| By feature (**chosen**) | Independent modules, easy parallel work between multiple developers, easy to extract as a library, better build times (only the changed modules rebuild, and independent modules build in parallel) | Shared code needs a `core` module |
+| By layer | Layers enforced by Gradle, fast-paced development because existing code is reused | Every feature change touches 3 modules, more coupled |
+| Hybrid (presentation by feature, domain and data by layer) | Faster for development, almost as fast as by layer, and the architecture of a feature is easy to change if the app grows and needs to be divided by feature | More modules and wiring |
 
 ```mermaid
 graph TD
