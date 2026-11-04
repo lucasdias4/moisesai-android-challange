@@ -8,10 +8,7 @@ import kotlin.coroutines.cancellation.CancellationException
  * It never throws, except for cancellation.
  * Cancellation is rethrown here, for every mapper: turning it into a failure would stop the coroutine from being cancelled.
  */
-suspend fun <T> safeCall(
-    mapError: (Throwable) -> AppError = Throwable::toAppError,
-    block: suspend () -> T,
-): Result<T> =
+suspend fun <T> safeCall(mapError: (Throwable) -> AppError = Throwable::toAppError, block: suspend () -> T): Result<T> =
     runCatching { block() }.fold(
         onSuccess = { Result.success(it) },
         onFailure = {

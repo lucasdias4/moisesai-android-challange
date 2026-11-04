@@ -189,6 +189,7 @@ Nothing expires and nothing is deleted. Without a connection, anything already f
 | Database | Room 3 |
 | Player | Media3 ExoPlayer |
 | Build | Gradle 9.4, AGP 9.2, version catalog, convention plugins in `build-logic` |
+| Code style | ktlint (rules in `.editorconfig`) |
 | Tests | JUnit 4, MockK, Turbine, coroutines-test, MockWebServer, Compose UI test |
 | SDK | `minSdk` 24, `targetSdk` 36, `compileSdk` 37 |
 
@@ -283,11 +284,25 @@ Open the project in Android Studio and run the `app` configuration, or from a te
 ```bash
 ./gradlew testDebugUnitTest            # unit tests, all modules
 ./gradlew lintDebug                    # Android lint, all modules
+./gradlew ktlintCheck                  # code style, all modules (ktlintFormat fixes it)
 ./gradlew connectedDebugAndroidTest    # instrumented tests (needs a running emulator or device)
-./gradlew clean assembleDebug testDebugUnitTest lintDebug   # the full local check
+./gradlew clean assembleDebug testDebugUnitTest lintDebug ktlintCheck   # the full local check
 ```
 
 The Gradle wrapper is the only supported way to build. Gradle 9.4.1 is downloaded on first use.
+
+### Code style (ktlint)
+
+Every module is checked with [ktlint](https://pinterest.github.io/ktlint/) 1.8.0, through the `org.jlleitschuh.gradle.ktlint` plugin applied once in the root `build.gradle.kts`.
+
+```bash
+./gradlew ktlintFormat   # fixes what it can
+./gradlew ktlintCheck    # fails on what is left
+```
+
+- Rules live in [`.editorconfig`](.editorconfig): the `android_studio` style, 4 spaces, 140 characters per line.
+- Exceptions, each commented in the file: the `view_model` package, underscore names in instrumented tests, `@Composable` function names, long backticked test names.
+- `ktlintCheck` is part of the full local check above.
 
 ## Known limitations
 

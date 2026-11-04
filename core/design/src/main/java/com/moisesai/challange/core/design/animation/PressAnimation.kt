@@ -34,7 +34,9 @@ private object PressIndication : IndicationNodeFactory {
     override fun equals(other: Any?) = other === this
 }
 
-private class PressNode(private val interactionSource: InteractionSource) : Modifier.Node(), DrawModifierNode {
+private class PressNode(private val interactionSource: InteractionSource) :
+    Modifier.Node(),
+    DrawModifierNode {
 
     // 1 = normal size, PRESSED_SCALE = fully pressed. Read only while drawing.
     private val scale = Animatable(1f)

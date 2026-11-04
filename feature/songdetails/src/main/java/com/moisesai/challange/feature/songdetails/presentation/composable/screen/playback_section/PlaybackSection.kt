@@ -10,12 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
+import com.moisesai.challange.feature.songdetails.presentation.composable.callback.SongDetailsCallbacks
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.PlaybackControlsComponent
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.PlaybackTimesComponent
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.SeekBarComponent
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.TrackNamesComponent
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.preview_helper.SamplePlayingTrack
-import com.moisesai.challange.feature.songdetails.presentation.composable.callback.SongDetailsCallbacks
 import com.moisesai.challange.feature.songdetails.presentation.model.UiPlayingTrack
 
 private val SectionHorizontalPadding = 24.dp
@@ -48,7 +48,12 @@ internal fun PlaybackSectionLayout(modifier: Modifier = Modifier, content: @Comp
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = SectionHorizontalPadding, top = SectionTopPadding, end = SectionHorizontalPadding, bottom = SectionBottomPadding),
+            .padding(
+                start = SectionHorizontalPadding,
+                top = SectionTopPadding,
+                end = SectionHorizontalPadding,
+                bottom = SectionBottomPadding,
+            ),
         verticalArrangement = Arrangement.spacedBy(SpaceBetweenParts),
         content = content,
     )
@@ -56,4 +61,6 @@ internal fun PlaybackSectionLayout(modifier: Modifier = Modifier, content: @Comp
 
 @FullPreview
 @Composable
-private fun PlaybackSectionPreview() = PreviewSurface { PlaybackSection(playingTrack = SamplePlayingTrack, callbacks = SongDetailsCallbacks.None) }
+private fun PlaybackSectionPreview() = PreviewSurface {
+    PlaybackSection(playingTrack = SamplePlayingTrack, callbacks = SongDetailsCallbacks.None)
+}

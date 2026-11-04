@@ -1,6 +1,5 @@
 package com.moisesai.challange.core.design.animation
 
-import com.moisesai.challange.core.design.animation.spec.screenTween
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -28,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.onSizeChanged
+import com.moisesai.challange.core.design.animation.spec.screenTween
 import com.moisesai.challange.core.design.theme.design
 import kotlinx.coroutines.launch
 

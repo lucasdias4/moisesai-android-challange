@@ -14,22 +14,19 @@ private const val LEVITATING_ART_URL =
 private const val LEVITATING_DURATION_MILLIS = 203_808L
 private const val LEVITATING_RELEASE_DATE = "2020-03-27T12:00:00Z"
 
-fun aTrackDomainModel(
-    id: Long = LEVITATING_ID,
-    previewUrl: String? = LEVITATING_PREVIEW_URL,
-    artistName: String = "Dua Lipa",
-) = TrackDomainModel(
-    id = id,
-    name = "Levitating",
-    artistName = artistName,
-    albumId = LEVITATING_ALBUM_ID,
-    albumName = "Future Nostalgia",
-    artUrl = LEVITATING_ART_URL,
-    previewUrl = previewUrl,
-    trackTimeMillis = LEVITATING_DURATION_MILLIS,
-    releaseDate = LEVITATING_RELEASE_DATE,
-    trackNumber = 5,
-)
+fun aTrackDomainModel(id: Long = LEVITATING_ID, previewUrl: String? = LEVITATING_PREVIEW_URL, artistName: String = "Dua Lipa") =
+    TrackDomainModel(
+        id = id,
+        name = "Levitating",
+        artistName = artistName,
+        albumId = LEVITATING_ALBUM_ID,
+        albumName = "Future Nostalgia",
+        artUrl = LEVITATING_ART_URL,
+        previewUrl = previewUrl,
+        trackTimeMillis = LEVITATING_DURATION_MILLIS,
+        releaseDate = LEVITATING_RELEASE_DATE,
+        trackNumber = 5,
+    )
 
 fun anApiTrack(id: Long = LEVITATING_ID) = ApiTrack(
     id = id,

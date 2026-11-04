@@ -9,23 +9,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.moisesai.challange.feature.songdetails.presentation.composable.animation.TrackChangeAnimation
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
+import com.moisesai.challange.feature.songdetails.presentation.composable.animation.TrackChangeAnimation
 
 internal val TrackNamesGap = 4.dp
 
 /** The name of the track that is playing, large, and under it the name of the artist, a little faded. */
 @Composable
-internal fun TrackNamesComponent(
-    trackName: String,
-    artistName: String,
-    modifier: Modifier = Modifier,
-) {
+internal fun TrackNamesComponent(trackName: String, artistName: String, modifier: Modifier = Modifier) {
     val design = MaterialTheme.design
     // When the track changes, the new names rise into place while they fade in, and the old ones fade out.
-    TrackChangeAnimation(trackName = trackName, artistName = artistName, modifier = modifier.fillMaxWidth()) { shownTrackName, shownArtistName ->
+    TrackChangeAnimation(trackName = trackName, artistName = artistName, modifier = modifier.fillMaxWidth()) {
+            shownTrackName,
+            shownArtistName,
+        ->
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(TrackNamesGap),

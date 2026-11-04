@@ -3,10 +3,7 @@ package com.moisesai.challange.feature.songdetails.domain.model
 import com.moisesai.challange.core.shareddomainmodel.TrackDomainModel
 
 /** The tracks the player can move between, and which of them is the one playing. */
-internal data class TrackQueueDomainModel(
-    val tracks: List<TrackDomainModel>,
-    val currentIndex: Int,
-) {
+internal data class TrackQueueDomainModel(val tracks: List<TrackDomainModel>, val currentIndex: Int) {
     init {
         require(currentIndex in tracks.indices) { "The current track must be one of the tracks of the queue." }
     }
@@ -30,7 +27,13 @@ internal data class TrackQueueDomainModel(
         fun startingAt(chosenTrack: TrackDomainModel, albumTracks: List<TrackDomainModel>): TrackQueueDomainModel {
             val playableTracks = albumTracks.filter { it.id == chosenTrack.id || it.previewUrl != null }
             val chosenIndex = playableTracks.indexOfFirst { it.id == chosenTrack.id }
-            return if (chosenIndex == NOT_FOUND) TrackQueueDomainModel(listOf(chosenTrack), currentIndex = 0) else TrackQueueDomainModel(playableTracks, chosenIndex)
+            return if (chosenIndex ==
+                NOT_FOUND
+            ) {
+                TrackQueueDomainModel(listOf(chosenTrack), currentIndex = 0)
+            } else {
+                TrackQueueDomainModel(playableTracks, chosenIndex)
+            }
         }
 
         private const val NOT_FOUND = -1

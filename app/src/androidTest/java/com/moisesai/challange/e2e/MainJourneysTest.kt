@@ -28,6 +28,7 @@ class MainJourneysTest : EndToEndTest() {
 
     private val searchTracks = FakeBackend.fixture(SEARCH_FIXTURE).getJSONArray("results")
     private val firstTrack = searchTracks.getJSONObject(0)
+
     // The app shows the title without the "(Live)" kind of suffix.
     private val searchedTrackTitle = firstTrack.getString("trackName").substringBefore(" (")
 

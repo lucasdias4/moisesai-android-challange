@@ -26,8 +26,9 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Tests: Given / When / Then in both the name (`GIVEN ..., WHEN ..., THEN ...`, keywords uppercase) and the body, one action each; fixtures from the real API; none that pass with the code broken. (§9, `write-unit-tests`, `write-ui-tests`). The pyramid targets are 100% unit, 50% functional, 30% end to end (README "Testing strategy"): write the test in the same commit as the code.
 
 ## Working agreements
+- Code style is ktlint (`.editorconfig`, `android_studio` style). Run `./gradlew ktlintFormat` before `ktlintCheck`; the rule exceptions (underscore test names, `view_model` package) live in `.editorconfig`.
 - Rules are defined in `ARCHITECTURE.md`. To change one: edit it there first, then its short version here and the examples in the skills, then search for the old wording.
-- Small steps, one commit each, green on `./gradlew clean assembleDebug testDebugUnitTest lintDebug connectedDebugAndroidTest`. Suggest a short commit message; do not commit unless asked.
+- Small steps, one commit each, green on `./gradlew clean assembleDebug testDebugUnitTest lintDebug ktlintCheck connectedDebugAndroidTest`. Suggest a short commit message; do not commit unless asked.
 - Temporary code lives in one `Temporary*.kt` file marked `TEMPORARY` (§11).
 - Room tests are instrumented tests; their names use underscores (`GIVEN_a_..._WHEN_..._THEN_...`) because DEX before version 40 forbids spaces (§9).
 - Question a request that conflicts with a rule or a requirement, say why, then follow the user's decision.

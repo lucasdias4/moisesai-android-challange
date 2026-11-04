@@ -1,6 +1,5 @@
 package com.moisesai.challange.feature.songs.presentation.model
 
-
 /** The "Start here" songs of the empty home. They arrive after a lookup, and may not arrive at all (offline, first launch). */
 internal sealed interface UiSuggestionsState {
 

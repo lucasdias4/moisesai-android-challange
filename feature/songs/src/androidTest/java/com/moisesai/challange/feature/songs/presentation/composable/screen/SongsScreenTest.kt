@@ -12,8 +12,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
-import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
 import com.moisesai.challange.core.design.components.SKELETON_TEST_TAG
 import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
 import com.moisesai.challange.core.strings.R
@@ -62,7 +62,9 @@ class SongsScreenTest {
     fun GIVEN_recent_songs_WHEN_the_history_is_shown_THEN_each_song_is_listed() {
         showContent(UiSongsContentState.History(SampleTracks))
 
-        SampleTracks.take(VISIBLE_ROWS).forEach { track -> composeTestRule.onNodeWithContentDescription(describe(track)).assertIsDisplayed() }
+        SampleTracks.take(VISIBLE_ROWS).forEach { track ->
+            composeTestRule.onNodeWithContentDescription(describe(track)).assertIsDisplayed()
+        }
     }
 
     @Test
@@ -76,7 +78,9 @@ class SongsScreenTest {
     fun GIVEN_search_results_WHEN_they_are_shown_THEN_each_song_is_listed_and_there_is_no_skeleton() {
         showContent(UiSongsContentState.SearchResults(SampleTracks, UiSearchResultsState.Complete), query = "a")
 
-        SampleTracks.take(VISIBLE_ROWS).forEach { track -> composeTestRule.onNodeWithContentDescription(describe(track)).assertIsDisplayed() }
+        SampleTracks.take(VISIBLE_ROWS).forEach { track ->
+            composeTestRule.onNodeWithContentDescription(describe(track)).assertIsDisplayed()
+        }
         composeTestRule.onAllNodesWithTag(SKELETON_TEST_TAG).assertCountEquals(0)
     }
 
@@ -174,7 +178,8 @@ class SongsScreenTest {
         isSearchFieldVisible: Boolean = true,
         trackOptions: UiTrackOptionsState = UiTrackOptionsState.Hidden,
     ) {
-        val uiState = UiSongsUiState(query = query, isSearchFieldVisible = isSearchFieldVisible, content = content, trackOptions = trackOptions)
+        val uiState =
+            UiSongsUiState(query = query, isSearchFieldVisible = isSearchFieldVisible, content = content, trackOptions = trackOptions)
         composeTestRule.setContent {
             MoisesaiChallangeTheme { SongsScreen(uiState = uiState, callbacks = callbacks.asSongsCallbacks()) }
         }

@@ -1,14 +1,14 @@
 package com.moisesai.challange.feature.songs.presentation.composable.component
 
-import com.moisesai.challange.core.design.animation.itemAnimation
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
+import com.moisesai.challange.core.design.animation.itemAnimation
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
-import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SampleTracks
 import com.moisesai.challange.feature.songs.presentation.composable.callback.SongsCallbacks
+import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SampleTracks
 import com.moisesai.challange.feature.songs.presentation.model.UiTrack
 
 /**

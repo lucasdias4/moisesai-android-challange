@@ -1,12 +1,12 @@
 package com.moisesai.challange.core.design.animation
 
-import com.moisesai.challange.core.design.animation.spec.screenTween
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.moisesai.challange.core.design.animation.spec.screenTween
 
 /**
  * Cross-fades when the kind of state changes, such as a skeleton that becomes the real screen, and not on updates of the same kind.

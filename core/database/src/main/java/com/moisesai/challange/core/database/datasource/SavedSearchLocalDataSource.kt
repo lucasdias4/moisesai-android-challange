@@ -17,8 +17,7 @@ class SavedSearchLocalDataSource @Inject internal constructor(
     private val trackDao: TrackDao,
 ) {
     /** Null when the search was never saved. */
-    suspend fun getSavedSearch(searchText: String): Result<DbSavedSearch?> =
-        safeCall { savedSearchDao.getSavedSearch(searchText) }
+    suspend fun getSavedSearch(searchText: String): Result<DbSavedSearch?> = safeCall { savedSearchDao.getSavedSearch(searchText) }
 
     /** One page of a saved search's tracks, in the order they were saved. Empty when the search was never saved. */
     suspend fun getSavedSearchTracksPage(searchText: String, limit: Int, offset: Int): Result<List<DbTrack>> =

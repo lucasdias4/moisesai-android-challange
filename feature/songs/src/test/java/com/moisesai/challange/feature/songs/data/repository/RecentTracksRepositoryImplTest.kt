@@ -73,7 +73,10 @@ class RecentTracksRepositoryImplTest {
         every { localDataSource.observeRecentlyPlayedTracks(any()) } returns flowOf(Result.success(emptyList()))
 
         // When
-        repository.observeRecentTracks(RECENT_LIMIT).test { awaitItem(); awaitComplete() }
+        repository.observeRecentTracks(RECENT_LIMIT).test {
+            awaitItem()
+            awaitComplete()
+        }
 
         // Then
         verify { localDataSource.observeRecentlyPlayedTracks(RECENT_LIMIT) }

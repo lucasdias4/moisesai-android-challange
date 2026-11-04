@@ -8,7 +8,4 @@ import androidx.room3.PrimaryKey
  * judged fresh or stale. The text is the key exactly as typed; normalising it is the caller's job.
  */
 @Entity(tableName = "saved_search")
-data class DbSavedSearch(
-    @PrimaryKey val searchText: String,
-    val fetchedAtMillis: Long,
-)
+data class DbSavedSearch(@PrimaryKey val searchText: String, val fetchedAtMillis: Long)

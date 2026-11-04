@@ -3,9 +3,9 @@ package com.moisesai.challange.feature.album.presentation.view_model
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.moisesai.challange.core.design.extension.toUiErrorType
 import com.moisesai.challange.feature.album.domain.model.AlbumWithTracksDomainModel
 import com.moisesai.challange.feature.album.domain.usecase.GetAlbumWithTracksUseCase
-import com.moisesai.challange.core.design.extension.toUiErrorType
 import com.moisesai.challange.feature.album.presentation.mapper.toUiModel
 import com.moisesai.challange.feature.album.presentation.model.UiAlbumUiState
 import dagger.hilt.android.lifecycle.HiltViewModel

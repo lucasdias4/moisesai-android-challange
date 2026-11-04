@@ -13,11 +13,7 @@ import com.moisesai.challange.core.design.theme.design
 
 /** How long the track has played, at the start, and how long is left, at the end. */
 @Composable
-internal fun PlaybackTimesComponent(
-    playedTimeText: String,
-    remainingTimeText: String,
-    modifier: Modifier = Modifier,
-) {
+internal fun PlaybackTimesComponent(playedTimeText: String, remainingTimeText: String, modifier: Modifier = Modifier) {
     val style = MaterialTheme.design.text.text14
     val color = MaterialTheme.design.colors.whiteAlpha60
     Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -28,5 +24,4 @@ internal fun PlaybackTimesComponent(
 
 @FullPreview
 @Composable
-private fun PlaybackTimesPreview() =
-    PreviewSurface { PlaybackTimesComponent(playedTimeText = "1:26", remainingTimeText = "-2:54") }
+private fun PlaybackTimesPreview() = PreviewSurface { PlaybackTimesComponent(playedTimeText = "1:26", remainingTimeText = "-2:54") }

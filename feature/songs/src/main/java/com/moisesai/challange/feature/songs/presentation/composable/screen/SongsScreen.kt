@@ -1,7 +1,5 @@
 package com.moisesai.challange.feature.songs.presentation.composable.screen
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -12,12 +10,14 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -26,9 +26,9 @@ import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
 import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.core.strings.R
+import com.moisesai.challange.feature.songs.presentation.composable.callback.SongsCallbacks
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SampleTracks
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SuggestedSample
-import com.moisesai.challange.feature.songs.presentation.composable.callback.SongsCallbacks
 import com.moisesai.challange.feature.songs.presentation.composable.screen.header_section.HeaderSection
 import com.moisesai.challange.feature.songs.presentation.composable.screen.helper.LoadMoreEffect
 import com.moisesai.challange.feature.songs.presentation.composable.screen.search_field_section.SearchFieldSection
@@ -80,7 +80,11 @@ internal fun SongsScreen(uiState: UiSongsUiState, callbacks: SongsCallbacks, mod
             )
             // The search field opens down while it fades in and closes up while it fades out, so the list below glides with it.
             CollapseAnimation(isVisible = uiState.isSearchFieldVisible) {
-                SearchFieldSection(query = uiState.query, callbacks = callbacks, modifier = Modifier.focusRequester(searchFieldFocusRequester))
+                SearchFieldSection(
+                    query = uiState.query,
+                    callbacks = callbacks,
+                    modifier = Modifier.focusRequester(searchFieldFocusRequester),
+                )
             }
             SongsListSection(
                 content = uiState.content,
@@ -112,7 +116,15 @@ private fun ClearQueryOnBackEffect(query: String, onQueryChange: (String) -> Uni
 @Composable
 private fun SongsScreenPreviewOf(content: UiSongsContentState, query: String = "", isSearchFieldVisible: Boolean = true) {
     MoisesaiChallangeTheme {
-        SongsScreen(uiState = UiSongsUiState(query = query, isSearchFieldVisible = isSearchFieldVisible, content = content, trackOptions = UiTrackOptionsState.Hidden), callbacks = SongsCallbacks.None)
+        SongsScreen(
+            uiState = UiSongsUiState(
+                query = query,
+                isSearchFieldVisible = isSearchFieldVisible,
+                content = content,
+                trackOptions = UiTrackOptionsState.Hidden,
+            ),
+            callbacks = SongsCallbacks.None,
+        )
     }
 }
 
@@ -146,10 +158,8 @@ private fun SongsScreenLoadingPreview() = SongsScreenPreviewOf(UiSongsContentSta
 
 @FullPreview
 @Composable
-private fun SongsScreenErrorPreview() =
-    SongsScreenPreviewOf(UiSongsContentState.SearchError(UiSongsError.Network), query = "levitating")
+private fun SongsScreenErrorPreview() = SongsScreenPreviewOf(UiSongsContentState.SearchError(UiSongsError.Network), query = "levitating")
 
 @FullPreview
 @Composable
-private fun SongsScreenNoResultsPreview() =
-    SongsScreenPreviewOf(UiSongsContentState.SearchNoResults(searchText = "zzzz"), query = "zzzz")
+private fun SongsScreenNoResultsPreview() = SongsScreenPreviewOf(UiSongsContentState.SearchNoResults(searchText = "zzzz"), query = "zzzz")

@@ -1,13 +1,13 @@
 package com.moisesai.challange.feature.songdetails.presentation.navigation
 
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.CompositionLocalProvider
-import com.moisesai.challange.core.design.animation.LocalAnimatedVisibilityScope
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
+import com.moisesai.challange.core.design.animation.LocalAnimatedVisibilityScope
 import com.moisesai.challange.feature.songdetails.presentation.composable.callback.SongDetailsCallbacks
 import com.moisesai.challange.feature.songdetails.presentation.composable.screen.SongDetailsScreen
 import com.moisesai.challange.feature.songdetails.presentation.view_model.SongDetailsViewModel

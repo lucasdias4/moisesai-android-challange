@@ -16,11 +16,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.moisesai.challange.core.strings.R
 import com.moisesai.challange.core.design.R as DesignR
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
+import com.moisesai.challange.core.strings.R
 
 // The design leaves this much between the status bar and the bar.
 private val SpaceBelowStatusBar = 20.dp
@@ -39,12 +39,7 @@ private val TitleTop = 13.5.dp
  * at the end ([endAction]).
  */
 @Composable
-fun TopBarComponent(
-    title: String,
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    endAction: (@Composable () -> Unit)? = null,
-) {
+fun TopBarComponent(title: String, onBackClick: () -> Unit, modifier: Modifier = Modifier, endAction: (@Composable () -> Unit)? = null) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
     Column(modifier = modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.height(statusBarHeight + SpaceBelowStatusBar))

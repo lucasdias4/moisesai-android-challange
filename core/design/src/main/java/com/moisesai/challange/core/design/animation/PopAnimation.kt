@@ -1,6 +1,5 @@
 package com.moisesai.challange.core.design.animation
 
-import com.moisesai.challange.core.design.animation.spec.screenTween
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -8,6 +7,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.moisesai.challange.core.design.animation.spec.screenTween
 
 // How small the thing is when it starts to pop in and when it has popped out: 1 = its own size. Small enough to be seen
 // growing, big enough not to look like it comes from nowhere.

@@ -1,6 +1,5 @@
 package com.moisesai.challange.feature.songs.presentation.model
 
-
 /** What a list of search results is doing besides showing the songs. Only one of these is true at a time. */
 internal sealed interface UiSearchResultsState {
 

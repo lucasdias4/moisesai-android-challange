@@ -37,6 +37,5 @@ internal object DatabaseModule {
     fun provideAlbumDao(database: AppDatabase): AlbumDao = database.albumDao()
 
     @Provides
-    fun provideRecentlyPlayedTrackDao(database: AppDatabase): RecentlyPlayedTrackDao =
-        database.recentlyPlayedTrackDao()
+    fun provideRecentlyPlayedTrackDao(database: AppDatabase): RecentlyPlayedTrackDao = database.recentlyPlayedTrackDao()
 }

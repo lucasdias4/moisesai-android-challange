@@ -66,18 +66,19 @@ class AlbumViewModelTest {
     }
 
     @Test
-    fun `GIVEN an album with no tracks, WHEN the screen starts, THEN the album is shown with an empty list and no error`() = runTest(dispatcher) {
-        // Given
-        val albumWithoutTracks = anAlbumWithTracksDomainModel().copy(tracks = emptyList())
-        coEvery { getAlbumWithTracksUseCase(ALBUM_ID) } returns Result.success(albumWithoutTracks)
-        val viewModel = createViewModel()
+    fun `GIVEN an album with no tracks, WHEN the screen starts, THEN the album is shown with an empty list and no error`() =
+        runTest(dispatcher) {
+            // Given
+            val albumWithoutTracks = anAlbumWithTracksDomainModel().copy(tracks = emptyList())
+            coEvery { getAlbumWithTracksUseCase(ALBUM_ID) } returns Result.success(albumWithoutTracks)
+            val viewModel = createViewModel()
 
-        // When
-        runCurrent()
+            // When
+            runCurrent()
 
-        // Then
-        assertEquals(UiAlbumUiState.Success(albumWithoutTracks.toUiModel()), viewModel.uiState.value)
-    }
+            // Then
+            assertEquals(UiAlbumUiState.Success(albumWithoutTracks.toUiModel()), viewModel.uiState.value)
+        }
 
     @Test
     fun `GIVEN an album that fails to load, WHEN the screen starts, THEN the error is shown`() = runTest(dispatcher) {

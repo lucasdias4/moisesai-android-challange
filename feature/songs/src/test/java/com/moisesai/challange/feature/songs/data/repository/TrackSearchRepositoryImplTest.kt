@@ -64,34 +64,36 @@ class TrackSearchRepositoryImplTest {
     }
 
     @Test
-    fun `GIVEN no saved search and a working network, WHEN searching, THEN the request asks for the most results iTunes allows`() = runTest {
-        // Given
-        givenNoSavedSearch()
-        givenNetworkReturns(emptyList())
-        givenSaveSucceeds()
-        givenSavedPage(tracks = emptyList())
+    fun `GIVEN no saved search and a working network, WHEN searching, THEN the request asks for the most results iTunes allows`() =
+        runTest {
+            // Given
+            givenNoSavedSearch()
+            givenNetworkReturns(emptyList())
+            givenSaveSucceeds()
+            givenSavedPage(tracks = emptyList())
 
-        // When
-        repository.searchTracksBySearchText(SEARCH_TEXT, page = 0, pageSize = PAGE_SIZE)
+            // When
+            repository.searchTracksBySearchText(SEARCH_TEXT, page = 0, pageSize = PAGE_SIZE)
 
-        // Then
-        coVerify { remoteDataSource.searchTracksBySearchText(SEARCH_TEXT, EXPECTED_FETCH_LIMIT) }
-    }
+            // Then
+            coVerify { remoteDataSource.searchTracksBySearchText(SEARCH_TEXT, EXPECTED_FETCH_LIMIT) }
+        }
 
     @Test
-    fun `GIVEN no saved search and a failing network, WHEN searching the first page, THEN the failure is returned and nothing is saved`() = runTest {
-        // Given
-        val error = AppError.Network()
-        givenNoSavedSearch()
-        coEvery { remoteDataSource.searchTracksBySearchText(any(), any()) } returns Result.failure(error)
+    fun `GIVEN no saved search and a failing network, WHEN searching the first page, THEN the failure is returned and nothing is saved`() =
+        runTest {
+            // Given
+            val error = AppError.Network()
+            givenNoSavedSearch()
+            coEvery { remoteDataSource.searchTracksBySearchText(any(), any()) } returns Result.failure(error)
 
-        // When
-        val result = repository.searchTracksBySearchText(SEARCH_TEXT, page = 0, pageSize = PAGE_SIZE)
+            // When
+            val result = repository.searchTracksBySearchText(SEARCH_TEXT, page = 0, pageSize = PAGE_SIZE)
 
-        // Then
-        assertTrue(result.exceptionOrNull() === error)
-        coVerify(exactly = 0) { localDataSource.saveSearch(any(), any()) }
-    }
+            // Then
+            assertTrue(result.exceptionOrNull() === error)
+            coVerify(exactly = 0) { localDataSource.saveSearch(any(), any()) }
+        }
 
     @Test
     fun `GIVEN a search text with capitals and spaces, WHEN searching, THEN the normalised text is the term and the saved key`() = runTest {
@@ -211,19 +213,20 @@ class TrackSearchRepositoryImplTest {
     }
 
     @Test
-    fun `GIVEN a saved search and a failing network, WHEN refreshing, THEN the failure is returned and the saved search is kept`() = runTest {
-        // Given
-        val error = AppError.Network()
-        givenSavedSearch()
-        coEvery { remoteDataSource.searchTracksBySearchText(any(), any()) } returns Result.failure(error)
+    fun `GIVEN a saved search and a failing network, WHEN refreshing, THEN the failure is returned and the saved search is kept`() =
+        runTest {
+            // Given
+            val error = AppError.Network()
+            givenSavedSearch()
+            coEvery { remoteDataSource.searchTracksBySearchText(any(), any()) } returns Result.failure(error)
 
-        // When
-        val result = repository.refreshTracksBySearchText(SEARCH_TEXT, PAGE_SIZE)
+            // When
+            val result = repository.refreshTracksBySearchText(SEARCH_TEXT, PAGE_SIZE)
 
-        // Then
-        assertTrue(result.exceptionOrNull() === error)
-        coVerify(exactly = 0) { localDataSource.saveSearch(any(), any()) }
-    }
+            // Then
+            assertTrue(result.exceptionOrNull() === error)
+            coVerify(exactly = 0) { localDataSource.saveSearch(any(), any()) }
+        }
 
     private fun givenSavedSearch() {
         coEvery { localDataSource.getSavedSearch(SEARCH_TEXT) } returns Result.success(DbSavedSearch(SEARCH_TEXT, 1L))

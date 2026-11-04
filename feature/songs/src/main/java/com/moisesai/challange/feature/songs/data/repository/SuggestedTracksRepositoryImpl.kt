@@ -35,14 +35,13 @@ internal class SuggestedTracksRepositoryImpl @Inject constructor(
     }
 
     // The lookups do not depend on each other, so they run together.
-    private suspend fun getTrackResults(trackIds: List<Long>): List<Result<TrackDomainModel?>> =
-        coroutineScope {
-            trackIds.map { trackId ->
-                async {
-                    getTrack(trackId)
-                }
-            }.awaitAll()
-        }
+    private suspend fun getTrackResults(trackIds: List<Long>): List<Result<TrackDomainModel?>> = coroutineScope {
+        trackIds.map { trackId ->
+            async {
+                getTrack(trackId)
+            }
+        }.awaitAll()
+    }
 
     // Null when iTunes does not know the track either.
     private suspend fun getTrack(trackId: Long): Result<TrackDomainModel?> {

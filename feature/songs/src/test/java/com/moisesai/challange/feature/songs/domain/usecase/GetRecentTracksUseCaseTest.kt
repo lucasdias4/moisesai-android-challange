@@ -37,7 +37,10 @@ class GetRecentTracksUseCaseTest {
         every { repository.observeRecentTracks(any()) } returns flowOf(Result.success(emptyList()))
 
         // When
-        getRecentTracks().test { awaitItem(); awaitComplete() }
+        getRecentTracks().test {
+            awaitItem()
+            awaitComplete()
+        }
 
         // Then
         verify { repository.observeRecentTracks(EXPECTED_LIMIT) }

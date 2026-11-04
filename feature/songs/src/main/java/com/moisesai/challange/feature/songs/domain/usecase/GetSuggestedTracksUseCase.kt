@@ -11,10 +11,7 @@ private const val SUGGESTED_TRACK_ID_3 = 6827658231L // Flower In A Hurricane (J
 
 private val SUGGESTED_TRACK_IDS = listOf(SUGGESTED_TRACK_ID_1, SUGGESTED_TRACK_ID_2, SUGGESTED_TRACK_ID_3)
 
-internal class GetSuggestedTracksUseCase @Inject constructor(
-    private val suggestedTracksRepository: SuggestedTracksRepository,
-) {
+internal class GetSuggestedTracksUseCase @Inject constructor(private val suggestedTracksRepository: SuggestedTracksRepository) {
 
-    suspend operator fun invoke(): Result<List<TrackDomainModel>> =
-        suggestedTracksRepository.getSuggestedTracks(SUGGESTED_TRACK_IDS)
+    suspend operator fun invoke(): Result<List<TrackDomainModel>> = suggestedTracksRepository.getSuggestedTracks(SUGGESTED_TRACK_IDS)
 }

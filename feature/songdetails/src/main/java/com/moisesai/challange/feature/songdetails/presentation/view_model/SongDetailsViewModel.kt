@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.moisesai.challange.core.common.AppError
+import com.moisesai.challange.core.design.extension.toUiErrorType
 import com.moisesai.challange.core.player.PlaybackState
 import com.moisesai.challange.core.player.PlayerController
 import com.moisesai.challange.core.shareddomainmodel.TrackDomainModel
@@ -11,7 +12,6 @@ import com.moisesai.challange.feature.songdetails.domain.model.TrackQueueDomainM
 import com.moisesai.challange.feature.songdetails.domain.usecase.GetTrackQueueUseCase
 import com.moisesai.challange.feature.songdetails.domain.usecase.GetTrackUseCase
 import com.moisesai.challange.feature.songdetails.domain.usecase.SaveRecentTrackUseCase
-import com.moisesai.challange.core.design.extension.toUiErrorType
 import com.moisesai.challange.feature.songdetails.presentation.mapper.toUiPlayingTrack
 import com.moisesai.challange.feature.songdetails.presentation.model.UiSongDetailsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -62,7 +62,9 @@ internal class SongDetailsViewModel @Inject constructor(
         when (playerController.playbackState.value) {
             // The button looks off but still answers, so the user learns why nothing plays.
             is PlaybackState.Failed -> showCannotPlayMessage()
+
             is PlaybackState.Playing -> playerController.pause()
+
             else -> playerController.resume()
         }
     }
@@ -129,6 +131,7 @@ internal class SongDetailsViewModel @Inject constructor(
                 // usable, and only playing is off (see UiPlayingTrack.canPlay).
                 // When a track ends by itself the next one starts; the last one just stays ended, ready to play again.
                 is PlaybackState.Ended -> goToNextTrack()
+
                 else -> showContent()
             }
         }.launchIn(viewModelScope)

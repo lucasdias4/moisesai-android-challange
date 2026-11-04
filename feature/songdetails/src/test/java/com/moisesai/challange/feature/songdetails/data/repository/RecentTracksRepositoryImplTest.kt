@@ -20,17 +20,18 @@ class RecentTracksRepositoryImplTest {
     private val repository = RecentTracksRepositoryImpl(localDataSource, timeProvider)
 
     @Test
-    fun `GIVEN a track that was played, WHEN saving it, THEN the saved track and the time of now are given to the local source`() = runTest {
-        // Given
-        coEvery { localDataSource.saveRecentlyPlayedTrack(any(), any()) } returns Result.success(Unit)
+    fun `GIVEN a track that was played, WHEN saving it, THEN the saved track and the time of now are given to the local source`() =
+        runTest {
+            // Given
+            coEvery { localDataSource.saveRecentlyPlayedTrack(any(), any()) } returns Result.success(Unit)
 
-        // When
-        val result = repository.saveRecentTrack(aTrackDomainModel())
+            // When
+            val result = repository.saveRecentTrack(aTrackDomainModel())
 
-        // Then
-        assertTrue(result.isSuccess)
-        coVerify(exactly = 1) { localDataSource.saveRecentlyPlayedTrack(aDbTrack(), playedAtMillis) }
-    }
+            // Then
+            assertTrue(result.isSuccess)
+            coVerify(exactly = 1) { localDataSource.saveRecentlyPlayedTrack(aDbTrack(), playedAtMillis) }
+        }
 
     @Test
     fun `GIVEN a local source that fails, WHEN saving a played track, THEN the same failure is returned`() = runTest {

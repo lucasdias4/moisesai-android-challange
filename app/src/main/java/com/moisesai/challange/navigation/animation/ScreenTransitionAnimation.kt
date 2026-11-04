@@ -1,6 +1,5 @@
 package com.moisesai.challange.navigation.animation
 
-import com.moisesai.challange.core.design.animation.spec.screenTween
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
@@ -10,6 +9,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDestination.Companion.hasRoute
+import com.moisesai.challange.core.design.animation.spec.screenTween
 import com.moisesai.challange.splash.navigation.SplashRoute
 
 // How far a screen slides while it fades, as a part of its width: 1 / 12. A hint of direction, not a push across the screen.

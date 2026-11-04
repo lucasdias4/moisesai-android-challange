@@ -56,12 +56,7 @@ private val NamesWidth = 302.dp
  * showed through the sheet's text.
  */
 @Composable
-fun ActionSheetComponent(
-    title: String,
-    subtitle: String,
-    modifier: Modifier = Modifier,
-    items: @Composable ColumnScope.() -> Unit,
-) {
+fun ActionSheetComponent(title: String, subtitle: String, modifier: Modifier = Modifier, items: @Composable ColumnScope.() -> Unit) {
     val shape = RoundedCornerShape(topStart = SheetTopCorner, topEnd = SheetTopCorner)
     Column(
         modifier = modifier
@@ -96,7 +91,9 @@ private fun Header(title: String, subtitle: String) {
         Box(modifier = Modifier.size(width = NamesWidth, height = HeaderHeight).fadedAtBothSides()) {
             Text(
                 text = title,
-                modifier = Modifier.offset(y = TitleTop).fillMaxWidth().height(HeaderLineHeight).wrapContentHeight(Alignment.CenterVertically),
+                modifier = Modifier.offset(
+                    y = TitleTop,
+                ).fillMaxWidth().height(HeaderLineHeight).wrapContentHeight(Alignment.CenterVertically),
                 style = design.text.display18,
                 color = design.colors.text03,
                 textAlign = TextAlign.Center,
@@ -104,7 +101,9 @@ private fun Header(title: String, subtitle: String) {
             )
             Text(
                 text = subtitle,
-                modifier = Modifier.offset(y = SubtitleTop).fillMaxWidth().height(HeaderLineHeight).wrapContentHeight(Alignment.CenterVertically),
+                modifier = Modifier.offset(
+                    y = SubtitleTop,
+                ).fillMaxWidth().height(HeaderLineHeight).wrapContentHeight(Alignment.CenterVertically),
                 style = design.text.text14,
                 color = design.colors.text03,
                 textAlign = TextAlign.Center,
@@ -115,21 +114,20 @@ private fun Header(title: String, subtitle: String) {
 }
 
 // Draws the names, then keeps them only where a mask is opaque.
-private fun Modifier.fadedAtBothSides(): Modifier =
-    this
-        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-        .drawWithContent {
-            drawContent()
-            drawRect(
-                brush = Brush.horizontalGradient(
-                    0f to Color.Transparent,
-                    NAME_FADE_IN_END to Color.Black,
-                    NAME_FADE_OUT_START to Color.Black,
-                    1f to Color.Transparent,
-                ),
-                blendMode = BlendMode.DstIn,
-            )
-        }
+private fun Modifier.fadedAtBothSides(): Modifier = this
+    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+    .drawWithContent {
+        drawContent()
+        drawRect(
+            brush = Brush.horizontalGradient(
+                0f to Color.Transparent,
+                NAME_FADE_IN_END to Color.Black,
+                NAME_FADE_OUT_START to Color.Black,
+                1f to Color.Transparent,
+            ),
+            blendMode = BlendMode.DstIn,
+        )
+    }
 
 @FullPreview
 @Composable

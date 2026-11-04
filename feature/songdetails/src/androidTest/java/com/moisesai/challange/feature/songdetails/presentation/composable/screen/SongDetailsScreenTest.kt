@@ -167,19 +167,18 @@ class SongDetailsScreenTest {
 
     private fun show(uiState: UiSongDetailsUiState, modifier: Modifier = Modifier) {
         composeTestRule.setContent {
-            MoisesaiChallangeTheme { SongDetailsScreen(uiState = uiState, callbacks = callbacks.asSongDetailsCallbacks(), modifier = modifier) }
+            MoisesaiChallangeTheme {
+                SongDetailsScreen(uiState = uiState, callbacks = callbacks.asSongDetailsCallbacks(), modifier = modifier)
+            }
         }
     }
 
-    private fun success(
-        playingTrack: UiPlayingTrack,
-        isTrackOptionsVisible: Boolean = false,
-        isCannotPlayMessageVisible: Boolean = false,
-    ) = UiSongDetailsUiState.Success(
-        playingTrack = playingTrack,
-        isTrackOptionsVisible = isTrackOptionsVisible,
-        isCannotPlayMessageVisible = isCannotPlayMessageVisible,
-    )
+    private fun success(playingTrack: UiPlayingTrack, isTrackOptionsVisible: Boolean = false, isCannotPlayMessageVisible: Boolean = false) =
+        UiSongDetailsUiState.Success(
+            playingTrack = playingTrack,
+            isTrackOptionsVisible = isTrackOptionsVisible,
+            isCannotPlayMessageVisible = isCannotPlayMessageVisible,
+        )
 
     private fun text(id: Int) = context.getString(id)
 

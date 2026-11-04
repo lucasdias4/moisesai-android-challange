@@ -7,10 +7,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 
 /** The colours and text styles of the design that go beyond Material's own roles. */
 @Immutable
-class Tokens(
-    val colors: Colors,
-    val text: TextStyles,
-)
+class Tokens(val colors: Colors, val text: TextStyles)
 
 internal val TokensDefault = Tokens(colors = ColorsDefault, text = TextStylesDefault)
 

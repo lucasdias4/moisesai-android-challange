@@ -2,40 +2,40 @@ package com.moisesai.challange.feature.songdetails.presentation.composable.scree
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import com.moisesai.challange.feature.songdetails.presentation.composable.component.MessageSnackbarHostComponent
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.moisesai.challange.core.design.model.UiErrorType
+import com.moisesai.challange.core.design.R as DesignR
 import com.moisesai.challange.core.design.animation.StateAnimation
 import com.moisesai.challange.core.design.components.ErrorMessageComponent
 import com.moisesai.challange.core.design.components.IconButtonComponent
 import com.moisesai.challange.core.design.components.TopBarComponent
-import com.moisesai.challange.core.design.R as DesignR
+import com.moisesai.challange.core.design.model.UiErrorType
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
 import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.core.strings.R
 import com.moisesai.challange.feature.songdetails.presentation.composable.callback.SongDetailsCallbacks
+import com.moisesai.challange.feature.songdetails.presentation.composable.component.MessageSnackbarHostComponent
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.preview_helper.SamplePlayingTrack
 import com.moisesai.challange.feature.songdetails.presentation.composable.screen.cover_section.CoverSection
 import com.moisesai.challange.feature.songdetails.presentation.composable.screen.cover_section.CoverSkeletonSection
@@ -70,7 +70,9 @@ internal fun SongDetailsScreen(uiState: UiSongDetailsUiState, callbacks: SongDet
                         cover = { spaceAbove, coverModifier -> CoverSkeletonSection(spaceAbove = spaceAbove, modifier = coverModifier) },
                         playback = { playbackModifier -> PlaybackSkeletonSection(modifier = playbackModifier) },
                     )
+
                     is UiSongDetailsUiState.Error -> ErrorMessageComponent(type = state.type, onRetry = callbacks.onRetry)
+
                     is UiSongDetailsUiState.Success -> SongDetailsLayout(
                         snackbarHostState = snackbarHostState,
                         cover = { spaceAbove, coverModifier ->
@@ -186,15 +188,23 @@ private fun LandscapeLayout(
     }
 }
 
-private val SampleContent = UiSongDetailsUiState.Success(playingTrack = SamplePlayingTrack, isTrackOptionsVisible = false, isCannotPlayMessageVisible = false)
+private val SampleContent = UiSongDetailsUiState.Success(
+    playingTrack = SamplePlayingTrack,
+    isTrackOptionsVisible = false,
+    isCannotPlayMessageVisible = false,
+)
 
 @FullPreview
 @Composable
-private fun SongDetailsScreenContentPreview() = MoisesaiChallangeTheme { SongDetailsScreen(uiState = SampleContent, callbacks = SongDetailsCallbacks.None) }
+private fun SongDetailsScreenContentPreview() = MoisesaiChallangeTheme {
+    SongDetailsScreen(uiState = SampleContent, callbacks = SongDetailsCallbacks.None)
+}
 
 @Preview(name = "Phone - Landscape", widthDp = 915, heightDp = 411)
 @Composable
-private fun SongDetailsScreenLandscapePreview() = MoisesaiChallangeTheme { SongDetailsScreen(uiState = SampleContent, callbacks = SongDetailsCallbacks.None) }
+private fun SongDetailsScreenLandscapePreview() = MoisesaiChallangeTheme {
+    SongDetailsScreen(uiState = SampleContent, callbacks = SongDetailsCallbacks.None)
+}
 
 @FullPreview
 @Composable
@@ -204,7 +214,9 @@ private fun SongDetailsScreenTrackOptionsPreview() = MoisesaiChallangeTheme {
 
 @FullPreview
 @Composable
-private fun SongDetailsScreenLoadingPreview() = MoisesaiChallangeTheme { SongDetailsScreen(uiState = UiSongDetailsUiState.Loading, callbacks = SongDetailsCallbacks.None) }
+private fun SongDetailsScreenLoadingPreview() = MoisesaiChallangeTheme {
+    SongDetailsScreen(uiState = UiSongDetailsUiState.Loading, callbacks = SongDetailsCallbacks.None)
+}
 
 @FullPreview
 @Composable

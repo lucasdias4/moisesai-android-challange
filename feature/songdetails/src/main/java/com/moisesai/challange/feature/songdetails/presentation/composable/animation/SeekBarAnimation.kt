@@ -20,21 +20,19 @@ private const val HELD_HANDLE_SCALE = 1.4f
  * Used in `SeekBarComponent`: `val flowingProgress = animateSeekProgress(progress = shownProgress, isHeld = isHeld)`.
  */
 @Composable
-internal fun animateSeekProgress(progress: Float, isHeld: Boolean): State<Float> =
-    animateFloatAsState(
-        targetValue = progress,
-        animationSpec = if (isHeld) snap() else tween(PLAYER_UPDATE_MILLIS, easing = LinearEasing),
-        label = "seekProgress",
-    )
+internal fun animateSeekProgress(progress: Float, isHeld: Boolean): State<Float> = animateFloatAsState(
+    targetValue = progress,
+    animationSpec = if (isHeld) snap() else tween(PLAYER_UPDATE_MILLIS, easing = LinearEasing),
+    label = "seekProgress",
+)
 
 /**
  * Makes the handle of the bar grow while the finger holds it, so the user sees it was caught.
  * Used in `SeekBarComponent`: `val handleScale = animateHandleScale(isHeld = isHeld)`.
  */
 @Composable
-internal fun animateHandleScale(isHeld: Boolean): State<Float> =
-    animateFloatAsState(
-        targetValue = if (isHeld) HELD_HANDLE_SCALE else 1f,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
-        label = "handleScale",
-    )
+internal fun animateHandleScale(isHeld: Boolean): State<Float> = animateFloatAsState(
+    targetValue = if (isHeld) HELD_HANDLE_SCALE else 1f,
+    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessMedium),
+    label = "handleScale",
+)

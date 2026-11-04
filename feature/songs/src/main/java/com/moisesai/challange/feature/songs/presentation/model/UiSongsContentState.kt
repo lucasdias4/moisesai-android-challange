@@ -1,6 +1,5 @@
 package com.moisesai.challange.feature.songs.presentation.model
 
-
 /**
  * What the Songs screen is showing, with only the data that look needs. `SongsListSection` decides what the list
  * draws for each one.

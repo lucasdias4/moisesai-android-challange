@@ -22,7 +22,11 @@ internal fun AlbumTracksSkeletonSection(modifier: Modifier = Modifier) {
     LazyColumn(
         modifier = modifier,
         userScrollEnabled = false,
-        contentPadding = PaddingValues(start = AlbumTracksHorizontalPadding, top = AlbumTracksTopPadding, end = AlbumTracksHorizontalPadding),
+        contentPadding = PaddingValues(
+            start = AlbumTracksHorizontalPadding,
+            top = AlbumTracksTopPadding,
+            end = AlbumTracksHorizontalPadding,
+        ),
     ) {
         items(count = SKELETON_ROWS) { position ->
             // Skeleton rows with a shimmer where the tracks will be, while the album loads.

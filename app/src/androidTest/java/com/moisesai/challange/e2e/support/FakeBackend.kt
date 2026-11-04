@@ -91,7 +91,8 @@ object FakeBackend {
             return JSONObject().put("resultCount", 1).put("results", JSONArray().put(track)).toString()
         }
 
-        private fun JSONObject.results(): List<JSONObject> =
-            getJSONArray("results").let { array -> List(array.length()) { array.getJSONObject(it) } }
+        private fun JSONObject.results(): List<JSONObject> = getJSONArray("results").let { array ->
+            List(array.length()) { array.getJSONObject(it) }
+        }
     }
 }

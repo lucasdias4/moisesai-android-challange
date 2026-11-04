@@ -17,11 +17,11 @@ import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.animation.SharedCoverAnimation
 import com.moisesai.challange.core.design.animation.pressAnimation
 import com.moisesai.challange.core.design.components.CoverImageComponent
-import com.moisesai.challange.feature.album.presentation.composable.component.preview_helper.SampleAlbum
-import com.moisesai.challange.feature.album.presentation.model.UiAlbumTrack
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
+import com.moisesai.challange.feature.album.presentation.composable.component.preview_helper.SampleAlbum
+import com.moisesai.challange.feature.album.presentation.model.UiAlbumTrack
 
 internal val AlbumTrackRowVerticalPadding = 8.dp
 internal val AlbumTrackRowCoverSize = 44.dp
@@ -68,5 +68,4 @@ internal fun AlbumTrackRowComponent(track: UiAlbumTrack, onClick: () -> Unit, mo
 
 @FullPreview
 @Composable
-private fun AlbumTrackRowPreview() =
-    PreviewSurface { AlbumTrackRowComponent(track = SampleAlbum.tracks.first(), onClick = {}) }
+private fun AlbumTrackRowPreview() = PreviewSurface { AlbumTrackRowComponent(track = SampleAlbum.tracks.first(), onClick = {}) }

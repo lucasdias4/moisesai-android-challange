@@ -1,8 +1,8 @@
 package com.moisesai.challange.feature.songdetails.presentation.composable.component
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,29 +13,29 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.progressBarRangeInfo
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.setProgress
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
+import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.unit.dp
-import com.moisesai.challange.feature.songdetails.presentation.composable.animation.animateHandleScale
-import com.moisesai.challange.feature.songdetails.presentation.composable.animation.animateSeekProgress
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
+import com.moisesai.challange.feature.songdetails.presentation.composable.animation.animateHandleScale
+import com.moisesai.challange.feature.songdetails.presentation.composable.animation.animateSeekProgress
 
 internal val SeekBarHeight = 24.dp
 internal val SeekBarLineHeight = 4.dp
@@ -59,11 +59,7 @@ private const val PROGRESS_END = 1f
  * the end).
  */
 @Composable
-internal fun SeekBarComponent(
-    progress: Float,
-    onProgressChangedByUser: (Float) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+internal fun SeekBarComponent(progress: Float, onProgressChangedByUser: (Float) -> Unit, modifier: Modifier = Modifier) {
     // While the finger is down the bar follows it, and not the player, which would answer a moment late.
     var draggedProgress by remember { mutableStateOf<Float?>(null) }
     val shownProgress = draggedProgress ?: progress
@@ -148,27 +144,26 @@ private fun Modifier.seekGestures(
     onDragProgress: (Float) -> Unit,
     onProgressChangedByUser: (Float) -> Unit,
     onDragEnd: () -> Unit,
-): Modifier =
-    this
-        .pointerInput(Unit) {
-            detectTapGestures { tapPosition -> onProgressChangedByUser(tapPosition.x.toProgress(size.width)) }
-        }
-        .pointerInput(Unit) {
-            var lastDraggedProgress = PROGRESS_START
-            detectHorizontalDragGestures(
-                onDragStart = { startPosition ->
-                    lastDraggedProgress = startPosition.x.toProgress(size.width).also(onDragProgress)
-                },
-                onHorizontalDrag = { change, _ ->
-                    lastDraggedProgress = change.position.x.toProgress(size.width).also(onDragProgress)
-                },
-                onDragEnd = {
-                    onProgressChangedByUser(lastDraggedProgress)
-                    onDragEnd()
-                },
-                onDragCancel = onDragEnd,
-            )
-        }
+): Modifier = this
+    .pointerInput(Unit) {
+        detectTapGestures { tapPosition -> onProgressChangedByUser(tapPosition.x.toProgress(size.width)) }
+    }
+    .pointerInput(Unit) {
+        var lastDraggedProgress = PROGRESS_START
+        detectHorizontalDragGestures(
+            onDragStart = { startPosition ->
+                lastDraggedProgress = startPosition.x.toProgress(size.width).also(onDragProgress)
+            },
+            onHorizontalDrag = { change, _ ->
+                lastDraggedProgress = change.position.x.toProgress(size.width).also(onDragProgress)
+            },
+            onDragEnd = {
+                onProgressChangedByUser(lastDraggedProgress)
+                onDragEnd()
+            },
+            onDragCancel = onDragEnd,
+        )
+    }
 
 private fun Float.toProgress(widthInPixels: Int): Float = (this / widthInPixels).coerceIn(PROGRESS_START, PROGRESS_END)
 

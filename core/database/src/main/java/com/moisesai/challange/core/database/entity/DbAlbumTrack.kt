@@ -23,8 +23,4 @@ import androidx.room3.Index
     ],
     indices = [Index("trackId")],
 )
-internal data class DbAlbumTrack(
-    val albumId: Long,
-    val position: Int,
-    val trackId: Long,
-)
+internal data class DbAlbumTrack(val albumId: Long, val position: Int, val trackId: Long)

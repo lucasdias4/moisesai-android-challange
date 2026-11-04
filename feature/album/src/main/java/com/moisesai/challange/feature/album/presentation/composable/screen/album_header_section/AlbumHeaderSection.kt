@@ -8,12 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.feature.album.presentation.composable.component.AlbumCoverComponent
 import com.moisesai.challange.feature.album.presentation.composable.component.AlbumNamesComponent
 import com.moisesai.challange.feature.album.presentation.composable.component.preview_helper.SampleAlbum
 import com.moisesai.challange.feature.album.presentation.model.UiAlbum
-import com.moisesai.challange.core.design.preview.FullPreview
-import com.moisesai.challange.core.design.preview.PreviewSurface
 
 internal val AlbumHeaderCoverNamesGap = 16.dp
 internal val AlbumHeaderNamesHorizontalPadding = 24.dp

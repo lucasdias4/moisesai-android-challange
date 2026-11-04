@@ -85,10 +85,9 @@ class AppDatabaseMigrationTest {
         return JSONObject(json).getJSONObject("database")
     }
 
-    private fun openCurrentDatabase(): AppDatabase =
-        Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
-            .setDriver(AndroidSQLiteDriver())
-            .build()
+    private fun openCurrentDatabase(): AppDatabase = Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
+        .setDriver(AndroidSQLiteDriver())
+        .build()
 
     private companion object {
         const val DATABASE_NAME = "migration-test.db"

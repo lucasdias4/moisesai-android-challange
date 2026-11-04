@@ -36,8 +36,18 @@ fun ErrorMessageComponent(type: UiErrorType, onRetry: () -> Unit, modifier: Modi
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SpaceBetweenMessageParts),
     ) {
-        Text(text = stringResource(type.titleRes()), style = design.text.display16, color = design.colors.text03, textAlign = TextAlign.Center)
-        Text(text = stringResource(type.messageRes()), style = design.text.text14, color = design.colors.text01, textAlign = TextAlign.Center)
+        Text(
+            text = stringResource(type.titleRes()),
+            style = design.text.display16,
+            color = design.colors.text03,
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            text = stringResource(type.messageRes()),
+            style = design.text.text14,
+            color = design.colors.text01,
+            textAlign = TextAlign.Center,
+        )
         Button(
             onClick = onRetry,
             shape = MaterialTheme.shapes.medium,

@@ -6,8 +6,4 @@ import androidx.compose.ui.unit.Dp
 
 /** One CSS shadow: `box-shadow: 0 <offsetY> <blur> <color>`. */
 @Immutable
-class UiBoxShadow(
-    val color: Color,
-    val blur: Dp,
-    val offsetY: Dp,
-)
+class UiBoxShadow(val color: Color, val blur: Dp, val offsetY: Dp)

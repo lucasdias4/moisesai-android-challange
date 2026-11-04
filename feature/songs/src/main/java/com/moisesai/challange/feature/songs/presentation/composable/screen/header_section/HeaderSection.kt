@@ -13,9 +13,9 @@ import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.R as DesignR
 import com.moisesai.challange.core.design.animation.PopAnimation
 import com.moisesai.challange.core.design.components.IconButtonComponent
-import com.moisesai.challange.core.strings.R
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
+import com.moisesai.challange.core.strings.R
 import com.moisesai.challange.feature.songs.presentation.composable.component.ScreenTitleComponent
 
 // The design leaves this much between the status bar and the title.
@@ -53,4 +53,6 @@ private fun HeaderSectionPreview() = PreviewSurface { HeaderSection(title = "Son
 
 @FullPreview
 @Composable
-private fun HeaderSectionWithSearchPreview() = PreviewSurface { HeaderSection(title = "Songs", isSearchButtonVisible = true, onSearchClick = {}) }
+private fun HeaderSectionWithSearchPreview() = PreviewSurface {
+    HeaderSection(title = "Songs", isSearchButtonVisible = true, onSearchClick = {})
+}

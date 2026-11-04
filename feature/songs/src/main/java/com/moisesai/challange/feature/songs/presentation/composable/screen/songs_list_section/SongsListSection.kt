@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
+import com.moisesai.challange.feature.songs.presentation.composable.callback.SongsCallbacks
 import com.moisesai.challange.feature.songs.presentation.composable.component.ErrorStateComponent
 import com.moisesai.challange.feature.songs.presentation.composable.component.NoResultsStateComponent
 import com.moisesai.challange.feature.songs.presentation.composable.component.PartialErrorMessageComponent
@@ -28,7 +29,6 @@ import com.moisesai.challange.feature.songs.presentation.composable.component.pr
 import com.moisesai.challange.feature.songs.presentation.composable.component.preview_helper.SuggestedSample
 import com.moisesai.challange.feature.songs.presentation.composable.component.songRowListComponent
 import com.moisesai.challange.feature.songs.presentation.composable.component.songRowSkeletonListComponent
-import com.moisesai.challange.feature.songs.presentation.composable.callback.SongsCallbacks
 import com.moisesai.challange.feature.songs.presentation.model.UiSearchResultsState
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsContentState
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsError
@@ -132,7 +132,9 @@ private fun LazyListScope.showSuggestedSongs(suggestions: UiSuggestionsState, ca
     when (suggestions) {
         // While the suggestions load, skeleton rows with a shimmer stand where the songs will be.
         UiSuggestionsState.Loading -> songRowSkeletonListComponent(FULL_SKELETON_ROWS, SUGGESTIONS_LOADING_KEY_PREFIX)
+
         is UiSuggestionsState.Loaded -> songRowListComponent(suggestions.tracks, SUGGESTED_SONGS_KEY_PREFIX, callbacks)
+
         UiSuggestionsState.Unavailable -> Unit
     }
 }
@@ -196,8 +198,7 @@ private fun SearchNoResultsPreview() = SongsListSectionPreview(UiSongsContentSta
 
 @FullPreview
 @Composable
-private fun SearchResultsPreview() =
-    SongsListSectionPreview(UiSongsContentState.SearchResults(SampleTracks, UiSearchResultsState.HasMore))
+private fun SearchResultsPreview() = SongsListSectionPreview(UiSongsContentState.SearchResults(SampleTracks, UiSearchResultsState.HasMore))
 
 @FullPreview
 @Composable

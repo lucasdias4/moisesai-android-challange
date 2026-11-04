@@ -1,10 +1,10 @@
 package com.moisesai.challange.feature.songs.data.mapper
 
+import com.moisesai.challange.core.network.model.ApiAlbum
+import com.moisesai.challange.core.network.model.ApiResponse
 import com.moisesai.challange.feature.songs.fixture.aDbTrack
 import com.moisesai.challange.feature.songs.fixture.aTrackDomainModel
 import com.moisesai.challange.feature.songs.fixture.anApiTrack
-import com.moisesai.challange.core.network.model.ApiAlbum
-import com.moisesai.challange.core.network.model.ApiResponse
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull

@@ -2,24 +2,24 @@ package com.moisesai.challange.feature.songdetails.presentation.composable.compo
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.R as DesignR
 import com.moisesai.challange.core.design.animation.pressAnimation
@@ -27,8 +27,8 @@ import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.core.strings.R
-import com.moisesai.challange.feature.songdetails.presentation.composable.component.preview_helper.SamplePlayingTrack
 import com.moisesai.challange.feature.songdetails.presentation.composable.callback.SongDetailsCallbacks
+import com.moisesai.challange.feature.songdetails.presentation.composable.component.preview_helper.SamplePlayingTrack
 import com.moisesai.challange.feature.songdetails.presentation.model.UiPlayingTrack
 
 private val SpaceBetweenMainControls = 24.dp
@@ -39,11 +39,7 @@ private const val MIRRORED_SCALE_X = -1f
 
 /** The play button with the previous and next track beside it, and the repeat icon at the far end. */
 @Composable
-internal fun PlaybackControlsComponent(
-    playingTrack: UiPlayingTrack,
-    callbacks: SongDetailsCallbacks,
-    modifier: Modifier = Modifier,
-) {
+internal fun PlaybackControlsComponent(playingTrack: UiPlayingTrack, callbacks: SongDetailsCallbacks, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -104,11 +100,7 @@ private fun NextButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun SkipButton(
-    @StringRes contentDescriptionRes: Int,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun SkipButton(@StringRes contentDescriptionRes: Int, onClick: () -> Unit, modifier: Modifier = Modifier) {
     Icon(
         painter = painterResource(DesignR.drawable.ic_skip_next),
         contentDescription = stringResource(contentDescriptionRes),
@@ -122,13 +114,11 @@ private fun SkipButton(
 
 @FullPreview
 @Composable
-private fun RepeatButtonOffPreview() =
-    PreviewSurface { RepeatButton(isRepeatEnabled = false, onClick = {}) }
+private fun RepeatButtonOffPreview() = PreviewSurface { RepeatButton(isRepeatEnabled = false, onClick = {}) }
 
 @FullPreview
 @Composable
-private fun RepeatButtonOnPreview() =
-    PreviewSurface { RepeatButton(isRepeatEnabled = true, onClick = {}) }
+private fun RepeatButtonOnPreview() = PreviewSurface { RepeatButton(isRepeatEnabled = true, onClick = {}) }
 
 @FullPreview
 @Composable

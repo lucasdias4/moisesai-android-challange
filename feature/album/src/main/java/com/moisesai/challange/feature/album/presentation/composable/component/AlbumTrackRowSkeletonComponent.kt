@@ -39,4 +39,6 @@ internal fun AlbumTrackRowSkeletonComponent(titleWidthPart: Float, artistWidthPa
 
 @FullPreview
 @Composable
-private fun AlbumTrackRowSkeletonPreview() = PreviewSurface { AlbumTrackRowSkeletonComponent(titleWidthPart = 0.6f, artistWidthPart = 0.35f) }
+private fun AlbumTrackRowSkeletonPreview() = PreviewSurface {
+    AlbumTrackRowSkeletonComponent(titleWidthPart = 0.6f, artistWidthPart = 0.35f)
+}

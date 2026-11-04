@@ -1,8 +1,8 @@
 package com.moisesai.challange.core.design.animation
 
-import com.moisesai.challange.core.design.animation.spec.screenTween
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.ui.Modifier
+import com.moisesai.challange.core.design.animation.spec.screenTween
 
 /**
  * Fades a list item in and out, and glides it to its new place when the items around it change (the list needs a key per item).

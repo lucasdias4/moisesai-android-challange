@@ -12,11 +12,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.feature.album.presentation.composable.component.AlbumTrackRowComponent
 import com.moisesai.challange.feature.album.presentation.composable.component.preview_helper.SampleAlbum
 import com.moisesai.challange.feature.album.presentation.model.UiAlbumTrack
-import com.moisesai.challange.core.design.preview.FullPreview
-import com.moisesai.challange.core.design.preview.PreviewSurface
 
 internal val AlbumTracksTopPadding = 10.dp
 internal val AlbumTracksHorizontalPadding = 20.dp
@@ -28,14 +28,14 @@ private val BottomFadeLength = 10.dp
 
 /** The tracks of the album, in order. Tapping one reports its id to [onTrackClick]. */
 @Composable
-internal fun AlbumTracksSection(
-    tracks: List<UiAlbumTrack>,
-    onTrackClick: (Long) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+internal fun AlbumTracksSection(tracks: List<UiAlbumTrack>, onTrackClick: (Long) -> Unit, modifier: Modifier = Modifier) {
     LazyColumn(
         modifier = modifier.fadedAtTopAndBottom(),
-        contentPadding = PaddingValues(start = AlbumTracksHorizontalPadding, top = AlbumTracksTopPadding, end = AlbumTracksHorizontalPadding),
+        contentPadding = PaddingValues(
+            start = AlbumTracksHorizontalPadding,
+            top = AlbumTracksTopPadding,
+            end = AlbumTracksHorizontalPadding,
+        ),
     ) {
         // A list key must be unique: the position keeps it so even if the same track id came twice.
         itemsIndexed(tracks, key = { position, track -> "${track.id}-$position" }) { _, track ->
@@ -45,23 +45,22 @@ internal fun AlbumTracksSection(
 }
 
 // Draws the list, then keeps it only where a mask is opaque: clear at the very edges, solid in between.
-private fun Modifier.fadedAtTopAndBottom(): Modifier =
-    this
-        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
-        .drawWithContent {
-            drawContent()
-            val topFadeEnd = TopFadeLength.toPx() / size.height
-            val bottomFadeStart = 1f - BottomFadeLength.toPx() / size.height
-            drawRect(
-                brush = Brush.verticalGradient(
-                    0f to Color.Black.copy(alpha = TOP_FADE_START_ALPHA),
-                    topFadeEnd to Color.Black,
-                    bottomFadeStart to Color.Black,
-                    1f to Color.Transparent,
-                ),
-                blendMode = BlendMode.DstIn,
-            )
-        }
+private fun Modifier.fadedAtTopAndBottom(): Modifier = this
+    .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+    .drawWithContent {
+        drawContent()
+        val topFadeEnd = TopFadeLength.toPx() / size.height
+        val bottomFadeStart = 1f - BottomFadeLength.toPx() / size.height
+        drawRect(
+            brush = Brush.verticalGradient(
+                0f to Color.Black.copy(alpha = TOP_FADE_START_ALPHA),
+                topFadeEnd to Color.Black,
+                bottomFadeStart to Color.Black,
+                1f to Color.Transparent,
+            ),
+            blendMode = BlendMode.DstIn,
+        )
+    }
 
 @FullPreview
 @Composable

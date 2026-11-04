@@ -15,8 +15,8 @@ import com.moisesai.challange.feature.songs.presentation.model.UiSongsContentSta
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsError
 import com.moisesai.challange.feature.songs.presentation.model.UiSongsUiState
 import com.moisesai.challange.feature.songs.presentation.model.UiSuggestionsState
-import com.moisesai.challange.feature.songs.presentation.model.UiTrackOptionsState
 import com.moisesai.challange.feature.songs.presentation.model.UiTrack
+import com.moisesai.challange.feature.songs.presentation.model.UiTrackOptionsState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.FlowPreview
@@ -204,12 +204,11 @@ internal class SongsViewModel @Inject constructor(
         refreshHome()
     }
 
-    private fun homeContent(): UiSongsContentState.Home =
-        if (recentTracks.isEmpty()) {
-            UiSongsContentState.FirstLaunch(suggestions)
-        } else {
-            UiSongsContentState.History(recentTracks)
-        }
+    private fun homeContent(): UiSongsContentState.Home = if (recentTracks.isEmpty()) {
+        UiSongsContentState.FirstLaunch(suggestions)
+    } else {
+        UiSongsContentState.History(recentTracks)
+    }
 
     // While a search is on screen the home is not drawn: its data is only remembered, for when the search ends.
     private fun refreshHome() {

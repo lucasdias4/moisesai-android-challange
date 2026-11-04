@@ -16,7 +16,4 @@ import androidx.room3.PrimaryKey
         ),
     ],
 )
-internal data class DbRecentlyPlayedTrack(
-    @PrimaryKey val trackId: Long,
-    val playedAtMillis: Long,
-)
+internal data class DbRecentlyPlayedTrack(@PrimaryKey val trackId: Long, val playedAtMillis: Long)

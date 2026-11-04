@@ -7,6 +7,4 @@ import kotlinx.serialization.Serializable
  * the album first (`wrapperType: collection`) and then its tracks.
  */
 @Serializable
-data class ApiResponse(
-    val results: List<ApiItem>,
-)
+data class ApiResponse(val results: List<ApiItem>)

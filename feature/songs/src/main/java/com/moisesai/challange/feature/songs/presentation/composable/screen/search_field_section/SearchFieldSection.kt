@@ -6,8 +6,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
-import com.moisesai.challange.feature.songs.presentation.composable.component.SearchFieldComponent
 import com.moisesai.challange.feature.songs.presentation.composable.callback.SongsCallbacks
+import com.moisesai.challange.feature.songs.presentation.composable.component.SearchFieldComponent
 
 private val FieldHorizontalMargin = 20.dp
 private val FieldVerticalMargin = 8.dp

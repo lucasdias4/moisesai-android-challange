@@ -1,12 +1,12 @@
 package com.moisesai.challange.core.design.animation
 
-import com.moisesai.challange.core.design.animation.spec.screenTween
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Modifier
+import com.moisesai.challange.core.design.animation.spec.screenTween
 
 /**
  * Makes the cover of track [trackId] fly from one screen to the next, growing or shrinking on the way, instead of fading out and in.

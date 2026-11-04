@@ -25,5 +25,10 @@ internal fun CoverScaleAnimation(isPlaying: Boolean, modifier: Modifier = Modifi
         label = "coverScale",
     )
     // The scale is read here, while drawing, so each frame redraws the cover and does not recompose it.
-    Box(modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }) { content() }
+    Box(
+        modifier = modifier.graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        },
+    ) { content() }
 }

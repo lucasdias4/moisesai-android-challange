@@ -11,11 +11,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import com.moisesai.challange.feature.songdetails.presentation.composable.animation.PlayPauseIconAnimation
 import com.moisesai.challange.core.design.animation.pressAnimation
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
+import com.moisesai.challange.feature.songdetails.presentation.composable.animation.PlayPauseIconAnimation
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.preview_helper.SamplePlayingTrack
 import com.moisesai.challange.feature.songdetails.presentation.model.UiPlayingTrack
 
@@ -31,11 +31,7 @@ private const val DISABLED_ICON_ALPHA = 0.38f
  * screen can say why: a button that ignores the user tells them nothing.
  */
 @Composable
-internal fun PlayPauseButtonComponent(
-    playingTrack: UiPlayingTrack,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+internal fun PlayPauseButtonComponent(playingTrack: UiPlayingTrack, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val iconTint = MaterialTheme.design.colors.text03
     val iconColor = if (playingTrack.canPlay) iconTint else iconTint.copy(alpha = DISABLED_ICON_ALPHA)
     Box(
@@ -54,8 +50,7 @@ internal fun PlayPauseButtonComponent(
 
 @FullPreview
 @Composable
-private fun PlayPauseButtonPausedPreview() =
-    PreviewSurface { PlayPauseButtonComponent(playingTrack = SamplePlayingTrack, onClick = {}) }
+private fun PlayPauseButtonPausedPreview() = PreviewSurface { PlayPauseButtonComponent(playingTrack = SamplePlayingTrack, onClick = {}) }
 
 @FullPreview
 @Composable

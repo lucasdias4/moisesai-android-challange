@@ -124,22 +124,23 @@ class SongsViewModelTest {
     }
 
     @Test
-    fun `GIVEN results are shown, WHEN a new search text settles, THEN the old results are cleared while the new ones load`() = runTest(dispatcher) {
-        // Given
-        val viewModel = createViewModel()
-        givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        searchFor(viewModel, "levitating")
-        coEvery { searchTracksUseCase("daft punk", 0) } coAnswers {
-            delay(SLOW_SEARCH_MILLIS)
-            Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
+    fun `GIVEN results are shown, WHEN a new search text settles, THEN the old results are cleared while the new ones load`() =
+        runTest(dispatcher) {
+            // Given
+            val viewModel = createViewModel()
+            givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
+            searchFor(viewModel, "levitating")
+            coEvery { searchTracksUseCase("daft punk", 0) } coAnswers {
+                delay(SLOW_SEARCH_MILLIS)
+                Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
+            }
+
+            // When
+            searchFor(viewModel, "daft punk")
+
+            // Then
+            assertEquals(UiSongsContentState.SearchLoading, viewModel.uiState.value.content)
         }
-
-        // When
-        searchFor(viewModel, "daft punk")
-
-        // Then
-        assertEquals(UiSongsContentState.SearchLoading, viewModel.uiState.value.content)
-    }
 
     @Test
     fun `GIVEN a search is running, WHEN a newer search text settles, THEN only the newer results are shown`() = runTest(dispatcher) {
@@ -363,39 +364,42 @@ class SongsViewModelTest {
     }
 
     @Test
-    fun `GIVEN loading the next page fails, WHEN loading more again, THEN the results stay and nothing more is requested`() = runTest(dispatcher) {
-        // Given
-        val viewModel = createViewModel()
-        coEvery { searchTracksUseCase("levitating", 0) } returns Result.success(TrackPageDomainModel(listOf(levitating), hasNext = true))
-        coEvery { searchTracksUseCase("levitating", 1) } returns Result.failure(AppError.Unknown())
-        searchFor(viewModel, "levitating")
-        viewModel.loadMore()
-        runCurrent()
+    fun `GIVEN loading the next page fails, WHEN loading more again, THEN the results stay and nothing more is requested`() =
+        runTest(dispatcher) {
+            // Given
+            val viewModel = createViewModel()
+            coEvery { searchTracksUseCase("levitating", 0) } returns
+                Result.success(TrackPageDomainModel(listOf(levitating), hasNext = true))
+            coEvery { searchTracksUseCase("levitating", 1) } returns Result.failure(AppError.Unknown())
+            searchFor(viewModel, "levitating")
+            viewModel.loadMore()
+            runCurrent()
 
-        // When
-        viewModel.loadMore()
-        runCurrent()
+            // When
+            viewModel.loadMore()
+            runCurrent()
 
-        // Then
-        assertEquals(
-            resultsOf(levitating, status = UiSearchResultsState.Failed(UiSongsError.Unknown)),
-            viewModel.uiState.value.content,
-        )
-        coVerify(exactly = 1) { searchTracksUseCase("levitating", 1) }
-    }
+            // Then
+            assertEquals(
+                resultsOf(levitating, status = UiSearchResultsState.Failed(UiSongsError.Unknown)),
+                viewModel.uiState.value.content,
+            )
+            coVerify(exactly = 1) { searchTracksUseCase("levitating", 1) }
+        }
 
     @Test
-    fun `GIVEN a search fails because of the network, WHEN it ends, THEN the network error is shown with no results`() = runTest(dispatcher) {
-        // Given
-        val viewModel = createViewModel()
-        coEvery { searchTracksUseCase(any(), any()) } returns Result.failure(AppError.Network())
+    fun `GIVEN a search fails because of the network, WHEN it ends, THEN the network error is shown with no results`() =
+        runTest(dispatcher) {
+            // Given
+            val viewModel = createViewModel()
+            coEvery { searchTracksUseCase(any(), any()) } returns Result.failure(AppError.Network())
 
-        // When
-        searchFor(viewModel, "levitating")
+            // When
+            searchFor(viewModel, "levitating")
 
-        // Then
-        assertEquals(UiSongsContentState.SearchError(UiSongsError.Network), viewModel.uiState.value.content)
-    }
+            // Then
+            assertEquals(UiSongsContentState.SearchError(UiSongsError.Network), viewModel.uiState.value.content)
+        }
 
     @Test
     fun `GIVEN a failed search, WHEN retrying, THEN the search runs again and its results are shown`() = runTest(dispatcher) {
@@ -432,23 +436,24 @@ class SongsViewModelTest {
     }
 
     @Test
-    fun `GIVEN results are shown and the refresh is slow, WHEN refreshing, THEN the results stay and show the refresh`() = runTest(dispatcher) {
-        // Given
-        val viewModel = createViewModel()
-        givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        coEvery { refreshTracksUseCase("levitating") } coAnswers {
-            delay(SLOW_SEARCH_MILLIS)
-            Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
+    fun `GIVEN results are shown and the refresh is slow, WHEN refreshing, THEN the results stay and show the refresh`() =
+        runTest(dispatcher) {
+            // Given
+            val viewModel = createViewModel()
+            givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
+            coEvery { refreshTracksUseCase("levitating") } coAnswers {
+                delay(SLOW_SEARCH_MILLIS)
+                Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
+            }
+            searchFor(viewModel, "levitating")
+
+            // When
+            viewModel.refresh()
+            runCurrent()
+
+            // Then
+            assertEquals(resultsOf(levitating, status = UiSearchResultsState.Refreshing), viewModel.uiState.value.content)
         }
-        searchFor(viewModel, "levitating")
-
-        // When
-        viewModel.refresh()
-        runCurrent()
-
-        // Then
-        assertEquals(resultsOf(levitating, status = UiSearchResultsState.Refreshing), viewModel.uiState.value.content)
-    }
 
     @Test
     fun `GIVEN a refresh is running, WHEN refreshing again, THEN the refresh is requested once`() = runTest(dispatcher) {
@@ -493,44 +498,46 @@ class SongsViewModelTest {
     }
 
     @Test
-    fun `GIVEN results are shown and the network fails, WHEN refreshing, THEN the results stay and the error is shown`() = runTest(dispatcher) {
-        // Given
-        val viewModel = createViewModel()
-        givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        coEvery { refreshTracksUseCase("levitating") } returns Result.failure(AppError.Network())
-        searchFor(viewModel, "levitating")
+    fun `GIVEN results are shown and the network fails, WHEN refreshing, THEN the results stay and the error is shown`() =
+        runTest(dispatcher) {
+            // Given
+            val viewModel = createViewModel()
+            givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
+            coEvery { refreshTracksUseCase("levitating") } returns Result.failure(AppError.Network())
+            searchFor(viewModel, "levitating")
 
-        // When
-        viewModel.refresh()
-        runCurrent()
+            // When
+            viewModel.refresh()
+            runCurrent()
 
-        // Then
-        assertEquals(
-            resultsOf(levitating, status = UiSearchResultsState.Failed(UiSongsError.Network)),
-            viewModel.uiState.value.content,
-        )
-    }
+            // Then
+            assertEquals(
+                resultsOf(levitating, status = UiSearchResultsState.Failed(UiSongsError.Network)),
+                viewModel.uiState.value.content,
+            )
+        }
 
     @Test
-    fun `GIVEN a failed update shows an error over the results, WHEN refreshing, THEN the refreshed results replace them`() = runTest(dispatcher) {
-        // Given
-        val viewModel = createViewModel()
-        givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
-        coEvery { refreshTracksUseCase("levitating") } returnsMany listOf(
-            Result.failure(AppError.Network()),
-            Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false)),
-        )
-        searchFor(viewModel, "levitating")
-        viewModel.refresh()
-        runCurrent()
+    fun `GIVEN a failed update shows an error over the results, WHEN refreshing, THEN the refreshed results replace them`() =
+        runTest(dispatcher) {
+            // Given
+            val viewModel = createViewModel()
+            givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
+            coEvery { refreshTracksUseCase("levitating") } returnsMany listOf(
+                Result.failure(AppError.Network()),
+                Result.success(TrackPageDomainModel(listOf(otherTrack), hasNext = false)),
+            )
+            searchFor(viewModel, "levitating")
+            viewModel.refresh()
+            runCurrent()
 
-        // When
-        viewModel.refresh()
-        runCurrent()
+            // When
+            viewModel.refresh()
+            runCurrent()
 
-        // Then
-        assertEquals(resultsOf(otherTrack, status = UiSearchResultsState.Complete), viewModel.uiState.value.content)
-    }
+            // Then
+            assertEquals(resultsOf(otherTrack, status = UiSearchResultsState.Complete), viewModel.uiState.value.content)
+        }
 
     @Test
     fun `GIVEN a refresh finds no song, WHEN it ends, THEN the screen says nothing was found`() = runTest(dispatcher) {
@@ -720,16 +727,17 @@ class SongsViewModelTest {
     }
 
     @Test
-    fun `GIVEN looking up the suggested tracks fails, WHEN the screen starts, THEN the suggestions are unavailable`() = runTest(dispatcher) {
-        // Given
-        coEvery { getSuggestedTracksUseCase() } returns Result.failure(AppError.Network())
+    fun `GIVEN looking up the suggested tracks fails, WHEN the screen starts, THEN the suggestions are unavailable`() =
+        runTest(dispatcher) {
+            // Given
+            coEvery { getSuggestedTracksUseCase() } returns Result.failure(AppError.Network())
 
-        // When
-        val viewModel = createViewModel()
+            // When
+            val viewModel = createViewModel()
 
-        // Then
-        assertEquals(UiSongsContentState.FirstLaunch(UiSuggestionsState.Unavailable), viewModel.uiState.value.content)
-    }
+            // Then
+            assertEquals(UiSongsContentState.FirstLaunch(UiSuggestionsState.Unavailable), viewModel.uiState.value.content)
+        }
 
     @Test
     fun `GIVEN no suggested track could be found, WHEN the screen starts, THEN the suggestions are unavailable`() = runTest(dispatcher) {
@@ -759,28 +767,29 @@ class SongsViewModelTest {
     }
 
     @Test
-    fun `GIVEN the suggestions arrive during a search, WHEN the search field is cleared, THEN the first launch shows them`() = runTest(dispatcher) {
-        // Given
-        coEvery { getSuggestedTracksUseCase() } coAnswers {
-            delay(SLOW_SEARCH_MILLIS)
-            Result.success(listOf(levitating))
+    fun `GIVEN the suggestions arrive during a search, WHEN the search field is cleared, THEN the first launch shows them`() =
+        runTest(dispatcher) {
+            // Given
+            coEvery { getSuggestedTracksUseCase() } coAnswers {
+                delay(SLOW_SEARCH_MILLIS)
+                Result.success(listOf(levitating))
+            }
+            givenSearchReturns(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
+            val viewModel = createViewModel()
+            searchFor(viewModel, "daft punk")
+            advanceTimeBy(SLOW_SEARCH_MILLIS)
+            runCurrent()
+
+            // When
+            viewModel.onQueryChange("")
+            runCurrent()
+
+            // Then
+            assertEquals(
+                UiSongsContentState.FirstLaunch(UiSuggestionsState.Loaded(listOf(levitating.toUiModel()))),
+                viewModel.uiState.value.content,
+            )
         }
-        givenSearchReturns(TrackPageDomainModel(listOf(otherTrack), hasNext = false))
-        val viewModel = createViewModel()
-        searchFor(viewModel, "daft punk")
-        advanceTimeBy(SLOW_SEARCH_MILLIS)
-        runCurrent()
-
-        // When
-        viewModel.onQueryChange("")
-        runCurrent()
-
-        // Then
-        assertEquals(
-            UiSongsContentState.FirstLaunch(UiSuggestionsState.Loaded(listOf(levitating.toUiModel()))),
-            viewModel.uiState.value.content,
-        )
-    }
 
     @Test
     fun `GIVEN the screen starts, WHEN nothing was chosen, THEN no sheet of choices is shown`() = runTest(dispatcher) {

@@ -130,9 +130,7 @@ class AlbumLocalDataSourceTest {
         val earlierTracks = tracksInAlbumOrder.take(2)
         dataSource.saveAlbum(album, earlierTracks)
         val failingDao = object : AlbumDao by database.albumDao() {
-            override suspend fun insertAlbumTracks(albumTracks: List<DbAlbumTrack>) {
-                throw IllegalStateException("insert failed")
-            }
+            override suspend fun insertAlbumTracks(albumTracks: List<DbAlbumTrack>): Unit = throw IllegalStateException("insert failed")
         }
         val failingDataSource = AlbumLocalDataSource(database, failingDao, database.trackDao())
 

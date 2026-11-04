@@ -33,23 +33,24 @@ class FlowExtensionTest {
     }
 
     @Test
-    fun `GIVEN a flow that fails after a value, WHEN converting it to results, THEN the failure is emitted and the flow completes`() = runTest {
-        // Given
-        val failing = flow {
-            emit(1)
-            throw IllegalStateException("query failed")
-        }
+    fun `GIVEN a flow that fails after a value, WHEN converting it to results, THEN the failure is emitted and the flow completes`() =
+        runTest {
+            // Given
+            val failing = flow {
+                emit(1)
+                throw IllegalStateException("query failed")
+            }
 
-        // When
-        val results = failing.asSafeResult()
+            // When
+            val results = failing.asSafeResult()
 
-        // Then
-        results.test {
-            assertEquals(1, awaitItem().getOrThrow())
-            assertTrue(awaitItem().exceptionOrNull() is AppError.Unknown)
-            awaitComplete()
+            // Then
+            results.test {
+                assertEquals(1, awaitItem().getOrThrow())
+                assertTrue(awaitItem().exceptionOrNull() is AppError.Unknown)
+                awaitComplete()
+            }
         }
-    }
 
     @Test
     fun `GIVEN a flow that fails and a custom mapper, WHEN converting it to results, THEN the custom mapper makes the failure`() = runTest {

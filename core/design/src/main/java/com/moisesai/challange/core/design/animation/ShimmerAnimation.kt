@@ -42,7 +42,10 @@ private data class ShimmerElement(val lightColor: Color) : ModifierNodeElement<S
 }
 
 private class ShimmerNode(var lightColor: Color) :
-    Modifier.Node(), DrawModifierNode, GlobalPositionAwareModifierNode, CompositionLocalConsumerModifierNode {
+    Modifier.Node(),
+    DrawModifierNode,
+    GlobalPositionAwareModifierNode,
+    CompositionLocalConsumerModifierNode {
 
     // 0 = the light is just left of the window, 1 = it is just right of it. It is read only while drawing, so a frame
     // redraws the block and never recomposes it.
@@ -75,7 +78,8 @@ private class ShimmerNode(var lightColor: Color) :
         val windowWidth = currentValueOf(LocalWindowInfo).containerSize.width.toFloat()
         val lightWidth = windowWidth * LIGHT_WIDTH_PART
         if (light == null || lightWindowWidth != windowWidth || lightBuiltWith != lightColor) {
-            light = Brush.horizontalGradient(colors = listOf(Color.Transparent, lightColor, Color.Transparent), startX = 0f, endX = lightWidth)
+            light =
+                Brush.horizontalGradient(colors = listOf(Color.Transparent, lightColor, Color.Transparent), startX = 0f, endX = lightWidth)
             lightWindowWidth = windowWidth
             lightBuiltWith = lightColor
         }

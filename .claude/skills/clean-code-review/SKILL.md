@@ -20,6 +20,7 @@ List the files: `git status --short`, `git diff --stat`, or `find <module>/src -
 
 - Compiler warnings: `./gradlew clean assembleDebug` and read the `w:` lines (unused variables, parameters, imports).
 - Lint: `./gradlew lintDebug`.
+- Style: `./gradlew ktlintFormat`, then `./gradlew ktlintCheck`.
 - Unused code the compiler cannot see: for each public class, function, property and constructor parameter, search the repository for a use. No use outside tests means delete it (YAGNI), unless a documented next step needs it.
 - Stale names after a rename: search for the old names in code, tests, docs and skills (the searcher may skip git-ignored files such as `PLAN.md`; name them explicitly).
 
@@ -49,7 +50,7 @@ Fix what is clearly a violation. **Ask the user** about a naming or structure ch
 
 ### 5. Fix and re-verify
 
-Apply the fixes, then re-run `./gradlew clean assembleDebug testDebugUnitTest lintDebug`. After a rename, search the code, tests, docs and skills for the old names.
+Apply the fixes, then re-run `./gradlew clean assembleDebug testDebugUnitTest lintDebug ktlintCheck`. After a rename, search the code, tests, docs and skills for the old names.
 
 ### 6. Report
 

@@ -9,6 +9,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,7 +20,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 // ExoPlayer tells when the position jumps but not while it moves, so while playing the position is read this often.
 // Four times a second keeps a seek bar and a clock that show seconds looking smooth.
@@ -36,9 +36,7 @@ private const val HANDLE_AUDIO_FOCUS = true
 
 /** One ExoPlayer for the whole app, so two screens can never play two audios at once. */
 @Singleton
-internal class ExoPlayerController @Inject constructor(
-    @ApplicationContext context: Context,
-) : PlayerController {
+internal class ExoPlayerController @Inject constructor(@ApplicationContext context: Context) : PlayerController {
 
     // Built on the main thread, where Hilt creates it for the first ViewModel that needs it, so ExoPlayer is used from there.
     private val exoPlayer = ExoPlayer.Builder(context)
@@ -138,14 +136,14 @@ internal class ExoPlayerController @Inject constructor(
                 audioUrl,
                 positionMillis,
                 durationMillis,
-                isRepeatEnabled
+                isRepeatEnabled,
             )
 
             exoPlayer.isPlaying -> PlaybackState.Playing(
                 audioUrl,
                 positionMillis,
                 durationMillis,
-                isRepeatEnabled
+                isRepeatEnabled,
             )
 
             else -> PlaybackState.Paused(audioUrl, positionMillis, durationMillis, isRepeatEnabled)

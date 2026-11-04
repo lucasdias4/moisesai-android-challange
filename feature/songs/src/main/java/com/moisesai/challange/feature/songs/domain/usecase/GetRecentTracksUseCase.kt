@@ -8,10 +8,7 @@ import kotlinx.coroutines.flow.Flow
 // The home screen shows a short row of cards, not the whole history.
 private const val RECENT_TRACKS_LIMIT = 10
 
-internal class GetRecentTracksUseCase @Inject constructor(
-    private val recentTracksRepository: RecentTracksRepository,
-) {
+internal class GetRecentTracksUseCase @Inject constructor(private val recentTracksRepository: RecentTracksRepository) {
 
-    operator fun invoke(): Flow<Result<List<TrackDomainModel>>> =
-        recentTracksRepository.observeRecentTracks(RECENT_TRACKS_LIMIT)
+    operator fun invoke(): Flow<Result<List<TrackDomainModel>>> = recentTracksRepository.observeRecentTracks(RECENT_TRACKS_LIMIT)
 }

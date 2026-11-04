@@ -54,17 +54,18 @@ class TrackRepositoryImplTest {
     }
 
     @Test
-    fun `GIVEN a track that is not saved and a lookup that finds nothing, WHEN getting it, THEN it fails with an unknown error`() = runTest {
-        // Given
-        coEvery { trackLocalDataSource.getTrack(LEVITATING_ID) } returns Result.success(null)
-        coEvery { trackRemoteDataSource.getTrack(LEVITATING_ID) } returns Result.success(ApiResponse(emptyList()))
+    fun `GIVEN a track that is not saved and a lookup that finds nothing, WHEN getting it, THEN it fails with an unknown error`() =
+        runTest {
+            // Given
+            coEvery { trackLocalDataSource.getTrack(LEVITATING_ID) } returns Result.success(null)
+            coEvery { trackRemoteDataSource.getTrack(LEVITATING_ID) } returns Result.success(ApiResponse(emptyList()))
 
-        // When
-        val track = repository.getTrack(LEVITATING_ID)
+            // When
+            val track = repository.getTrack(LEVITATING_ID)
 
-        // Then
-        assertTrue(track.exceptionOrNull() is AppError.Unknown)
-    }
+            // Then
+            assertTrue(track.exceptionOrNull() is AppError.Unknown)
+        }
 
     @Test
     fun `GIVEN a track that is not saved and no connection, WHEN getting it, THEN it fails with the network error`() = runTest {

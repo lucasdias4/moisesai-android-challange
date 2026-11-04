@@ -32,21 +32,22 @@ class TrackRemoteDataSourceTest {
     fun tearDown() = server.close()
 
     @Test
-    fun `GIVEN a search text and a limit, WHEN searching tracks, THEN the search endpoint is called filtered to music songs`() = runBlocking {
-        // Given
-        server.enqueue(jsonResponse(readFixture(Fixtures.EMPTY)))
+    fun `GIVEN a search text and a limit, WHEN searching tracks, THEN the search endpoint is called filtered to music songs`() =
+        runBlocking {
+            // Given
+            server.enqueue(jsonResponse(readFixture(Fixtures.EMPTY)))
 
-        // When
-        dataSource.searchTracksBySearchText(searchText = "jack johnson", limit = 50)
+            // When
+            dataSource.searchTracksBySearchText(searchText = "jack johnson", limit = 50)
 
-        // Then
-        val request = server.takeRequest()
-        assertEquals("/search", request.url.encodedPath)
-        assertEquals("jack johnson", request.url.queryParameter("term"))
-        assertEquals("50", request.url.queryParameter("limit"))
-        assertEquals("music", request.url.queryParameter("media"))
-        assertEquals("song", request.url.queryParameter("entity"))
-    }
+            // Then
+            val request = server.takeRequest()
+            assertEquals("/search", request.url.encodedPath)
+            assertEquals("jack johnson", request.url.queryParameter("term"))
+            assertEquals("50", request.url.queryParameter("limit"))
+            assertEquals("music", request.url.queryParameter("media"))
+            assertEquals("song", request.url.queryParameter("entity"))
+        }
 
     @Test
     fun `GIVEN a real search response, WHEN searching tracks, THEN the first track has every field mapped`() = runBlocking {

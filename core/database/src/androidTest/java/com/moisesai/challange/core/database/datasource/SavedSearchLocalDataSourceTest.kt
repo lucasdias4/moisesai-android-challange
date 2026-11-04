@@ -168,9 +168,8 @@ class SavedSearchLocalDataSourceTest {
         val earlier = DbSavedSearch("jack johnson", fetchedAtMillis = 1_000)
         dataSource.saveSearch(earlier, fiveTracks.take(2))
         val failingDao = object : SavedSearchDao by database.savedSearchDao() {
-            override suspend fun insertSavedSearchTracks(savedSearchTracks: List<DbSavedSearchTrack>) {
+            override suspend fun insertSavedSearchTracks(savedSearchTracks: List<DbSavedSearchTrack>): Unit =
                 throw IllegalStateException("insert failed")
-            }
         }
         val failingDataSource = SavedSearchLocalDataSource(database, failingDao, database.trackDao())
 

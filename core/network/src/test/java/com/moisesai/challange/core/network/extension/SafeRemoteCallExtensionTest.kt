@@ -27,16 +27,17 @@ class SafeRemoteCallExtensionTest {
     }
 
     @Test
-    fun `GIVEN a request that throws an http error, WHEN making the remote call, THEN the result is a failure with a network error`() = runTest {
-        // Given
-        val httpError = HttpException(Response.error<Any>(500, "".toResponseBody()))
+    fun `GIVEN a request that throws an http error, WHEN making the remote call, THEN the result is a failure with a network error`() =
+        runTest {
+            // Given
+            val httpError = HttpException(Response.error<Any>(500, "".toResponseBody()))
 
-        // When
-        val error = safeRemoteCall { throw httpError }.exceptionOrNull()
+            // When
+            val error = safeRemoteCall { throw httpError }.exceptionOrNull()
 
-        // Then
-        assertTrue(error is AppError.Network)
-    }
+            // Then
+            assertTrue(error is AppError.Network)
+        }
 
     @Test
     fun `GIVEN a request that is cancelled, WHEN making the remote call, THEN the cancellation is rethrown, not returned as a failure`() {

@@ -1,6 +1,5 @@
 package com.moisesai.challange.splash.animation
 
-import com.moisesai.challange.core.design.animation.spec.ScreenEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -12,6 +11,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.R
+import com.moisesai.challange.core.design.animation.spec.ScreenEasing
 
 // The musical note is 100 x 100 in the design, in the middle of the screen.
 private val MusicNoteSize = 100.dp

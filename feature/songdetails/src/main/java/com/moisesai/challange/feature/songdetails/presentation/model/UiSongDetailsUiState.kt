@@ -14,9 +14,6 @@ internal sealed interface UiSongDetailsUiState {
      * [isCannotPlayMessageVisible] is true from the moment the user taps play on a track that cannot play until the
      * screen has shown the message about it.
      */
-    data class Success(
-        val playingTrack: UiPlayingTrack,
-        val isTrackOptionsVisible: Boolean,
-        val isCannotPlayMessageVisible: Boolean,
-    ) : UiSongDetailsUiState
+    data class Success(val playingTrack: UiPlayingTrack, val isTrackOptionsVisible: Boolean, val isCannotPlayMessageVisible: Boolean) :
+        UiSongDetailsUiState
 }

@@ -8,10 +8,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.moisesai.challange.feature.songdetails.presentation.composable.animation.CoverScaleAnimation
 import com.moisesai.challange.core.design.animation.SharedCoverAnimation
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
+import com.moisesai.challange.feature.songdetails.presentation.composable.animation.CoverScaleAnimation
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.TrackCoverComponent
 import com.moisesai.challange.feature.songdetails.presentation.composable.component.preview_helper.SamplePlayingTrack
 import com.moisesai.challange.feature.songdetails.presentation.model.UiPlayingTrack

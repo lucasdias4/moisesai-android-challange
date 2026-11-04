@@ -263,58 +263,61 @@ class SongDetailsViewModelTest {
     }
 
     @Test
-    fun `GIVEN a track that is playing, WHEN the player reports that the audio failed, THEN the track stays on screen and cannot be played`() = runTest(dispatcher) {
-        // Given
-        givenQueueOf(first)
-        val viewModel = createViewModel()
-        runCurrent()
+    fun `GIVEN a track that is playing, WHEN the player reports that the audio failed, THEN the track stays on screen and cannot be played`() =
+        runTest(dispatcher) {
+            // Given
+            givenQueueOf(first)
+            val viewModel = createViewModel()
+            runCurrent()
 
-        // When
-        playbackState.value = aFailedState()
-        runCurrent()
+            // When
+            playbackState.value = aFailedState()
+            runCurrent()
 
-        // Then
-        val success = viewModel.uiState.value as UiSongDetailsUiState.Success
-        assertEquals(first.name, success.playingTrack.trackName)
-        assertFalse(success.playingTrack.canPlay)
-    }
-
-    @Test
-    fun `GIVEN audio that failed, WHEN the user taps play, THEN the message that it cannot play is shown and nothing is played`() = runTest(dispatcher) {
-        // Given
-        givenQueueOf(first)
-        val viewModel = createViewModel()
-        runCurrent()
-        playbackState.value = aFailedState()
-        runCurrent()
-
-        // When
-        viewModel.onPlayPauseClick()
-
-        // Then
-        val success = viewModel.uiState.value as UiSongDetailsUiState.Success
-        assertTrue(success.isCannotPlayMessageVisible)
-        verify(exactly = 0) { playerController.resume() }
-        verify(exactly = 0) { playerController.pause() }
-    }
+            // Then
+            val success = viewModel.uiState.value as UiSongDetailsUiState.Success
+            assertEquals(first.name, success.playingTrack.trackName)
+            assertFalse(success.playingTrack.canPlay)
+        }
 
     @Test
-    fun `GIVEN the message that it cannot play is shown, WHEN the screen reports that it showed it, THEN the message is no longer asked for`() = runTest(dispatcher) {
-        // Given
-        givenQueueOf(first)
-        val viewModel = createViewModel()
-        runCurrent()
-        playbackState.value = aFailedState()
-        runCurrent()
-        viewModel.onPlayPauseClick()
+    fun `GIVEN audio that failed, WHEN the user taps play, THEN the message that it cannot play is shown and nothing is played`() =
+        runTest(dispatcher) {
+            // Given
+            givenQueueOf(first)
+            val viewModel = createViewModel()
+            runCurrent()
+            playbackState.value = aFailedState()
+            runCurrent()
 
-        // When
-        viewModel.onCannotPlayMessageShown()
+            // When
+            viewModel.onPlayPauseClick()
 
-        // Then
-        val success = viewModel.uiState.value as UiSongDetailsUiState.Success
-        assertFalse(success.isCannotPlayMessageVisible)
-    }
+            // Then
+            val success = viewModel.uiState.value as UiSongDetailsUiState.Success
+            assertTrue(success.isCannotPlayMessageVisible)
+            verify(exactly = 0) { playerController.resume() }
+            verify(exactly = 0) { playerController.pause() }
+        }
+
+    @Test
+    fun `GIVEN the message that it cannot play is shown, WHEN the screen reports that it showed it, THEN the message is no longer asked for`() =
+        runTest(dispatcher) {
+            // Given
+            givenQueueOf(first)
+            val viewModel = createViewModel()
+            runCurrent()
+            playbackState.value = aFailedState()
+            runCurrent()
+            viewModel.onPlayPauseClick()
+
+            // When
+            viewModel.onCannotPlayMessageShown()
+
+            // Then
+            val success = viewModel.uiState.value as UiSongDetailsUiState.Success
+            assertFalse(success.isCannotPlayMessageVisible)
+        }
 
     @Test
     fun `GIVEN a track that is playing, WHEN the user taps play and pause, THEN it pauses`() = runTest(dispatcher) {
@@ -423,52 +426,55 @@ class SongDetailsViewModelTest {
     }
 
     @Test
-    fun `GIVEN the track is shown, WHEN the user opens and closes the options, THEN the sheet is shown and then hidden`() = runTest(dispatcher) {
-        // Given
-        givenQueueOf(first)
-        val viewModel = createViewModel()
-        runCurrent()
+    fun `GIVEN the track is shown, WHEN the user opens and closes the options, THEN the sheet is shown and then hidden`() =
+        runTest(dispatcher) {
+            // Given
+            givenQueueOf(first)
+            val viewModel = createViewModel()
+            runCurrent()
 
-        // When
-        viewModel.onTrackOptionsClick()
-        val whileOpen = (viewModel.uiState.value as UiSongDetailsUiState.Success).isTrackOptionsVisible
-        viewModel.onTrackOptionsDismiss()
-        val afterClosing = (viewModel.uiState.value as UiSongDetailsUiState.Success).isTrackOptionsVisible
+            // When
+            viewModel.onTrackOptionsClick()
+            val whileOpen = (viewModel.uiState.value as UiSongDetailsUiState.Success).isTrackOptionsVisible
+            viewModel.onTrackOptionsDismiss()
+            val afterClosing = (viewModel.uiState.value as UiSongDetailsUiState.Success).isTrackOptionsVisible
 
-        // Then
-        assertTrue(whileOpen)
-        assertFalse(afterClosing)
-    }
-
-    @Test
-    fun `GIVEN the album is still loading, WHEN the chosen track arrives, THEN it plays and is shown without waiting for the album`() = runTest(dispatcher) {
-        // Given
-        coEvery { getTrackUseCase(LEVITATING_ID) } returns Result.success(first)
-        coEvery { getTrackQueueUseCase(LEVITATING_ID) } coAnswers { awaitCancellation() }
-        val viewModel = createViewModel()
-
-        // When
-        runCurrent()
-
-        // Then
-        verify(exactly = 1) { playerController.playFromStart(LEVITATING_PREVIEW_URL) }
-        assertTrue(viewModel.uiState.value is UiSongDetailsUiState.Success)
-    }
+            // Then
+            assertTrue(whileOpen)
+            assertFalse(afterClosing)
+        }
 
     @Test
-    fun `GIVEN the chosen track is playing, WHEN the album arrives, THEN the music is not restarted and the next track is there`() = runTest(dispatcher) {
-        // Given
-        givenQueueOf(first, second)
-        val viewModel = createViewModel()
+    fun `GIVEN the album is still loading, WHEN the chosen track arrives, THEN it plays and is shown without waiting for the album`() =
+        runTest(dispatcher) {
+            // Given
+            coEvery { getTrackUseCase(LEVITATING_ID) } returns Result.success(first)
+            coEvery { getTrackQueueUseCase(LEVITATING_ID) } coAnswers { awaitCancellation() }
+            val viewModel = createViewModel()
 
-        // When
-        runCurrent()
-        viewModel.goToNextTrack()
+            // When
+            runCurrent()
 
-        // Then
-        verify(exactly = 1) { playerController.playFromStart(LEVITATING_PREVIEW_URL) }
-        verify(exactly = 1) { playerController.playFromStart(SECOND_PREVIEW_URL) }
-    }
+            // Then
+            verify(exactly = 1) { playerController.playFromStart(LEVITATING_PREVIEW_URL) }
+            assertTrue(viewModel.uiState.value is UiSongDetailsUiState.Success)
+        }
+
+    @Test
+    fun `GIVEN the chosen track is playing, WHEN the album arrives, THEN the music is not restarted and the next track is there`() =
+        runTest(dispatcher) {
+            // Given
+            givenQueueOf(first, second)
+            val viewModel = createViewModel()
+
+            // When
+            runCurrent()
+            viewModel.goToNextTrack()
+
+            // Then
+            verify(exactly = 1) { playerController.playFromStart(LEVITATING_PREVIEW_URL) }
+            verify(exactly = 1) { playerController.playFromStart(SECOND_PREVIEW_URL) }
+        }
 
     @Test
     fun `GIVEN the album fails to load, WHEN the chosen track plays, THEN it keeps playing alone`() = runTest(dispatcher) {
@@ -486,20 +492,21 @@ class SongDetailsViewModelTest {
     }
 
     @Test
-    fun `GIVEN the next track has no audio, WHEN the user taps next, THEN the error is shown and nothing more plays`() = runTest(dispatcher) {
-        // Given
-        val withoutAudio = aTrackDomainModel(id = 3, previewUrl = null)
-        givenQueueOf(first, withoutAudio)
-        val viewModel = createViewModel()
-        runCurrent()
+    fun `GIVEN the next track has no audio, WHEN the user taps next, THEN the error is shown and nothing more plays`() =
+        runTest(dispatcher) {
+            // Given
+            val withoutAudio = aTrackDomainModel(id = 3, previewUrl = null)
+            givenQueueOf(first, withoutAudio)
+            val viewModel = createViewModel()
+            runCurrent()
 
-        // When
-        viewModel.goToNextTrack()
+            // When
+            viewModel.goToNextTrack()
 
-        // Then
-        assertEquals(UiSongDetailsUiState.Error(UiErrorType.Unknown), viewModel.uiState.value)
-        verify(exactly = 1) { playerController.playFromStart(any()) }
-    }
+            // Then
+            assertEquals(UiSongDetailsUiState.Error(UiErrorType.Unknown), viewModel.uiState.value)
+            verify(exactly = 1) { playerController.playFromStart(any()) }
+        }
 
     @Test
     fun `GIVEN the track did not arrive yet, WHEN the screen is closed, THEN the player is not stopped`() = runTest(dispatcher) {

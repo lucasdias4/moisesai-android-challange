@@ -52,8 +52,7 @@ abstract class EndToEndTest {
         composeRule.onAllNodesWithText(part, substring = true).fetchSemanticsNodes().isNotEmpty()
     }
 
-    protected fun countTextContaining(part: String): Int =
-        composeRule.onAllNodesWithText(part, substring = true).fetchSemanticsNodes().size
+    protected fun countTextContaining(part: String): Int = composeRule.onAllNodesWithText(part, substring = true).fetchSemanticsNodes().size
 
     protected fun waitForDescription(description: String) = composeRule.waitUntil(TIMEOUT_MILLIS) {
         composeRule.onAllNodesWithContentDescription(description).fetchSemanticsNodes().isNotEmpty()

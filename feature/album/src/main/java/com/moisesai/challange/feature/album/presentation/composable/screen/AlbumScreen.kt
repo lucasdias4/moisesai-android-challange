@@ -11,6 +11,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.moisesai.challange.core.design.animation.StateAnimation
+import com.moisesai.challange.core.design.components.ErrorMessageComponent
+import com.moisesai.challange.core.design.components.TopBarComponent
+import com.moisesai.challange.core.design.model.UiErrorType
+import com.moisesai.challange.core.design.preview.FullPreview
+import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
+import com.moisesai.challange.core.design.theme.design
 import com.moisesai.challange.feature.album.presentation.composable.callback.AlbumCallbacks
 import com.moisesai.challange.feature.album.presentation.composable.component.preview_helper.SampleAlbum
 import com.moisesai.challange.feature.album.presentation.composable.screen.album_header_section.AlbumHeaderSection
@@ -18,13 +25,6 @@ import com.moisesai.challange.feature.album.presentation.composable.screen.album
 import com.moisesai.challange.feature.album.presentation.composable.screen.album_tracks_section.AlbumTracksSection
 import com.moisesai.challange.feature.album.presentation.composable.screen.album_tracks_section.AlbumTracksSkeletonSection
 import com.moisesai.challange.feature.album.presentation.model.UiAlbumUiState
-import com.moisesai.challange.core.design.model.UiErrorType
-import com.moisesai.challange.core.design.animation.StateAnimation
-import com.moisesai.challange.core.design.components.ErrorMessageComponent
-import com.moisesai.challange.core.design.components.TopBarComponent
-import com.moisesai.challange.core.design.preview.FullPreview
-import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
-import com.moisesai.challange.core.design.theme.design
 
 // The design leaves this much between the top bar and the cover, and between the names and the first track.
 private val SpaceBelowTopBar = 8.dp
@@ -44,10 +44,18 @@ internal fun AlbumScreen(uiState: UiAlbumUiState, callbacks: AlbumCallbacks, mod
                         header = { AlbumHeaderSkeletonSection() },
                         tracks = { tracksModifier -> AlbumTracksSkeletonSection(modifier = tracksModifier) },
                     )
+
                     is UiAlbumUiState.Error -> ErrorMessageComponent(type = state.type, onRetry = callbacks.onRetry)
+
                     is UiAlbumUiState.Success -> AlbumLayout(
                         header = { AlbumHeaderSection(album = state.album) },
-                        tracks = { tracksModifier -> AlbumTracksSection(tracks = state.album.tracks, onTrackClick = callbacks.onTrackClick, modifier = tracksModifier) },
+                        tracks = { tracksModifier ->
+                            AlbumTracksSection(
+                                tracks = state.album.tracks,
+                                onTrackClick = callbacks.onTrackClick,
+                                modifier = tracksModifier,
+                            )
+                        },
                     )
                 }
             }

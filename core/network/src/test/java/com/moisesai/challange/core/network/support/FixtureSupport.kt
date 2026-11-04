@@ -8,7 +8,6 @@ internal object Fixtures {
     const val EMPTY = "empty.json"
 }
 
-internal fun readFixture(name: String): String =
-    checkNotNull(Thread.currentThread().contextClassLoader?.getResource("fixtures/$name")) {
-        "Missing fixture $name"
-    }.readText()
+internal fun readFixture(name: String): String = checkNotNull(Thread.currentThread().contextClassLoader?.getResource("fixtures/$name")) {
+    "Missing fixture $name"
+}.readText()
