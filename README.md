@@ -15,11 +15,14 @@ An Android app that searches songs through the Apple iTunes Search API, plays th
 
 <table>
   <tr>
-    <td align="center"><img src="docs/images/splash.png" width="170"><br><b>1. Splash</b></td>
-    <td align="center"><img src="docs/images/songs.png" width="170"><br><b>2. Songs</b><br>search and recents</td>
-    <td align="center"><img src="docs/images/player.png" width="170"><br><b>3. Song details</b><br>the player</td>
-    <td align="center"><img src="docs/images/action-sheet.png" width="170"><br><b>4. More options</b></td>
-    <td align="center"><img src="docs/images/album.png" width="170"><br><b>5. Album</b></td>
+    <td align="center"><img src="docs/images/splash.png" width="200"><br><b>1. Splash</b></td>
+    <td align="center"><img src="docs/images/songs.png" width="200"><br><b>2. Songs</b><br>search and recents</td>
+    <td align="center"><img src="docs/images/player.png" width="200"><br><b>3. Song details</b><br>the player</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/action-sheet.png" width="200"><br><b>4. More options</b></td>
+    <td align="center"><img src="docs/images/album.png" width="200"><br><b>5. Album</b></td>
+    <td align="center"><img src="docs/images/offline.png" width="200"><br><b>6. Offline</b><br>cached results, no connection</td>
   </tr>
 </table>
 
@@ -162,9 +165,7 @@ How the layers talk:
 
 ## Works offline
 
-<img src="docs/images/offline.png" align="right" width="190" alt="Songs screen with no connection, results still shown">
-
-The database is the source of truth. The app reads from it and goes to the network only when something is missing.
+The database is the source of truth. The app reads from it and goes to the network only when something is missing. Screenshot 6 in the [app flow](#app-flow) shows it with no connection.
 
 | What | Cached | Rule |
 | --- | --- | --- |
@@ -174,8 +175,6 @@ The database is the source of truth. The app reads from it and goes to the netwo
 | Recently played | the last tracks played | Written by the player, read by Songs |
 
 Nothing expires and nothing is deleted. Without a connection, anything already fetched still opens; an error appears only for what was never fetched. Audio previews stream from the network, so playing a song still needs a connection.
-
-<br clear="right">
 
 ## Technologies
 
@@ -333,11 +332,14 @@ I still want to show what I had built. It lives on the [`experimental-ui`](../..
 
 <table>
   <tr>
-    <td align="center"><img src="docs/images/experimental/splash-wave.png" width="170"><br><b>Splash</b><br>a waveform...</td>
-    <td align="center"><img src="docs/images/experimental/splash-logo.png" width="170"><br><b>Splash</b><br>...becomes the name</td>
-    <td align="center"><img src="docs/images/experimental/songs.png" width="170"><br><b>Songs</b><br>tinted by the cover</td>
-    <td align="center"><img src="docs/images/experimental/songs-collapsed.png" width="170"><br><b>Songs</b><br>collapsed header</td>
-    <td align="center"><img src="docs/images/experimental/songs-search.png" width="170"><br><b>Search</b><br>results</td>
+    <td align="center"><img src="docs/images/experimental/splash-wave.png" width="200"><br><b>1. Splash</b><br>a waveform...</td>
+    <td align="center"><img src="docs/images/experimental/splash-dots.png" width="200"><br><b>2. Splash</b><br>...collapses to dots...</td>
+    <td align="center"><img src="docs/images/experimental/splash-logo.png" width="200"><br><b>3. Splash</b><br>...and spells the name</td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/images/experimental/songs.png" width="200"><br><b>4. Songs</b><br>tinted by the cover</td>
+    <td align="center"><img src="docs/images/experimental/songs-collapsed.png" width="200"><br><b>5. Songs</b><br>collapsed header</td>
+    <td align="center"><img src="docs/images/experimental/songs-search.png" width="200"><br><b>6. Search</b><br>results</td>
   </tr>
 </table>
 
