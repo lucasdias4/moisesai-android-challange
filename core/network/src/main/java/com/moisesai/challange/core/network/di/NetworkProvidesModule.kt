@@ -15,7 +15,6 @@ import okhttp3.OkHttpClient
 @Module
 @InstallIn(SingletonComponent::class)
 internal object NetworkProvidesModule {
-    private const val BASE_URL = "https://itunes.apple.com/"
     private const val TIMEOUT_SECONDS = 15L
 
     @Provides
@@ -27,5 +26,6 @@ internal object NetworkProvidesModule {
 
     @Provides
     @Singleton
-    fun provideItunesApi(client: Lazy<OkHttpClient>): ItunesApi = createItunesApi(BASE_URL, client::get, ItunesJson)
+    fun provideItunesApi(client: Lazy<OkHttpClient>, @ItunesBaseUrl baseUrl: String): ItunesApi =
+        createItunesApi(baseUrl, client::get, ItunesJson)
 }

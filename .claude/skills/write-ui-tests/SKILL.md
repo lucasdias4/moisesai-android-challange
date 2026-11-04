@@ -43,9 +43,10 @@ fun GIVEN_a_search_error_WHEN_the_user_taps_try_again_THEN_the_retry_is_asked_fo
 
 ## End-to-end test of a journey
 
-- `@HiltAndroidTest` with the Hilt test runner of `:app`. The network module is replaced by a MockWebServer that answers `/search` and `/lookup` with the real-API JSON of `core/network/src/test/resources/fixtures`; `PlayerController` is replaced by a fake whose `playbackState` the test sets. The database is empty at the start of each test.
+- `@HiltAndroidTest` with the Hilt test runner of `:app`. `ItunesBaseUrlModule` is replaced (`@TestInstallIn`) so the app calls `FakeBackend`, a MockWebServer that answers `/search` and `/lookup` with the real-API JSON of `core/network/src/test/resources/fixtures` (shared as androidTest assets); `PlayerModule` is replaced by `FakePlayerController`. The backend is started and the database deleted by a rule that runs before the activity opens. The suggested songs are looked up by ids the fixtures do not hold, so the backend names them "Suggested song <id>".
 - One test is one journey, in the words of the user: "search, open a track, it plays, go back, it is in the history". Each step asserts what is on screen.
-- The fake backend can fail on demand (offline, an HTTP error, an empty result) to cover the error journeys.
+- The fake backend can fail on demand (`isOffline` answers 503, which the app shows as a network error; a search for `zzzz` finds nothing) to cover the error journeys.
+- The app shows a title without its "(Live)" suffix: wait for text that does not depend on it.
 
 ## Rules
 

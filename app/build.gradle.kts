@@ -19,7 +19,7 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "com.moisesai.challange.HiltTestRunner"
     }
 
     buildTypes {
@@ -35,6 +35,10 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    // The end-to-end tests serve the fixtures of the network tests, which come from the real API.
+    sourceSets {
+        getByName("androidTest").assets.directories.add("$rootDir/core/network/src/test/resources/fixtures")
     }
 }
 
@@ -62,6 +66,12 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.hilt.android.testing)
+    androidTestImplementation(libs.okhttp.mockwebserver)
+    androidTestImplementation(project(":core:network"))
+    androidTestImplementation(project(":core:player"))
+    kspAndroidTest(libs.hilt.compiler)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }

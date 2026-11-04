@@ -7,10 +7,11 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 
+/** Public so the end-to-end tests of the app can replace the player with a fake one. */
 @Module
 @InstallIn(SingletonComponent::class)
-internal abstract class PlayerModule {
+abstract class PlayerModule {
 
     @Binds
-    abstract fun bindPlayerController(implementation: ExoPlayerController): PlayerController
+    internal abstract fun bindPlayerController(implementation: ExoPlayerController): PlayerController
 }

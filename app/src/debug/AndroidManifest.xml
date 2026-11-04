@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Debug only: the end-to-end tests serve the app from a local http server. -->
+    <application android:networkSecurityConfig="@xml/network_security_config" />
+
+</manifest>
