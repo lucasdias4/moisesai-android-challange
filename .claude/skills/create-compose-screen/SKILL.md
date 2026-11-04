@@ -49,7 +49,7 @@ Match the real requirements; do not apply one template to every screen.
 - Error: `error != null`
 - Empty: `isLoading = false`, empty list, no error
 
-When the states exclude each other (a screen that loads one thing), use a sealed `Ui<Screen>UiState` with `Loading`, `Error(type: UiErrorType)` and `Success`, and draw them with `LoadingIndicatorComponent` and `ErrorMessageComponent` from `:core:design`. Map a failure with `Throwable.toUiErrorType()` from `:core:design`; do not write a mapper per feature.
+When the states exclude each other (a screen that loads one thing), use a sealed `Ui<Screen>UiState` with `Loading`, `Error(type: UiErrorType)` and `Success`, and draw them with a skeleton (`SkeletonBlockComponent` and `SkeletonTextComponent` from `:core:design`, laid out by the same code as the content) and `ErrorMessageComponent` from `:core:design`; cross-fade between the kinds with `StateAnimation`. Map a failure with `Throwable.toUiErrorType()` from `:core:design`; do not write a mapper per feature.
 
 ### 2. Create the package
 

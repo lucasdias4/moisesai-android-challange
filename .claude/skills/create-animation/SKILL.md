@@ -3,7 +3,7 @@ name: create-animation
 description: Create or change a Moisesai Challange Compose animation - an `animation` package next to its screen, one file per animation with the `Animation` suffix, a single `Phase` timeline, commented values, draw-phase state reads, accessibility and a clock-driven test. Use when a screen needs motion (splash, loading, transitions, micro-interactions) or when reviewing an animation.
 ---
 
-Build motion following `ARCHITECTURE.md` §4 "Animations". The Figma design has no animation of its own, so the app has none at the moment; the examples below show the shape to follow.
+Build motion following `ARCHITECTURE.md` §4 "Animations". The app's pace (300 ms, easing out) and its shared animations are in `core/design/animation/` (`spec/ScreenSpec.kt`, `ShimmerAnimation`, `PressAnimation`, `SheetAnimation`, ...): read them before writing a new one, and reuse `screenTween()` for any big change. An animation that only one screen uses goes in that screen's `animation` package, as the steps below say. Real examples: `splash/animation` (`SplashPhase`, `NoteAnimation`) and `songdetails/presentation/composable/animation`.
 
 ---
 
