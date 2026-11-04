@@ -5,6 +5,10 @@ description: Write or review unit tests in this project using the Given / When /
 
 Every unit test in this project follows **Given / When / Then**, in the name and in the body. The rule is in `ARCHITECTURE.md` §9 (and §8, Tests); this skill is how to apply it. If the two disagree, `ARCHITECTURE.md` wins.
 
+## Where this fits
+
+Unit tests are the base of the pyramid: **100%** of the classes with logic and of the branches of their public methods. Tests of screens and components are the `write-ui-tests` skill. Write the test in the same commit as the code.
+
 ## When to use
 
 - Adding a test for new code, or changing an existing test

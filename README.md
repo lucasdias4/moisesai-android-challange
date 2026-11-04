@@ -8,6 +8,7 @@ An Android app that searches songs through the Apple iTunes Search API, plays th
 
 - [Status](#status)
 - [Getting started](#getting-started)
+- [Testing strategy](#testing-strategy)
 - [Architecture](#architecture)
 - [Tech stack](#tech-stack)
 - [Repository layout](#repository-layout)
@@ -68,6 +69,22 @@ Open the project in Android Studio and run the `app` configuration, or from a te
 ```
 
 The Gradle wrapper is the only supported way to build. Gradle 9.4.1 is downloaded on first use.
+
+## Testing strategy
+
+The tests follow the test pyramid: many small, fast tests at the bottom, fewer slow and broad ones at the top. Each layer answers a different question, so each has its own target, and the three numbers are not added up.
+
+| Layer | Runs on | One test covers | Target |
+|---|---|---|---|
+| Unit | JVM, seconds | one behaviour of one class, its collaborators mocked | **100%** of the classes with logic and of the branches of their public methods |
+| Functional | emulator, one screen or component alone, fake data, no Hilt | one UI state or one interaction | **50%** or more of the screen x state matrix, the components and animations, the player engine and the database migration |
+| End to end | emulator, the whole app, fake backend and fake player | one user journey across screens | **30%** or more of the journeys: cold start, search and play, album path, offline, search edge cases |
+
+**Why the numbers fall going up.** The base is cheap, fast and precise: when a unit test fails it points at one class, so everything with logic is covered, branch by branch. A functional test needs an emulator and renders real UI, so it covers the states a user can see, the important ones first. An end-to-end test starts the whole app and takes the longest to run, and a failure can come from anywhere, so a few journeys on the main paths are enough. Whatever a higher layer does not reach is already held by the layer below.
+
+**Coverage is a rule, not a tool.** There is no Kover or JaCoCo. The percentage is of what must be tested (classes and branches, screens and states, journeys), not of lines executed. Every behaviour above gets a test in the same commit as the code, and a test that fails when the code is broken is the only kind worth keeping.
+
+**Conventions.** Names are `GIVEN ..., WHEN ..., THEN ...` (underscores on the device), one action per test, fixtures from the real API, nodes found by the ids of `:core:strings`, `waitUntil` and never `sleep`. The details are in `ARCHITECTURE.md` section 9.
 
 ## Architecture
 

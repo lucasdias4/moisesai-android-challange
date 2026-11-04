@@ -23,7 +23,7 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Names: track and album; a use case held by a ViewModel (or a test) keeps the `UseCase` postfix on the variable too (`getAlbumWithTracksUseCase`, called as `getAlbumWithTracksUseCase(albumId)`); `id`, `name`, `albumId`, `artUrl`; methods are an action plus what the caller wants (`getTrack`, `searchTracksBySearchText`); parameters named by meaning; models carry their layer (`Ui*`, `*DomainModel`, `Api*`, `Db*`); animation composables and their files end in `Animation` and live in an `animation` package next to their screen; callback holders are `<Feature>Callbacks` in `composable/callback`; components end in `Component` and live in `presentation/composable/component`, each with `@FullPreview` previews in its file. (§3, §4, §8)
 - Clean Code applies everywhere (§8): intent-revealing names in plain words (`addAlbumToQueue`, not `widenQueue`), small functions, at most three parameters, no flag arguments, `val` over `var`, no magic values, no dead code, one class per file, `internal` by default, comments explain *why*, an `if`/`else` that runs statements has braces and one line per branch (never `if (a) x() else y()`).
 - UI: colours, typography and shapes from `MaterialTheme`; every screen has `@FullPreview` previews wrapped in `MoisesaiChallangeTheme`; text from `R.string.*` in `:core:strings`, XML theme and colours in `:core:design`. (§4, §7)
-- Tests: Given / When / Then in both the name (`GIVEN ..., WHEN ..., THEN ...`, keywords uppercase) and the body, one action each; fixtures from the real API; none that pass with the code broken. (§9, `write-unit-tests`)
+- Tests: Given / When / Then in both the name (`GIVEN ..., WHEN ..., THEN ...`, keywords uppercase) and the body, one action each; fixtures from the real API; none that pass with the code broken. (§9, `write-unit-tests`, `write-ui-tests`). The pyramid targets are 100% unit, 50% functional, 30% end to end (README "Testing strategy"): write the test in the same commit as the code.
 
 ## Working agreements
 - Rules are defined in `ARCHITECTURE.md`. To change one: edit it there first, then its short version here and the examples in the skills, then search for the old wording.
@@ -33,4 +33,4 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Question a request that conflicts with a rule or a requirement, say why, then follow the user's decision.
 
 ## Skills (`.claude/skills/`)
-`create-feature-module`, `create-compose-screen`, `create-ui-component`, `create-animation`, `add-data-endpoint`, `write-unit-tests`, `clean-code-review`.
+`create-feature-module`, `create-compose-screen`, `create-ui-component`, `create-animation`, `add-data-endpoint`, `write-unit-tests`, `write-ui-tests`, `clean-code-review`.

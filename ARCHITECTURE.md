@@ -330,6 +330,12 @@ Robert C. Martin's *Clean Code* applies to every file, Kotlin idioms included. W
 
 **Where tests live.** In the module that owns the code: remote datasources with MockWebServer in `:core:network`, local datasources on an in-memory Room database in `:core:database`, use cases, repositories and ViewModels in their feature module.
 
+**The pyramid.** There is no coverage tool. The targets are **100%** of the classes with logic and of the branches of their public methods, **50% or more** of the functional matrix (one screen or component alone, on the emulator, with fake data) and **30% or more** of the end-to-end journeys (the whole app on the emulator, with a fake backend and a fake player), each measured against what must be tested (classes and branches, screens and states, journeys) and not against executed lines. A test is written in the same commit as the code it covers.
+
+**Functional tests** live in `src/androidTest` of the module that owns the screen or the component. A screen is stateless (`uiState` plus callbacks), so a test gives it one state and a recorder of the callbacks, and needs no Hilt: `createComposeRule`, `MoisesaiChallangeTheme`, nodes found by the ids of `:core:strings` (never hard-coded text), and `waitUntil` to wait, never `sleep`. Names use underscores. The `write-ui-tests` skill has the pattern.
+
+**End-to-end tests** live in `:app`. They run the whole app with the Hilt test runner, a MockWebServer that answers with the real-API JSON of `core/network/src/test/resources/fixtures`, and a fake `PlayerController` that the test controls. Each journey crosses at least two screens and states what the user sees, not how the code is built.
+
 **Room tests are instrumented tests** (`src/androidTest`), because Room runs on the device's real SQLite; they use an in-memory database, so nothing is written to disk and each test starts empty. A multi-write method also gets a test where the second write fails and the first must be rolled back.
 
 **Instrumented test names use underscores.** DEX before version 40 forbids spaces in method names and `minSdk` is 24, so an instrumented test keeps the uppercase keywords and joins the words with underscores: `GIVEN_a_saved_track_WHEN_getting_it_THEN_every_field_is_returned`. JVM unit tests keep the sentence form. ViewModels, use cases and repositories are always tested.
