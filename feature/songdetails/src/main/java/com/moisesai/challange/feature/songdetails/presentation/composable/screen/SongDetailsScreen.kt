@@ -217,9 +217,3 @@ private fun SongDetailsScreenTrackOptionsPreview() = MoisesaiChallangeTheme {
 private fun SongDetailsScreenLoadingPreview() = MoisesaiChallangeTheme {
     SongDetailsScreen(uiState = UiSongDetailsUiState.Loading, callbacks = SongDetailsCallbacks.None)
 }
-
-@FullPreview
-@Composable
-private fun SongDetailsScreenErrorPreview() = MoisesaiChallangeTheme {
-    SongDetailsScreen(uiState = UiSongDetailsUiState.Error(UiErrorType.Unknown), callbacks = SongDetailsCallbacks.None)
-}
