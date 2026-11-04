@@ -30,6 +30,24 @@ Build motion following `ARCHITECTURE.md` §4 "Animations". The app's pace (300 m
 
 ## Steps
 
+### 0. Reuse what exists
+
+Look at this table before writing anything. All of these are in `core/design/animation` (the pace is in `animation/spec/ScreenSpec.kt`):
+
+| The screen needs | Use |
+|---|---|
+| The pace of a big change (300 ms, easing out) | `screenTween()` |
+| A placeholder while something loads | `SkeletonBlockComponent`, `SkeletonTextComponent` (they use `shimmerAnimation`) |
+| A cover picture | `CoverImageComponent` (shimmer, fade in, small picture as placeholder) |
+| Press feedback on a row or a button | `pressAnimation` instead of `clickable` |
+| Items of a list that appear, go away or move | `itemAnimation` (the list needs a key per item) |
+| A skeleton that becomes the real screen | `StateAnimation` |
+| A field or a block that opens and closes | `CollapseAnimation`; a small button that appears: `PopAnimation` |
+| A sheet over the screen | `SheetAnimation` |
+| A cover that flies from one screen to the next | `SharedCoverAnimation` |
+
+Write a new animation only when none of these fits.
+
 ### 1. Place it
 
 ```text
@@ -109,7 +127,23 @@ Short, direct sentences. Say what the value does in the picture and why it is th
 | A trick (clamp, overshoot, stagger) | What would break without it | `// The bouncy spring overshoots 1, so alpha is clamped.` |
 | An accessibility choice | What the reader hears | `// Screen readers read the name once, not letter by letter.` |
 
-The file's KDoc says what the animation is and when it starts and ends, in one or two lines. The phase enum's KDoc lists the steps.
+The top of every animation file is **two lines of KDoc**: line 1 says what it does in one plain sentence; line 2 says where it is used and how, with a real call.
+
+```kotlin
+/**
+ * Grows its content from a smaller size while it fades in, and shrinks it while it fades out.
+ * Used in `HeaderSection`, on the search magnifier: `PopAnimation(isVisible = isSearchButtonVisible) { SearchButton(onClick = onSearchClick) }`.
+ */
+```
+
+**Each place that uses an animation** gets a one-line comment saying what it does there, and which animation when that is not obvious. Only animations, not the lines around them:
+
+```kotlin
+// Shared animation: the cover flies between the album track row and the player the track was opened in.
+CompositionLocalProvider(LocalAnimatedVisibilityScope provides this) { ... }
+```
+
+The phase enum's KDoc lists the steps. Use plain words in names and comments: a reader should not need a dictionary.
 
 ### 5. Keep frames cheap
 
@@ -121,13 +155,14 @@ Canvas(modifier) { drawBars(bounceFractions, collapseFraction, brush) }
 ```
 
 - Many identical shapes: one `Canvas`, not one composable per shape.
+- A Modifier that animates is a `Modifier.Node` (`ModifierNodeElement` with `DrawModifierNode`; see `ShimmerAnimation` and `PressAnimation`), not a `@Composable` or `composed` factory. It builds what it draws (a brush) once and only moves it each frame.
 - Animate `alpha`, scale, rotation and translation. Avoid animating layout size inside a list or a frame loop.
 - Endless effects use `rememberInfiniteTransition`. A fixed number of them in a loop is safe; a changing number is not.
 - Remember brushes and shadows with the theme colours as keys, so they are not rebuilt every frame.
 
 ### 6. Accessibility
 
-- A decorative animation adds no semantics.
+- A decorative animation adds no semantics. Skeleton blocks are decoration: they add none.
 - Text animated piece by piece is read once: put `clearAndSetSemantics { contentDescription = text }` on the container (see `TitleAnimation`).
 - Compose follows the system animator scale, so endless animations stop when the user turns animations off. Do not work around it.
 
@@ -143,6 +178,8 @@ Box(modifier = Modifier.splashExitAnimation(phase), contentAlignment = Alignment
 }
 ```
 
+A shared element (`SharedCoverAnimation`) can only fly to a screen that already shows its target: when the data is in the cache, show it at once and let the extras load after, instead of a skeleton first.
+
 The screen has a `@FullPreview` wrapped in `MoisesaiChallangeTheme`. The caller decides what happens at the end (`onFinished`); the animation package knows nothing about navigation.
 
 ### 8. Test the timeline
@@ -157,17 +194,29 @@ composeTestRule.mainClock.advanceTimeBy(SplashPhase.entries.sumOf { it.durationM
 
 Cover: it does not finish halfway, it finishes once after the last phase, and the final text is shown (read from `:core:strings`, not hardcoded). Do not assert pixels. Stop before the exit phase when a test needs the content to be visible.
 
-### 9. Clean code check
+### 9. See it running
+
+Tests do not show motion, so look at it on the emulator before calling it done:
+
+- Record it (`adb shell screenrecord`), pull the file and cut frames with `ffmpeg` into one contact sheet, so you see the steps and not only the end.
+- For a loading state, slow the network (`adb emu network speed gsm` and `network delay gprs`) and use a query that is not in the cache.
+- Turn system animations off (`animator_duration_scale`, `transition_animation_scale` and `window_animation_scale` to 0): everything must still work, only without motion.
+- Compare the frame stats (`adb shell dumpsys gfxinfo <package>`) with the version before: the animation must not cost clearly more than what it replaces. The emulator renders in software, so compare the two, never read the absolute number.
+- Rotate while it runs, and turn the network off.
+
+### 10. Clean code check
 
 Run `clean-code-review`, plus:
 
 - Does every file end in `Animation` and hold one animation?
+- Does each file start with the two-line KDoc (what it does; where it is used and how), and does each use have a one-line comment?
+- Are the names plain words, and did it reuse a shared animation when one fits?
 - Is every constant, animated value and non-obvious call commented with meaning and reason?
 - Is animated state read in a draw or `graphicsLayer` block?
 - Any hex colour, hardcoded text or unnamed number left?
 - Does the screen package depend on `animation`, and not the other way round?
 
-### 10. Report
+### 11. Report
 
 - Package and files created, with the phases and their durations
 - What starts and ends the sequence (the callback)
@@ -180,6 +229,8 @@ Run `clean-code-review`, plus:
 - Animations live in an `animation` package next to the screen, one per file, name and file ending in `Animation`
 - One `Phase` enum is the only timeline; animations are stateless
 - Every constant, animated value and non-obvious call has a short, direct comment (meaning and reason)
+- Each animation file starts with a two-line KDoc (what it does; where it is used and how), and each use has a one-line comment
+- Reuse the shared animations of `core/design/animation` before writing a new one
 - Animated values are read in draw or `graphicsLayer`, never in composition
 - Colours from `MaterialTheme`, text from `:core:strings`, no magic numbers
 - Animated text has one `contentDescription`

@@ -257,7 +257,7 @@ private fun <Feature>Content(
 Rules:
 - `Scaffold` when the screen needs a toolbar, FAB or snackbar
 - All user-facing text from `R.string.*` (`core/strings/src/main/res/values/strings_<screen>.xml`, names prefixed with `<screen>_`)
-- Motion goes in an `animation` package next to the screen, built with the `create-animation` skill (name and file end in `Animation`)
+- Motion goes in an `animation` package next to the screen, built with the `create-animation` skill (name and file end in `Animation`); the shared ones are in `:core:design/animation`, and each use has a one-line comment saying what it does
 - Colours, typography and shapes only from `MaterialTheme`; no hex literals, no inline `TextStyle`
 - `modifier: Modifier = Modifier` is the first optional parameter
 
