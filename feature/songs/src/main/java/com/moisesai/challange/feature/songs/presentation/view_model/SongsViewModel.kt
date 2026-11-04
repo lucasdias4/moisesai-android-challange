@@ -49,6 +49,7 @@ internal class SongsViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         UiSongsUiState(
             query = "",
+            isSearchFieldVisible = true,
             content = UiSongsContentState.FirstLaunch(UiSuggestionsState.Loading),
             trackOptions = UiTrackOptionsState.Hidden,
         ),
@@ -75,13 +76,21 @@ internal class SongsViewModel @Inject constructor(
         observeSearchText()
     }
 
+    // The text changes only through the field, or when going back clears it, so the field is on screen either way.
     fun onQueryChange(query: String) {
-        _uiState.update { it.copy(query = query) }
+        _uiState.update { it.copy(query = query, isSearchFieldVisible = true) }
         typedSearchText.value = query
     }
 
+    // A blank text asks for nothing, so the field stays; otherwise it makes room for the results.
     fun onSearchSubmit() {
-        submittedSearchText.tryEmit(_uiState.value.query)
+        val query = _uiState.value.query
+        submittedSearchText.tryEmit(query)
+        _uiState.update { it.copy(isSearchFieldVisible = query.isBlank()) }
+    }
+
+    fun onSearchIconClick() {
+        _uiState.update { it.copy(isSearchFieldVisible = true) }
     }
 
     fun onTrackOptionsClick(track: UiTrack) {

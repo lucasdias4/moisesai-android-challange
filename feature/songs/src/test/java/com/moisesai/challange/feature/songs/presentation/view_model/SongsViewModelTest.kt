@@ -33,6 +33,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -188,6 +189,64 @@ class SongsViewModelTest {
 
         // Then
         coVerify { searchTracksUseCase("daft punk", 0) }
+    }
+
+    @Test
+    fun `GIVEN a typed search, WHEN it is submitted, THEN the search field is tucked away`() = runTest(dispatcher) {
+        // Given
+        val viewModel = createViewModel()
+        givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
+        viewModel.onQueryChange("daft punk")
+
+        // When
+        viewModel.onSearchSubmit()
+
+        // Then
+        assertFalse(viewModel.uiState.value.isSearchFieldVisible)
+    }
+
+    @Test
+    fun `GIVEN a blank field, WHEN the search is submitted, THEN the search field stays`() = runTest(dispatcher) {
+        // Given
+        val viewModel = createViewModel()
+        viewModel.onQueryChange("   ")
+
+        // When
+        viewModel.onSearchSubmit()
+
+        // Then
+        assertTrue(viewModel.uiState.value.isSearchFieldVisible)
+    }
+
+    @Test
+    fun `GIVEN a tucked away search field, WHEN the user taps the magnifier, THEN the field is back with its text`() = runTest(dispatcher) {
+        // Given
+        val viewModel = createViewModel()
+        givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
+        viewModel.onQueryChange("daft punk")
+        viewModel.onSearchSubmit()
+
+        // When
+        viewModel.onSearchIconClick()
+
+        // Then
+        assertTrue(viewModel.uiState.value.isSearchFieldVisible)
+        assertEquals("daft punk", viewModel.uiState.value.query)
+    }
+
+    @Test
+    fun `GIVEN a tucked away search field, WHEN the text is cleared, THEN the field is back`() = runTest(dispatcher) {
+        // Given
+        val viewModel = createViewModel()
+        givenSearchReturns(TrackPageDomainModel(listOf(levitating), hasNext = false))
+        viewModel.onQueryChange("daft punk")
+        viewModel.onSearchSubmit()
+
+        // When
+        viewModel.onQueryChange("")
+
+        // Then
+        assertTrue(viewModel.uiState.value.isSearchFieldVisible)
     }
 
     @Test

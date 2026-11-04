@@ -24,6 +24,7 @@ fun NavGraphBuilder.songsScreen(onTrackClick: (trackId: Long) -> Unit, onViewAlb
             SongsCallbacks(
                 onQueryChange = viewModel::onQueryChange,
                 onSearchSubmit = viewModel::onSearchSubmit,
+                onSearchIconClick = viewModel::onSearchIconClick,
                 onTrackClick = onTrackClick,
                 onTrackOptionsClick = viewModel::onTrackOptionsClick,
                 onTrackOptionsDismiss = viewModel::onTrackOptionsDismiss,

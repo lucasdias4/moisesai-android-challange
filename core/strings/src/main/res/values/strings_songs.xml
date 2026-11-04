@@ -1,6 +1,7 @@
 <resources>
     <string name="songs_title">Songs</string>
     <string name="songs_search_placeholder">Search</string>
+    <string name="songs_search_button">Search songs</string>
     <string name="songs_loading">Searching…</string>
     <string name="songs_error_network_title">You seem to be offline</string>
     <string name="songs_error_network_message">Check your connection and try again.</string>

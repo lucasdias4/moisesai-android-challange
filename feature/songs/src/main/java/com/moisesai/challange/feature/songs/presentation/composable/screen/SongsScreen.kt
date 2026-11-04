@@ -10,8 +10,16 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
@@ -47,10 +55,34 @@ internal fun SongsScreen(uiState: UiSongsUiState, callbacks: SongsCallbacks, mod
     LoadMoreEffect(listState = listState, onLoadMore = callbacks.onLoadMore)
     ClearQueryOnBackEffect(query = uiState.query, onQueryChange = callbacks.onQueryChange)
 
+    // The magnifier brings the field back and the user came to type, so the field takes the focus when it returns.
+    val searchFieldFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
+    var isSearchFieldFocusRequested by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(isSearchFieldFocusRequested, uiState.isSearchFieldVisible) {
+        if (isSearchFieldFocusRequested && uiState.isSearchFieldVisible) {
+            searchFieldFocusRequester.requestFocus()
+            keyboardController?.show()
+            isSearchFieldFocusRequested = false
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.design.colors.background00)) {
         Column(modifier = Modifier.fillMaxSize()) {
-            HeaderSection(title = stringResource(R.string.songs_title))
-            SearchFieldSection(query = uiState.query, callbacks = callbacks)
+            HeaderSection(
+                title = stringResource(R.string.songs_title),
+                onSearchClick = if (uiState.isSearchFieldVisible) {
+                    null
+                } else {
+                    {
+                        isSearchFieldFocusRequested = true
+                        callbacks.onSearchIconClick()
+                    }
+                },
+            )
+            if (uiState.isSearchFieldVisible) {
+                SearchFieldSection(query = uiState.query, callbacks = callbacks, modifier = Modifier.focusRequester(searchFieldFocusRequester))
+            }
             SongsListSection(
                 content = uiState.content,
                 callbacks = callbacks,
@@ -79,9 +111,9 @@ private fun ClearQueryOnBackEffect(query: String, onQueryChange: (String) -> Uni
 }
 
 @Composable
-private fun SongsScreenPreviewOf(content: UiSongsContentState, query: String = "") {
+private fun SongsScreenPreviewOf(content: UiSongsContentState, query: String = "", isSearchFieldVisible: Boolean = true) {
     MoisesaiChallangeTheme {
-        SongsScreen(uiState = UiSongsUiState(query = query, content = content, trackOptions = UiTrackOptionsState.Hidden), callbacks = SongsCallbacks.None)
+        SongsScreen(uiState = UiSongsUiState(query = query, isSearchFieldVisible = isSearchFieldVisible, content = content, trackOptions = UiTrackOptionsState.Hidden), callbacks = SongsCallbacks.None)
     }
 }
 
@@ -99,6 +131,14 @@ private fun SongsScreenHistoryPreview() = SongsScreenPreviewOf(UiSongsContentSta
 private fun SongsScreenResultsPreview() = SongsScreenPreviewOf(
     content = UiSongsContentState.SearchResults(SampleTracks, UiSearchResultsState.HasMore),
     query = "levitating",
+)
+
+@FullPreview
+@Composable
+private fun SongsScreenSearchFieldTuckedAwayPreview() = SongsScreenPreviewOf(
+    content = UiSongsContentState.SearchResults(SampleTracks, UiSearchResultsState.HasMore),
+    query = "levitating",
+    isSearchFieldVisible = false,
 )
 
 @FullPreview

@@ -256,6 +256,11 @@ Each entry says what was chosen, why, and what it costs. New entries are added i
 - **Why:** the test tooling was proven with temporary tests that were removed afterwards. A test that only checks a constant adds noise, not safety.
 - **Trade-off:** the first real tests land with the data layers.
 
+### System font instead of Articulat CF
+
+- **Why:** the Figma file sets every text in Articulat CF, a commercial typeface. Shipping its files in this repository needs a licence the project does not have, so the app does not include or use it.
+- **Trade-off:** the text uses the system font, so letter shapes and widths differ slightly from the design. `AppFontFamily` in `core/design/theme/TextStyles.kt` is the only place that names the font, so using a licensed copy later is a change of one line plus the font files.
+
 ## Known limitations
 
 - The app does not yet implement the challenge screens. `MainActivity` still shows the template greeting.

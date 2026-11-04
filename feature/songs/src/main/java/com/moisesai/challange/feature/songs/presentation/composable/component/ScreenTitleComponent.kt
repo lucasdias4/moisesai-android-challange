@@ -17,14 +17,20 @@ import com.moisesai.challange.core.design.theme.design
 private val TitleRowHeight = 48.dp
 private val TitleRowHorizontalPadding = 24.dp
 
-/** The name of the screen, in a row 48 high, centred up and down. */
+/** The name of the screen, in a row 48 high, centred up and down, with a button at the end ([endAction]) if there is one. */
 @Composable
-internal fun ScreenTitleComponent(title: String, modifier: Modifier = Modifier) {
+internal fun ScreenTitleComponent(title: String, modifier: Modifier = Modifier, endAction: (@Composable () -> Unit)? = null) {
     Row(
         modifier = modifier.fillMaxWidth().height(TitleRowHeight).padding(horizontal = TitleRowHorizontalPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(text = title, style = MaterialTheme.design.text.display24, color = MaterialTheme.design.colors.text03)
+        Text(
+            text = title,
+            modifier = Modifier.weight(1f),
+            style = MaterialTheme.design.text.display24,
+            color = MaterialTheme.design.colors.text03,
+        )
+        endAction?.invoke()
     }
 }
 

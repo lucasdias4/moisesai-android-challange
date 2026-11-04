@@ -15,6 +15,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +50,7 @@ internal fun SearchFieldComponent(
 ) {
     val colors = MaterialTheme.design.colors
     val textStyle = MaterialTheme.design.text.text16
+    val fieldValue = rememberFieldValueEndingAfter(query)
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -66,8 +72,11 @@ internal fun SearchFieldComponent(
                 Text(text = stringResource(R.string.songs_search_placeholder), style = textStyle, color = colors.text01)
             }
             BasicTextField(
-                value = query,
-                onValueChange = onQueryChange,
+                value = fieldValue.value,
+                onValueChange = { newValue ->
+                    fieldValue.value = newValue
+                    onQueryChange(newValue.text)
+                },
                 modifier = Modifier.fillMaxWidth(),
                 textStyle = textStyle.copy(color = colors.text03),
                 singleLine = true,
@@ -77,6 +86,16 @@ internal fun SearchFieldComponent(
             )
         }
     }
+}
+
+// A field that appears with a text in it (the user brought it back) puts the cursor after the text, where typing goes on.
+@Composable
+private fun rememberFieldValueEndingAfter(query: String): MutableState<TextFieldValue> {
+    val fieldValue = remember { mutableStateOf(TextFieldValue(query, TextRange(query.length))) }
+    if (fieldValue.value.text != query) {
+        fieldValue.value = TextFieldValue(query, TextRange(query.length))
+    }
+    return fieldValue
 }
 
 @FullPreview
