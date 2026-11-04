@@ -1,6 +1,6 @@
 name: CI
 
-# Every pull request against master runs the checks that need no emulator.
+# Every pull request against master runs the checks that need no emulator, each as its own check.
 on:
   pull_request:
     branches: [master]
@@ -14,32 +14,66 @@ permissions:
   contents: read
 
 jobs:
-  verify:
-    name: Unit tests, lint and ktlint
+  unit-tests:
+    name: Unit tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
-
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
-
       # Caches the Gradle distribution and dependencies between runs.
       - uses: gradle/actions/setup-gradle@v4
-
-      # --continue reports every failing check in one run instead of stopping at the first.
-      - name: Check
-        run: ./gradlew testDebugUnitTest lintDebug ktlintCheck --continue --console=plain
-
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest --continue --console=plain
       - name: Upload reports
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: reports
-          path: |
-            **/build/reports/tests/
-            **/build/reports/ktlint/
-            **/build/reports/lint-results-debug.html
+          name: unit-test-reports
+          path: "**/build/reports/tests/"
+          if-no-files-found: ignore
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Run Android lint
+        run: ./gradlew lintDebug --continue --console=plain
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-reports
+          path: "**/build/reports/lint-results-debug.html"
+          if-no-files-found: ignore
+
+  ktlint:
+    name: ktlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Check code style
+        run: ./gradlew ktlintCheck --continue --console=plain
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ktlint-reports
+          path: "**/build/reports/ktlint/"
           if-no-files-found: ignore
