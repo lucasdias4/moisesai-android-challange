@@ -9,7 +9,7 @@ An Android app that searches songs through the Apple iTunes Search API, plays th
 
 ## Contents
 
-[App flow](#app-flow) · [Features](#features) · [Architecture](#architecture) · [Clean Architecture](#clean-architecture-in-practice) · [Offline](#works-offline) · [Technologies](#technologies) · [Testing](#testing-strategy) · [`@FullPreview`](#fullpreview) · [Claude Code](#claude-code-setup) · [Run it](#run-it) · [Limitations](#known-limitations)
+[App flow](#app-flow) · [Features](#features) · [Architecture](#architecture) · [Clean Architecture](#clean-architecture-in-practice) · [Offline](#works-offline) · [Technologies](#technologies) · [Testing](#testing-strategy) · [`@FullPreview`](#fullpreview) · [Claude Code](#claude-code-setup) · [Run it](#run-it) · [Limitations](#known-limitations) · [My own visual identity (experimental)](#my-own-visual-identity-experimental)
 
 ## App flow
 
