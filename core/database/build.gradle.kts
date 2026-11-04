@@ -7,6 +7,11 @@ plugins {
 
 android {
     namespace = "com.moisesai.challange.core.database"
+
+    // The exported schemas are what a migration test needs to build the old database.
+    sourceSets {
+        getByName("androidTest").assets.directories.add("$projectDir/schemas")
+    }
 }
 
 room3 {
