@@ -1,0 +1,45 @@
+name: CI
+
+# Every pull request against master runs the checks that need no emulator.
+on:
+  pull_request:
+    branches: [master]
+
+# A new push to the same pull request makes the run before it useless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Unit tests, lint and ktlint
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      # Caches the Gradle distribution and dependencies between runs.
+      - uses: gradle/actions/setup-gradle@v4
+
+      # --continue reports every failing check in one run instead of stopping at the first.
+      - name: Check
+        run: ./gradlew testDebugUnitTest lintDebug ktlintCheck --continue --console=plain
+
+      - name: Upload reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: |
+            **/build/reports/tests/
+            **/build/reports/ktlint/
+            **/build/reports/lint-results-debug.html
+          if-no-files-found: ignore

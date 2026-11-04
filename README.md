@@ -294,6 +294,16 @@ Open the project in Android Studio and run the `app` configuration, or from a te
 
 The Gradle wrapper is the only supported way to build. Gradle 9.4.1 is downloaded on first use.
 
+### Continuous integration
+
+Every pull request against `master` runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml) on GitHub Actions (JDK 21): unit tests, Android lint and ktlint. Reports are uploaded when it fails.
+
+A failing run shows as a red check on the pull request, but it does **not block the merge**: branch protection is not enabled yet. It is a setting that takes a minute on the GitHub website (Settings → Branches → require the "Unit tests, lint and ktlint" status check on `master`).
+
+```bash
+./gradlew testDebugUnitTest lintDebug ktlintCheck --continue   # the same command, locally
+```
+
 ### Code style (ktlint)
 
 Every module is checked with [ktlint](https://pinterest.github.io/ktlint/) 1.8.0, through the `org.jlleitschuh.gradle.ktlint` plugin applied once in the root `build.gradle.kts`.
@@ -311,4 +321,4 @@ Every module is checked with [ktlint](https://pinterest.github.io/ktlint/) 1.8.0
 
 - The Articulat CF font is commercial, so the app uses the system font.
 - The tablet, watch and Android Auto frames of the design are not built.
-- No CI yet.
+- CI runs only the checks that need no emulator. The instrumented and end-to-end tests run locally.
