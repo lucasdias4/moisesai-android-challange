@@ -13,8 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import com.moisesai.challange.core.design.extension.glassSource
-import com.moisesai.challange.core.design.model.rememberUiGlassState
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
 import com.moisesai.challange.core.design.theme.design
@@ -49,10 +47,8 @@ internal fun SongsScreen(uiState: UiSongsUiState, callbacks: SongsCallbacks, mod
     LoadMoreEffect(listState = listState, onLoadMore = callbacks.onLoadMore)
     ClearQueryOnBackEffect(query = uiState.query, onQueryChange = callbacks.onQueryChange)
 
-    val glassState = rememberUiGlassState()
-
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.design.colors.background00)) {
-        Column(modifier = Modifier.fillMaxSize().glassSource(glassState)) {
+        Column(modifier = Modifier.fillMaxSize()) {
             HeaderSection(title = stringResource(R.string.songs_title))
             SearchFieldSection(query = uiState.query, callbacks = callbacks)
             SongsListSection(
@@ -62,7 +58,7 @@ internal fun SongsScreen(uiState: UiSongsUiState, callbacks: SongsCallbacks, mod
                 modifier = Modifier.weight(1f),
             )
         }
-        SongOptionsSection(trackOptions = uiState.trackOptions, glassState = glassState, callbacks = callbacks)
+        SongOptionsSection(trackOptions = uiState.trackOptions, callbacks = callbacks)
     }
 }
 

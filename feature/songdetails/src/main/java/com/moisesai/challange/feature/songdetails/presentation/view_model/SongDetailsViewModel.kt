@@ -44,6 +44,7 @@ internal class SongDetailsViewModel @Inject constructor(
     private var trackQueue: TrackQueueDomainModel? = null
     private var playbackState: PlaybackState = PlaybackState.Idle
     private var isTrackOptionsVisible = false
+    private var isCannotPlayMessageVisible = false
 
     init {
         observePlaybackChanges()
@@ -56,12 +57,17 @@ internal class SongDetailsViewModel @Inject constructor(
     }
 
     fun onPlayPauseClick() {
-        val isPlaying = playerController.playbackState.value is PlaybackState.Playing
-        if (isPlaying) {
-            playerController.pause()
-        } else {
-            playerController.resume()
+        when (playerController.playbackState.value) {
+            // The button looks off but still answers, so the user learns why nothing plays.
+            is PlaybackState.Failed -> showCannotPlayMessage()
+            is PlaybackState.Playing -> playerController.pause()
+            else -> playerController.resume()
         }
+    }
+
+    fun onCannotPlayMessageShown() {
+        isCannotPlayMessageVisible = false
+        showContent()
     }
 
     /** The user tapped or dragged the progress bar to [changedProgress]: 0 is the start of the track and 1 is its end. The bar keeps it between the two. */
@@ -117,7 +123,8 @@ internal class SongDetailsViewModel @Inject constructor(
         playerController.playbackState.onEach { newPlaybackState ->
             playbackState = newPlaybackState
             when (newPlaybackState) {
-                is PlaybackState.Failed -> showError(AppError.Unknown())
+                // A failed audio (no connection, for one) keeps the screen: the track, its album and the way back stay
+                // usable, and only playing is off (see UiPlayingTrack.canPlay).
                 // When a track ends by itself the next one starts; the last one just stays ended, ready to play again.
                 is PlaybackState.Ended -> goToNextTrack()
                 else -> showContent()
@@ -151,6 +158,11 @@ internal class SongDetailsViewModel @Inject constructor(
         viewModelScope.launch { saveRecentTrackUseCase(track) }
     }
 
+    private fun showCannotPlayMessage() {
+        isCannotPlayMessageVisible = true
+        showContent()
+    }
+
     private fun showContent() {
         val track = trackQueue?.currentTrack ?: return
         _uiState.value = UiSongDetailsUiState.Success(
@@ -158,6 +170,7 @@ internal class SongDetailsViewModel @Inject constructor(
             // This runs every 250 ms while playing, each time the player publishes a new state (see observePlaybackChanges).
             playingTrack = track.toUiPlayingTrack(playbackState),
             isTrackOptionsVisible = isTrackOptionsVisible,
+            isCannotPlayMessageVisible = isCannotPlayMessageVisible,
         )
     }
 

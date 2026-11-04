@@ -9,9 +9,14 @@ internal sealed interface UiSongDetailsUiState {
 
     data class Error(val type: UiErrorType) : UiSongDetailsUiState
 
-    /** [isTrackOptionsVisible] says whether the sheet with the choices for the track is over the screen. */
+    /**
+     * [isTrackOptionsVisible] says whether the sheet with the choices for the track is over the screen.
+     * [isCannotPlayMessageVisible] is true from the moment the user taps play on a track that cannot play until the
+     * screen has shown the message about it.
+     */
     data class Success(
         val playingTrack: UiPlayingTrack,
         val isTrackOptionsVisible: Boolean,
+        val isCannotPlayMessageVisible: Boolean,
     ) : UiSongDetailsUiState
 }

@@ -2,6 +2,10 @@ package com.moisesai.challange.feature.songdetails.presentation.composable.scree
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
+import com.moisesai.challange.feature.songdetails.presentation.composable.component.MessageSnackbarHostComponent
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -26,8 +30,6 @@ import com.moisesai.challange.core.design.components.ErrorMessageComponent
 import com.moisesai.challange.core.design.components.IconButtonComponent
 import com.moisesai.challange.core.design.components.LoadingIndicatorComponent
 import com.moisesai.challange.core.design.components.TopBarComponent
-import com.moisesai.challange.core.design.extension.glassSource
-import com.moisesai.challange.core.design.model.rememberUiGlassState
 import com.moisesai.challange.core.design.R as DesignR
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
@@ -55,24 +57,44 @@ private val LandscapeSpaceBelowCover = 53.dp
  */
 @Composable
 internal fun SongDetailsScreen(uiState: UiSongDetailsUiState, callbacks: SongDetailsCallbacks, modifier: Modifier = Modifier) {
-    val glassState = rememberUiGlassState()
+    val snackbarHostState = remember { SnackbarHostState() }
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.design.colors.background00)) {
-        Column(modifier = Modifier.fillMaxSize().glassSource(glassState)) {
+        Column(modifier = Modifier.fillMaxSize()) {
             SongDetailsTopBar(uiState = uiState, callbacks = callbacks)
             when (uiState) {
                 UiSongDetailsUiState.Loading -> LoadingIndicatorComponent()
                 is UiSongDetailsUiState.Error -> ErrorMessageComponent(type = uiState.type, onRetry = callbacks.onRetry)
-                is UiSongDetailsUiState.Success -> SongDetailsContent(playingTrack = uiState.playingTrack, callbacks = callbacks)
+                is UiSongDetailsUiState.Success -> SongDetailsContent(
+                    playingTrack = uiState.playingTrack,
+                    callbacks = callbacks,
+                    snackbarHostState = snackbarHostState,
+                )
             }
         }
         if (uiState is UiSongDetailsUiState.Success) {
             TrackOptionsSection(
                 isVisible = uiState.isTrackOptionsVisible,
                 playingTrack = uiState.playingTrack,
-                glassState = glassState,
                 callbacks = callbacks,
             )
+            CannotPlayMessageEffect(
+                isVisible = uiState.isCannotPlayMessageVisible,
+                snackbarHostState = snackbarHostState,
+                onShown = callbacks.onCannotPlayMessageShown,
+            )
         }
+    }
+}
+
+// Shows the message once and then tells the ViewModel. If the screen is recreated before the message ends (a rotation),
+// the ViewModel was not told, so the message starts again in the new screen.
+@Composable
+private fun CannotPlayMessageEffect(isVisible: Boolean, snackbarHostState: SnackbarHostState, onShown: () -> Unit) {
+    if (!isVisible) return
+    val message = stringResource(R.string.songdetails_cannot_play)
+    LaunchedEffect(Unit) {
+        snackbarHostState.showSnackbar(message)
+        onShown()
     }
 }
 
@@ -100,23 +122,31 @@ private fun TrackOptionsButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun ColumnScope.SongDetailsContent(playingTrack: UiPlayingTrack, callbacks: SongDetailsCallbacks) {
+private fun ColumnScope.SongDetailsContent(
+    playingTrack: UiPlayingTrack,
+    callbacks: SongDetailsCallbacks,
+    snackbarHostState: SnackbarHostState,
+) {
     BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
         val isLandscape = maxWidth > maxHeight
         if (isLandscape) {
-            LandscapeContent(playingTrack = playingTrack, callbacks = callbacks)
+            LandscapeContent(playingTrack = playingTrack, callbacks = callbacks, snackbarHostState = snackbarHostState)
         } else {
-            PortraitContent(playingTrack = playingTrack, callbacks = callbacks)
+            PortraitContent(playingTrack = playingTrack, callbacks = callbacks, snackbarHostState = snackbarHostState)
         }
     }
 }
 
-// The cover takes whatever height the controls leave.
+// The cover takes whatever height the controls leave, and the messages sit at the bottom of that space, right above the
+// controls that the user just tapped.
 @Composable
-private fun PortraitContent(playingTrack: UiPlayingTrack, callbacks: SongDetailsCallbacks) {
+private fun PortraitContent(playingTrack: UiPlayingTrack, callbacks: SongDetailsCallbacks, snackbarHostState: SnackbarHostState) {
     Column(modifier = Modifier.fillMaxSize()) {
         Spacer(modifier = Modifier.height(SpaceBelowTopBar))
-        CoverSection(artUrl = playingTrack.artUrl, spaceAbove = PortraitSpaceAboveCover, modifier = Modifier.weight(1f))
+        Box(modifier = Modifier.weight(1f)) {
+            CoverSection(artUrl = playingTrack.artUrl, spaceAbove = PortraitSpaceAboveCover, modifier = Modifier.fillMaxSize())
+            MessageSnackbarHostComponent(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
+        }
         PlaybackSection(playingTrack = playingTrack, callbacks = callbacks)
     }
 }
@@ -124,13 +154,12 @@ private fun PortraitContent(playingTrack: UiPlayingTrack, callbacks: SongDetails
 // There is no height to stack them, so the cover goes beside the controls. The controls scroll when the screen is too
 // short for them (a large font), instead of being cut off.
 @Composable
-private fun LandscapeContent(playingTrack: UiPlayingTrack, callbacks: SongDetailsCallbacks) {
+private fun LandscapeContent(playingTrack: UiPlayingTrack, callbacks: SongDetailsCallbacks, snackbarHostState: SnackbarHostState) {
     Row(modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-        CoverSection(
-            artUrl = playingTrack.artUrl,
-            spaceAbove = LandscapeSpaceAboveCover,
-            modifier = Modifier.weight(1f).fillMaxHeight().padding(bottom = LandscapeSpaceBelowCover),
-        )
+        Box(modifier = Modifier.weight(1f).fillMaxHeight().padding(bottom = LandscapeSpaceBelowCover)) {
+            CoverSection(artUrl = playingTrack.artUrl, spaceAbove = LandscapeSpaceAboveCover, modifier = Modifier.fillMaxSize())
+            MessageSnackbarHostComponent(hostState = snackbarHostState, modifier = Modifier.align(Alignment.BottomCenter))
+        }
         PlaybackSection(
             playingTrack = playingTrack,
             callbacks = callbacks,
@@ -139,7 +168,7 @@ private fun LandscapeContent(playingTrack: UiPlayingTrack, callbacks: SongDetail
     }
 }
 
-private val SampleContent = UiSongDetailsUiState.Success(playingTrack = SamplePlayingTrack, isTrackOptionsVisible = false)
+private val SampleContent = UiSongDetailsUiState.Success(playingTrack = SamplePlayingTrack, isTrackOptionsVisible = false, isCannotPlayMessageVisible = false)
 
 @FullPreview
 @Composable

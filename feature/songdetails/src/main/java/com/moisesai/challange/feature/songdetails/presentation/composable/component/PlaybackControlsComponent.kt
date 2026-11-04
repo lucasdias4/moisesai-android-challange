@@ -54,7 +54,7 @@ internal fun PlaybackControlsComponent(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             PlayPauseButtonComponent(
-                isPlaying = playingTrack.isPlaying,
+                playingTrack = playingTrack,
                 onClick = callbacks.onPlayPauseClick,
             )
             PreviousButton(onClick = callbacks.onPreviousClick)
@@ -134,6 +134,15 @@ private fun RepeatButtonOnPreview() =
 private fun PlaybackControlsPreview() = PreviewSurface {
     PlaybackControlsComponent(
         playingTrack = SamplePlayingTrack,
+        callbacks = SongDetailsCallbacks.None,
+    )
+}
+
+@FullPreview
+@Composable
+private fun PlaybackControlsCannotPlayPreview() = PreviewSurface {
+    PlaybackControlsComponent(
+        playingTrack = SamplePlayingTrack.copy(canPlay = false),
         callbacks = SongDetailsCallbacks.None,
     )
 }

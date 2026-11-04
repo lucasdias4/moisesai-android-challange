@@ -9,5 +9,4 @@ android {
 dependencies {
     implementation(project(":core:common")) // AppError, to tell a network failure from any other
     implementation(project(":core:strings")) // the description of the back button
-    implementation(libs.haze) // blurs what is behind a surface (the action sheet)
 }

@@ -260,7 +260,7 @@ class SongDetailsViewModelTest {
     }
 
     @Test
-    fun `GIVEN a track that is playing, WHEN the player reports that the audio failed, THEN the error is shown`() = runTest(dispatcher) {
+    fun `GIVEN a track that is playing, WHEN the player reports that the audio failed, THEN the track stays on screen and cannot be played`() = runTest(dispatcher) {
         // Given
         givenQueueOf(first)
         val viewModel = createViewModel()
@@ -271,7 +271,46 @@ class SongDetailsViewModelTest {
         runCurrent()
 
         // Then
-        assertEquals(UiSongDetailsUiState.Error(UiErrorType.Unknown), viewModel.uiState.value)
+        val success = viewModel.uiState.value as UiSongDetailsUiState.Success
+        assertEquals(first.name, success.playingTrack.trackName)
+        assertFalse(success.playingTrack.canPlay)
+    }
+
+    @Test
+    fun `GIVEN audio that failed, WHEN the user taps play, THEN the message that it cannot play is shown and nothing is played`() = runTest(dispatcher) {
+        // Given
+        givenQueueOf(first)
+        val viewModel = createViewModel()
+        runCurrent()
+        playbackState.value = aFailedState()
+        runCurrent()
+
+        // When
+        viewModel.onPlayPauseClick()
+
+        // Then
+        val success = viewModel.uiState.value as UiSongDetailsUiState.Success
+        assertTrue(success.isCannotPlayMessageVisible)
+        verify(exactly = 0) { playerController.resume() }
+        verify(exactly = 0) { playerController.pause() }
+    }
+
+    @Test
+    fun `GIVEN the message that it cannot play is shown, WHEN the screen reports that it showed it, THEN the message is no longer asked for`() = runTest(dispatcher) {
+        // Given
+        givenQueueOf(first)
+        val viewModel = createViewModel()
+        runCurrent()
+        playbackState.value = aFailedState()
+        runCurrent()
+        viewModel.onPlayPauseClick()
+
+        // When
+        viewModel.onCannotPlayMessageShown()
+
+        // Then
+        val success = viewModel.uiState.value as UiSongDetailsUiState.Success
+        assertFalse(success.isCannotPlayMessageVisible)
     }
 
     @Test

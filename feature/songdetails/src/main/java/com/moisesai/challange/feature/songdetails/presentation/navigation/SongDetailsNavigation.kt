@@ -35,6 +35,7 @@ fun NavGraphBuilder.songDetailsScreen(onBackClick: () -> Unit, onViewAlbumClick:
                 onNextClick = viewModel::goToNextTrack,
                 onRepeatClick = viewModel::onRepeatClick,
                 onRetry = viewModel::onRetry,
+                onCannotPlayMessageShown = viewModel::onCannotPlayMessageShown,
             )
         }
         SongDetailsScreen(uiState = uiState, callbacks = callbacks)

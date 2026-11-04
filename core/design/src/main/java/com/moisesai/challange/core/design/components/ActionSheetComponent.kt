@@ -26,18 +26,12 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.R as DesignR
-import com.moisesai.challange.core.design.model.UiGlassState
-import com.moisesai.challange.core.design.model.UiGlassStyle
-import com.moisesai.challange.core.design.model.rememberUiGlassState
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
-import dev.chrisbanes.haze.HazeTint
-import dev.chrisbanes.haze.hazeEffect
 
 private val SheetHeight = 192.dp
 private val SheetTopCorner = 16.dp
-private val SheetBlur = 50.dp
 
 private val GraberAreaHeight = 14.dp
 private val GraberWidth = 56.dp
@@ -48,22 +42,23 @@ private val TitleTop = 10.dp
 private val SubtitleTop = 35.85.dp
 private val HeaderLineHeight = 26.52.dp
 private val SpaceBelowHeader = 14.dp
-private val ItemsHorizontalPadding = 24.dp
 
 // The names fade out at both sides, so a long name does not look cut: clear at the edge, solid from 30% to 67%.
+private const val OPAQUE = 1f
+
 private const val NAME_FADE_IN_END = 0.30f
 private const val NAME_FADE_OUT_START = 0.67f
 private val NamesWidth = 302.dp
 
 /**
- * A sheet that rises from the bottom of the screen over a blur of what is behind it ([glassState]): a handle, the
- * [title] and [subtitle] of what it is about, and the [items] the user can choose.
+ * A sheet that rises from the bottom of the screen: a handle, the [title] and [subtitle] of what it is about, and the
+ * [items] the user can choose. It is opaque: the design's fill is 80% opaque over a blur, and the screen behind it
+ * showed through the sheet's text.
  */
 @Composable
 fun ActionSheetComponent(
     title: String,
     subtitle: String,
-    glassState: UiGlassState,
     modifier: Modifier = Modifier,
     items: @Composable ColumnScope.() -> Unit,
 ) {
@@ -72,11 +67,13 @@ fun ActionSheetComponent(
         modifier = modifier
             .fillMaxWidth()
             .height(SheetHeight)
-            .glass(glassState, UiGlassStyle(shape = shape, fill = MaterialTheme.design.colors.backgroundAlpha01, blur = SheetBlur)),
+            .clip(shape)
+            .background(MaterialTheme.design.colors.backgroundAlpha01.copy(alpha = OPAQUE)),
     ) {
         Graber()
         Header(title = title, subtitle = subtitle)
-        Column(modifier = Modifier.padding(start = ItemsHorizontalPadding, top = SpaceBelowHeader, end = ItemsHorizontalPadding), content = items)
+        // The items span the whole width, so a tap beside the icon or the text still counts.
+        Column(modifier = Modifier.padding(top = SpaceBelowHeader), content = items)
     }
 }
 
@@ -117,19 +114,6 @@ private fun Header(title: String, subtitle: String) {
     }
 }
 
-// A surface of frosted glass: it blurs what is behind it (`glassSource`) and lays a faint fill over it.
-private fun Modifier.glass(state: UiGlassState, style: UiGlassStyle): Modifier =
-    this
-        .clip(style.shape)
-        .hazeEffect(state.blur) {
-            blurRadius = style.blur
-            tints = listOf(HazeTint(style.fill))
-            // Before Android 12 there is no blur, so the fill alone is drawn where the blur would be.
-            fallbackTint = HazeTint(style.fill)
-            // The design's glass is smooth: no grain of its own, the screen has one grain on top of everything.
-            noiseFactor = 0f
-        }
-
 // Draws the names, then keeps them only where a mask is opaque.
 private fun Modifier.fadedAtBothSides(): Modifier =
     this
@@ -150,7 +134,7 @@ private fun Modifier.fadedAtBothSides(): Modifier =
 @FullPreview
 @Composable
 private fun ActionSheetPreview() = PreviewSurface {
-    ActionSheetComponent(title = "Get Lucky", subtitle = "Daft Punk feat. Pharrell Williams", glassState = rememberUiGlassState()) {
+    ActionSheetComponent(title = "Get Lucky", subtitle = "Daft Punk feat. Pharrell Williams") {
         ActionSheetItemComponent(iconRes = DesignR.drawable.ic_setlist, text = "View album", onClick = {})
     }
 }

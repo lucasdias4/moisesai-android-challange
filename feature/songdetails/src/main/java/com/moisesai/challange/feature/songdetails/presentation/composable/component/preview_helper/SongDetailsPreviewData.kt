@@ -9,6 +9,7 @@ internal val SamplePlayingTrack = UiPlayingTrack(
     albumId = 1L,
     artUrl = null,
     isPlaying = false,
+    canPlay = true,
     isRepeatEnabled = false,
     progress = 0.25f,
     playedTimeText = "1:26",

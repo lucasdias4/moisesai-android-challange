@@ -22,12 +22,15 @@ import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.R as DesignR
 import com.moisesai.challange.core.design.theme.design
 
-private val ItemHeight = 56.dp
-private val ItemHorizontalPadding = 8.dp
+// Taller than the design's 56 dp so the item is easy to hit.
+private val ItemHeight = 72.dp
+
+// 24 dp of margin the sheet used to keep around its items, plus the 8 dp of the design.
+private val ItemHorizontalPadding = 32.dp
 private val SpaceBetweenIconAndText = 16.dp
 private val IconSize = 24.dp
 
-/** One choice in an action sheet: an icon and a [text]. The whole row can be clicked. */
+/** One choice in an action sheet: an icon and a [text]. The whole row, edge to edge, can be clicked. */
 @Composable
 fun ActionSheetItemComponent(@DrawableRes iconRes: Int, text: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val design = MaterialTheme.design

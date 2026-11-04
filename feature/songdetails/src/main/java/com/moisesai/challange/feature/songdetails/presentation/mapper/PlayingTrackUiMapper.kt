@@ -23,6 +23,7 @@ internal fun TrackDomainModel.toUiPlayingTrack(playbackState: PlaybackState) = U
     albumId = albumId,
     artUrl = artUrl?.toLargeCoverUrl(),
     isPlaying = playbackState is PlaybackState.Playing,
+    canPlay = playbackState !is PlaybackState.Failed,
     isRepeatEnabled = playbackState.isRepeatEnabledOrFalse,
     progress = playbackState.progress(),
     playedTimeText = playbackState.playedTimeText(),

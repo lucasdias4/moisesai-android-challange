@@ -13,9 +13,11 @@ internal data class SongDetailsCallbacks(
     val onNextClick: () -> Unit,
     val onRepeatClick: () -> Unit,
     val onRetry: () -> Unit,
+    /** The screen has shown the message that the track cannot play. */
+    val onCannotPlayMessageShown: () -> Unit,
 ) {
     companion object {
         /** For previews and tests that do not care about the callbacks. */
-        val None = SongDetailsCallbacks({}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+        val None = SongDetailsCallbacks({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
     }
 }

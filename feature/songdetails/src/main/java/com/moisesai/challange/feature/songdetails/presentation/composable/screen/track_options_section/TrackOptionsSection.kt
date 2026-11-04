@@ -12,8 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.moisesai.challange.core.design.components.ActionSheetComponent
 import com.moisesai.challange.core.design.components.ActionSheetItemComponent
-import com.moisesai.challange.core.design.model.UiGlassState
-import com.moisesai.challange.core.design.model.rememberUiGlassState
 import com.moisesai.challange.core.design.R as DesignR
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
@@ -30,7 +28,6 @@ import com.moisesai.challange.feature.songdetails.presentation.model.UiPlayingTr
 internal fun TrackOptionsSection(
     isVisible: Boolean,
     playingTrack: UiPlayingTrack,
-    glassState: UiGlassState,
     callbacks: SongDetailsCallbacks,
     modifier: Modifier = Modifier,
 ) {
@@ -45,7 +42,6 @@ internal fun TrackOptionsSection(
         ActionSheetComponent(
             title = playingTrack.trackName,
             subtitle = playingTrack.artistName,
-            glassState = glassState,
             modifier = Modifier.align(Alignment.BottomCenter),
         ) {
             ActionSheetItemComponent(
@@ -63,7 +59,6 @@ private fun TrackOptionsSectionPreview() = PreviewSurface {
     TrackOptionsSection(
         isVisible = true,
         playingTrack = SamplePlayingTrack,
-        glassState = rememberUiGlassState(),
         callbacks = SongDetailsCallbacks.None,
     )
 }

@@ -1,10 +1,12 @@
 package com.moisesai.challange.feature.songdetails.presentation.mapper
 
 import com.moisesai.challange.core.player.PlaybackState
+import com.moisesai.challange.feature.songdetails.fixture.aFailedState
 import com.moisesai.challange.feature.songdetails.fixture.aPausedState
 import com.moisesai.challange.feature.songdetails.fixture.aPlayingState
 import com.moisesai.challange.feature.songdetails.fixture.aTrackDomainModel
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -99,6 +101,30 @@ class PlayingTrackUiMapperTest {
         // Then
         assertEquals("Justice", playingTrack.artistName)
         assertEquals(track.artUrl!!.replace("100x100bb", "600x600bb"), playingTrack.artUrl)
+    }
+
+    @Test
+    fun `GIVEN audio that failed to load, WHEN mapped to ui, THEN the track cannot be played`() {
+        // Given
+        val playbackState = aFailedState()
+
+        // When
+        val playingTrack = aTrackDomainModel().toUiPlayingTrack(playbackState)
+
+        // Then
+        assertFalse(playingTrack.canPlay)
+    }
+
+    @Test
+    fun `GIVEN audio that is playing, WHEN mapped to ui, THEN the track can be played`() {
+        // Given
+        val playbackState = aPlayingState()
+
+        // When
+        val playingTrack = aTrackDomainModel().toUiPlayingTrack(playbackState)
+
+        // Then
+        assertTrue(playingTrack.canPlay)
     }
 
     @Test
