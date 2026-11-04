@@ -322,3 +322,28 @@ Every module is checked with [ktlint](https://pinterest.github.io/ktlint/) 1.8.0
 - The Articulat CF font is commercial, so the app uses the system font.
 - The tablet, watch and Android Auto frames of the design are not built.
 - CI runs only the checks that need no emulator. The instrumented and end-to-end tests run locally.
+
+## My own visual identity (experimental)
+
+I started this challenge on a weekend believing I could create my own design. Monday was a holiday, so I could only confirm it with the hiring contact on Tuesday evening. In the meantime I had built part of my own design.
+
+I stepped back and implemented the suggested design instead. A custom design meant more code for the developers to review, and a risk of being disqualified. When the confirmation arrived, I was too far along with the suggested design to risk changing it, so I kept it.
+
+I still want to show what I had built. It lives on the [`experimental-ui`](../../tree/experimental-ui) branch (Songs screen and splash only). To run it: `git checkout experimental-ui && ./gradlew installDebug`.
+
+<table>
+  <tr>
+    <td align="center"><img src="docs/images/experimental/splash-wave.png" width="170"><br><b>Splash</b><br>a waveform...</td>
+    <td align="center"><img src="docs/images/experimental/splash-logo.png" width="170"><br><b>Splash</b><br>...becomes the name</td>
+    <td align="center"><img src="docs/images/experimental/songs.png" width="170"><br><b>Songs</b><br>tinted by the cover</td>
+    <td align="center"><img src="docs/images/experimental/songs-collapsed.png" width="170"><br><b>Songs</b><br>collapsed header</td>
+    <td align="center"><img src="docs/images/experimental/songs-search.png" width="170"><br><b>Search</b><br>results</td>
+  </tr>
+</table>
+
+- **Name as a logo:** a bold lowercase `moisesai.` with a coloured full stop.
+- **Aurora palette:** lime `#C8FF3D` and magenta `#FF2E93` on near-black.
+- **Sound as the motif:** a waveform on the splash and in the empty history screen.
+- **Ambient colour:** the background takes its tint from the cover that is on screen.
+- **Type:** Space Grotesk for text and Inter Black for headings.
+- **Motion:** the header collapses into a glass search bar as the list scrolls.
