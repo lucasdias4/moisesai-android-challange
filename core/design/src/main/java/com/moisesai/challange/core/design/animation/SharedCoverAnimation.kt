@@ -33,5 +33,8 @@ fun SharedCoverAnimation(trackId: Long, modifier: Modifier = Modifier, content: 
 /** Where the covers fly from one screen to the next: the app provides it around its navigation. Without it (a preview, a test) a cover just stays where it is. */
 val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
 
-/** The screen that is on its way in or out: each screen of the navigation provides its own. */
+/**
+ * A channel that holds which screen is entering or leaving the navigation, so the cover can fly between the two screens.
+ * Each screen of the navigation puts its own scope in it; `null` when there is no navigation (a preview, a test), and then the cover does not fly.
+ */
 val LocalAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
