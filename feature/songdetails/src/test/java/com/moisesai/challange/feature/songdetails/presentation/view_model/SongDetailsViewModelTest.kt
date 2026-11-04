@@ -486,6 +486,36 @@ class SongDetailsViewModelTest {
     }
 
     @Test
+    fun `GIVEN the next track has no audio, WHEN the user taps next, THEN the error is shown and nothing more plays`() = runTest(dispatcher) {
+        // Given
+        val withoutAudio = aTrackDomainModel(id = 3, previewUrl = null)
+        givenQueueOf(first, withoutAudio)
+        val viewModel = createViewModel()
+        runCurrent()
+
+        // When
+        viewModel.goToNextTrack()
+
+        // Then
+        assertEquals(UiSongDetailsUiState.Error(UiErrorType.Unknown), viewModel.uiState.value)
+        verify(exactly = 1) { playerController.playFromStart(any()) }
+    }
+
+    @Test
+    fun `GIVEN the track did not arrive yet, WHEN the screen is closed, THEN the player is not stopped`() = runTest(dispatcher) {
+        // Given
+        coEvery { getTrackUseCase(LEVITATING_ID) } coAnswers { awaitCancellation() }
+        val viewModel = createViewModel()
+        runCurrent()
+
+        // When
+        close(viewModel)
+
+        // Then
+        verify(exactly = 0) { playerController.stop() }
+    }
+
+    @Test
     fun `GIVEN the track failed to load, WHEN the user retries and it loads, THEN the chosen track plays`() = runTest(dispatcher) {
         // Given
         coEvery { getTrackUseCase(LEVITATING_ID) } returns Result.failure(AppError.Network())
