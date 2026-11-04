@@ -324,11 +324,13 @@ Every module is checked with [ktlint](https://pinterest.github.io/ktlint/) 1.8.0
 
 ## My own visual identity (experimental)
 
-I started this challenge on a weekend believing I could create my own design. Monday was a holiday, so I could only confirm it with the hiring contact on Tuesday evening. In the meantime I had built part of my own design.
+Initially, I got the impression from my discussion with the hiring contact that I could create my own design. However, after reading the documentation, I got the impression that I should use the provided design as the basis for the implementation.
 
-I stepped back and implemented the suggested design instead. A custom design meant more code for the developers to review, and a risk of being disqualified. When the confirmation arrived, I was too far along with the suggested design to risk changing it, so I kept it.
+As I started this challenge over the weekend and Monday was a holiday in Brazil, I could only confirm this with the hiring contact on Tuesday evening. In the meantime, I had already built part of my own design, but I decided to step back and implement the suggested design instead.
 
-I still want to show what I had built. It lives on the [`experimental-ui`](../../tree/experimental-ui) branch (Songs screen and splash only). To run it: `git checkout experimental-ui && ./gradlew installDebug`.
+A custom design would have meant more code for the developers to review, as well as a risk of being disqualified. By the time I received confirmation that I could use my own design, I was too far along with the suggested design to risk changing it, so I decided to keep it.
+
+I still want to show the concept I had started building with Jetpack Compose in the project, so you can get a better understanding of my design perspective.
 
 <table>
   <tr>
