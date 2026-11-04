@@ -38,6 +38,7 @@ internal fun PlaybackSkeletonSection(modifier: Modifier = Modifier) {
     val text = MaterialTheme.design.text
     PlaybackSectionLayout(modifier = modifier) {
         Column(verticalArrangement = Arrangement.spacedBy(TrackNamesGap)) {
+            // Gray bars with a shimmer where the names, the bar, the times and the play button will be, while the track is prepared.
             SkeletonTextComponent(style = text.display32, modifier = Modifier.fillMaxWidth(TRACK_NAME_WIDTH_PART))
             SkeletonTextComponent(style = text.text16, modifier = Modifier.fillMaxWidth(ARTIST_NAME_WIDTH_PART))
         }

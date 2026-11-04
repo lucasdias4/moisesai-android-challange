@@ -29,7 +29,9 @@ internal val LandscapeSpaceAboveCover = 8.dp
 @Composable
 internal fun CoverSection(playingTrack: UiPlayingTrack, spaceAbove: Dp, modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxWidth().padding(top = spaceAbove), contentAlignment = Alignment.TopCenter) {
+        // Shared animation: the cover flies in from the list or album row the track was opened from, and back when the player closes.
         SharedCoverAnimation(trackId = playingTrack.id) {
+            // The cover grows to full size while the music plays and shrinks a little while it is stopped.
             CoverScaleAnimation(isPlaying = playingTrack.isPlaying) {
                 TrackCoverComponent(artUrl = playingTrack.artUrl, thumbnailArtUrl = playingTrack.thumbnailArtUrl)
             }

@@ -20,6 +20,7 @@ import com.moisesai.challange.feature.songdetails.presentation.composable.compon
 @Composable
 internal fun CoverSkeletonSection(spaceAbove: Dp, modifier: Modifier = Modifier) {
     Box(modifier = modifier.fillMaxWidth().padding(top = spaceAbove), contentAlignment = Alignment.TopCenter) {
+        // A gray block with a shimmer where the cover will be, while the track is prepared.
         SkeletonBlockComponent(
             modifier = Modifier.sizeIn(maxWidth = TrackCoverMaxSize, maxHeight = TrackCoverMaxSize).aspectRatio(1f),
             shape = RoundedCornerShape(TrackCoverCorner),

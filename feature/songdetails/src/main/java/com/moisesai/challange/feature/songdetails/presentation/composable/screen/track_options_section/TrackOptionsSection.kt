@@ -27,6 +27,7 @@ internal fun TrackOptionsSection(
     modifier: Modifier = Modifier,
 ) {
     BackHandler(enabled = isVisible, onBack = callbacks.onTrackOptionsDismiss)
+    // The sheet rises from the bottom over a soft scrim and slides down to close; pulling it down, or tapping outside it, closes it.
     SheetAnimation(isVisible = isVisible, onDismiss = callbacks.onTrackOptionsDismiss, modifier = modifier) {
         ActionSheetComponent(title = playingTrack.trackName, subtitle = playingTrack.artistName) {
             ActionSheetItemComponent(
