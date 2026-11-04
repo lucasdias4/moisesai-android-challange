@@ -3,6 +3,7 @@ package com.moisesai.challange.splash
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.moisesai.challange.core.design.theme.MoisesaiChallangeTheme
+import com.moisesai.challange.splash.animation.SplashPhase
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -15,7 +16,8 @@ class SplashScreenTest {
     val composeTestRule = createComposeRule()
 
     private companion object {
-        const val SPLASH_DURATION_MILLIS = 800L
+        // The splash lasts as long as all its phases together.
+        val SPLASH_DURATION_MILLIS = SplashPhase.entries.sumOf { it.durationMillis }
         const val BEFORE_THE_END_MILLIS = 100L
         const val AFTER_THE_END_MILLIS = 1_000L
     }

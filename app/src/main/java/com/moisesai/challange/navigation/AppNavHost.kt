@@ -1,25 +1,25 @@
 package com.moisesai.challange.navigation
 
-import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.moisesai.challange.core.design.animation.LocalSharedTransitionScope
 import com.moisesai.challange.feature.album.presentation.navigation.AlbumRoute
 import com.moisesai.challange.feature.album.presentation.navigation.albumScreen
 import com.moisesai.challange.feature.songdetails.presentation.navigation.SongDetailsRoute
 import com.moisesai.challange.feature.songdetails.presentation.navigation.songDetailsScreen
 import com.moisesai.challange.feature.songs.presentation.navigation.SongsRoute
 import com.moisesai.challange.feature.songs.presentation.navigation.songsScreen
+import com.moisesai.challange.navigation.animation.backEnterAnimation
+import com.moisesai.challange.navigation.animation.backExitAnimation
+import com.moisesai.challange.navigation.animation.forwardEnterAnimation
+import com.moisesai.challange.navigation.animation.forwardExitAnimation
 import com.moisesai.challange.splash.navigation.SplashRoute
 import com.moisesai.challange.splash.navigation.splashScreen
-
-// The design fades from one screen to the next in 300 ms, easing out.
-private const val SCREEN_FADE_MILLIS = 300
 
 /**
  * The only place where the screens meet: it decides where each one leads.
@@ -33,26 +33,33 @@ private const val SCREEN_FADE_MILLIS = 300
 @Composable
 internal fun AppNavHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
-    NavHost(
-        navController = navController,
-        startDestination = SplashRoute,
-        modifier = modifier,
-        enterTransition = { fadeIn(tween(durationMillis = SCREEN_FADE_MILLIS, easing = EaseOut)) },
-        exitTransition = { fadeOut(tween(durationMillis = SCREEN_FADE_MILLIS, easing = EaseOut)) },
-    ) {
-        splashScreen(onFinished = navController::openSongsReplacingTheSplash)
-        songsScreen(
-            onTrackClick = navController::openSongDetails,
-            onViewAlbumClick = navController::openAlbum,
-        )
-        songDetailsScreen(
-            onBackClick = navController::popBackStack,
-            onViewAlbumClick = navController::openAlbum,
-        )
-        albumScreen(
-            onBackClick = navController::popBackStack,
-            onTrackClick = navController::openSongDetailsReplacingTheOneBefore,
-        )
+    // The covers of the tracks fly from the list or the album to the player and back: this is where they fly.
+    SharedTransitionLayout {
+        CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+            NavHost(
+                navController = navController,
+                startDestination = SplashRoute,
+                modifier = modifier,
+                enterTransition = { forwardEnterAnimation() },
+                exitTransition = { forwardExitAnimation() },
+                popEnterTransition = { backEnterAnimation() },
+                popExitTransition = { backExitAnimation() },
+            ) {
+                splashScreen(onFinished = navController::openSongsReplacingTheSplash)
+                songsScreen(
+                    onTrackClick = navController::openSongDetails,
+                    onViewAlbumClick = navController::openAlbum,
+                )
+                songDetailsScreen(
+                    onBackClick = navController::popBackStack,
+                    onViewAlbumClick = navController::openAlbum,
+                )
+                albumScreen(
+                    onBackClick = navController::popBackStack,
+                    onTrackClick = navController::openSongDetailsReplacingTheOneBefore,
+                )
+            }
+        }
     }
 }
 
