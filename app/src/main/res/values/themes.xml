@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- What the system shows while the app starts: the musical note on black, as the splash inside the app begins. -->
+    <style name="Theme.MoisesaiChallange.Starting" parent="Theme.SplashScreen">
+        <!-- A splash can only have one plain colour, so it is the black the spotlight of the app starts from. -->
+        <item name="windowSplashScreenBackground">@color/background_00</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splash_system_icon</item>
+        <item name="postSplashScreenTheme">@style/Theme.MoisesaiChallange</item>
+    </style>
+</resources>
