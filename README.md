@@ -17,7 +17,7 @@ An Android app that searches songs through the Apple iTunes Search API, plays th
   <tr>
     <td align="center"><img src="docs/images/splash.png" width="170"><br><b>1. Splash</b></td>
     <td align="center"><img src="docs/images/songs.png" width="170"><br><b>2. Songs</b><br>search and recents</td>
-    <td align="center"><img src="docs/images/player.png" width="170"><br><b>3. Player</b></td>
+    <td align="center"><img src="docs/images/player.png" width="170"><br><b>3. Song details</b><br>the player</td>
     <td align="center"><img src="docs/images/action-sheet.png" width="170"><br><b>4. More options</b></td>
     <td align="center"><img src="docs/images/album.png" width="170"><br><b>5. Album</b></td>
   </tr>
@@ -26,10 +26,10 @@ An Android app that searches songs through the Apple iTunes Search API, plays th
 ```mermaid
 flowchart LR
     Splash --> Songs
-    Songs -- track id --> Player
+    Songs -- track id --> SongDetails[Song details]
     Songs -- "View album" --> Album
-    Player -- "View album" --> Album
-    Album -- track id --> Player
+    SongDetails -- "View album" --> Album
+    Album -- track id --> SongDetails
 ```
 
 A single-activity app: `:app` owns the navigation. Features never know each other: a route carries an id and nothing else.
@@ -39,14 +39,14 @@ A single-activity app: `:app` owns the navigation. Features never know each othe
 | Screen | What it does |
 | --- | --- |
 | **Songs** | Search with pagination and pull to refresh. Shows the songs you played recently and suggestions on first launch |
-| **Player** | Play and pause, seek, previous and next, queue from the album, cover that flies in from the list |
+| **Song details** (player) | Play and pause, seek, previous and next, queue from the album, cover that flies in from the list |
 | **More options** | Bottom sheet you can pull down. "View album" opens the album |
 | **Album** | Cover, artist and the track list. A track opens the player |
 | **Everywhere** | Shimmer skeletons while loading, error with retry, dark theme from the Figma tokens |
 
 ## Architecture
 
-When designing an architecture, I usually consider three main approaches to modularization: by feature, by layer, and a hybrid approach, where the presentation layer is divided by feature, while the domain and data layers are divided by layer. There's no right or wrong approach. It's all about trade-offs and choosing what works best for the specific project.
+When designing an architecture, I usually consider 3 main approaches to modularization: by feature, by layer, and a hybrid approach, where the presentation layer is divided by feature, while the domain and data layers are divided by layer. There's no right or wrong approach. It's all about trade-offs and choosing what works best for the specific project.
 
 For this specific project, I chose feature-based modularization because I understand that the company is moving towards creating reusable libraries that can be integrated into other projects. Having worked with libraries before, I know how important loose coupling and module independence are in this scenario. This approach also allows multiple developers to work on different features in parallel with minimal interference, while making modules easier to maintain, test, and reuse across projects.
 
@@ -58,9 +58,9 @@ Each feature owns its presentation, domain and data. Shared code lives in `core:
 
 | Approach | Good | Costs |
 | --- | --- | --- |
-| By feature (**chosen**) | Independent modules, parallel work, easy to extract as a library | Shared code needs a `core` module |
-| By layer | Layers enforced by Gradle | Every feature change touches three modules |
-| Hybrid | Presentation by feature, domain and data by layer | More modules and wiring |
+| By feature (**chosen**) | Independent modules, easy parallel work between multiple developers, easy to extract as a library | Shared code needs a `core` module |
+| By layer | Layers enforced by Gradle, faster pace because existing code is reused | Every feature change touches 3 modules, more coupled |
+| Hybrid (presentation by feature, domain and data by layer) | Almost as fast as by layer, and the architecture of a feature is easy to change if the app grows and needs to be divided by feature | More modules and wiring |
 
 ```mermaid
 graph TD
@@ -210,7 +210,7 @@ A pyramid: many small fast tests at the bottom, few broad ones at the top.
 | Functional | Emulator | The screen × state matrix, components, animations, the player engine, the database migration |
 | End to end | Emulator | User journeys: cold start, search and play, album path, offline, search edge cases |
 
-- Names read `GIVEN a saved search, WHEN searching again, THEN the network is not called`, and the body follows the same three parts.
+- Names read `GIVEN a saved search, WHEN searching again, THEN the network is not called`, and the body follows the same 3 parts.
 - Fixtures are real API responses. The tests fail when the code is broken.
 - Coverage is a rule, not a tool: the percentage is of what must be tested, and a test lands in the same commit as its code.
 
@@ -218,7 +218,7 @@ Details in [`ARCHITECTURE.md`](ARCHITECTURE.md) section 9.
 
 ## `@FullPreview`
 
-One annotation, five Android Studio previews: phone, phone dark, small phone (320 dp), tablet and tablet dark. Every screen and component has one, so a layout problem shows up before the app runs.
+One annotation, 5 Android Studio previews: phone, phone dark, small phone (320 dp), tablet and tablet dark. Every screen and component has one, so a layout problem shows up before the app runs.
 
 ```kotlin
 @Preview(name = "Phone - Default")
