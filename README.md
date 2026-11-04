@@ -295,12 +295,20 @@ The Gradle wrapper is the only supported way to build. Gradle 9.4.1 is downloade
 
 ### Continuous integration
 
-Every pull request against `master` runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml) on GitHub Actions (JDK 21): unit tests, Android lint and ktlint. Reports are uploaded when it fails.
+Every pull request against `master` runs [`.github/workflows/ci.yml`](.github/workflows/ci.yml) on GitHub Actions (JDK 21). It has 3 independent checks that run in parallel, so one failure never hides another:
 
-A failing run shows as a red check on the pull request, but it does **not block the merge**: branch protection is not enabled yet. It is a setting that takes a minute on the GitHub website (Settings → Branches → require the "Unit tests, lint and ktlint" status check on `master`).
+| Check | Command |
+| --- | --- |
+| **Unit tests** | `./gradlew testDebugUnitTest` |
+| **Lint** | `./gradlew lintDebug` |
+| **ktlint** | `./gradlew ktlintCheck` |
+
+Each check uploads its own report when it fails.
+
+A failing run shows as a red check on the pull request, but it does **not block the merge**: branch protection is not enabled yet. It is a setting that takes a minute on the GitHub website (Settings → Branches → require the "Unit tests", "Lint" and "ktlint" status checks on `master`).
 
 ```bash
-./gradlew testDebugUnitTest lintDebug ktlintCheck --continue   # the same command, locally
+./gradlew testDebugUnitTest lintDebug ktlintCheck --continue   # the same 3 checks, locally
 ```
 
 ### Code style (ktlint)
