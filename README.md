@@ -230,16 +230,17 @@ The pyramid is the goal: many unit tests, fewer functional ones, a few end-to-en
 | `:feature:songdetails` | 96.1% |
 | `:feature:album` | 93.5% |
 | `:core:network` | 96.2% |
-| `:core:data-common`, `:core:shared-domain-model` | 100% |
-| `:core:common` | 50% |
-| **Logic modules together** | **96.0%** |
-| `:core:database` (Room datasources) | 20.6%, tested on the emulator |
+| `:core:database` (the local datasources, DAOs mocked) | 98.4% |
+| `:core:data-common`, `:core:shared-domain-model`, `:core:common` | 100% |
+| **Logic modules together** | **96.6%** |
 | `:core:player` (ExoPlayer engine) | 21.0%, tested on the emulator |
 | `:core:design` (theme and components) | 4.4%, tested on the emulator |
 | `:app` (activity, navigation, splash) | 0%, tested end to end |
-| **Whole project** | **66.7%** |
+| **Whole project** | **72.2%** |
 
-So the unit tests cover about **96% of the logic** (the feature modules, the network layer and the models). The project as a whole reads lower because the code that talks to Room, ExoPlayer and the screen is exercised by the emulator tests, which this number does not include. What the logic modules still miss is mostly the navigation graph files, which the end-to-end tests walk through.
+So the unit tests cover about **97% of the logic** (the feature modules, the network and local datasources, and the models). The project as a whole reads lower because the code that talks to ExoPlayer and the screen is exercised by the emulator tests, which this number does not include. What the logic modules still miss is mostly the navigation graph files, which the end-to-end tests walk through.
+
+The local datasources are unit tested with their DAOs mocked, so the unit tests check what a datasource asks of the database (the order of the writes, the position of each row, the errors). Whether the SQL and a rolled-back transaction really work is checked by the Room tests on the emulator, against a real SQLite.
 
 Details in [`ARCHITECTURE.md`](ARCHITECTURE.md) section 9.
 

@@ -31,7 +31,7 @@ Modules by feature (`:feature:songs`, `:feature:songdetails`, `:feature:album`) 
 - Rules are defined in `ARCHITECTURE.md`. To change one: edit it there first, then its short version here and the examples in the skills, then search for the old wording.
 - Small steps, one commit each, green on `./gradlew clean assembleDebug testDebugUnitTest lintDebug ktlintCheck connectedDebugAndroidTest`. Suggest a short commit message; do not commit unless asked.
 - Temporary code lives in one `Temporary*.kt` file marked `TEMPORARY` (§11).
-- Room tests are instrumented tests; their names use underscores (`GIVEN_a_..._WHEN_..._THEN_...`) because DEX before version 40 forbids spaces (§9).
+- Room tests that need SQLite are instrumented tests (the local datasources also get JVM unit tests with the DAOs mocked); their names use underscores (`GIVEN_a_..._WHEN_..._THEN_...`) because DEX before version 40 forbids spaces (§9).
 - Question a request that conflicts with a rule or a requirement, say why, then follow the user's decision.
 
 ## Skills (`.claude/skills/`)
