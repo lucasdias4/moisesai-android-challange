@@ -38,8 +38,10 @@ dependencies {
     kover(project(":feature:album"))
 }
 
-// What a unit test is not meant to cover: the screens and components (functional tests on the emulator), the dependency
-// injection wiring and the code that Hilt, Room and Android generate.
+// What a unit test is not meant to cover, because it needs the Android system: the screens, components, theme, navigation
+// and splash, the activity and the application (functional and end-to-end tests on the emulator), the Room database class,
+// the dependency injection wiring and the code that Hilt, Room and Android generate. :core:player is not here on purpose:
+// it is logic, and its gap should show.
 kover {
     reports {
         filters {
@@ -58,8 +60,28 @@ kover {
                     "*.BuildConfig",
                     "*.R",
                     "*.R\$*",
+                    "*.MainActivity",
+                    "*.MoisesaiChallangeApplication",
+                    "*.AppDatabase",
+                    // Compose drawing and preview helpers of :core:design. By class name, because the same package also
+                    // holds plain string helpers that the unit tests cover.
+                    "*.CssBoxShadowExtensionKt*",
+                    "*.UiBoxShadow",
+                    "*.AnnouncedWhenShownModifierKt*",
+                    "*.PreviewSurfaceKt*",
+                    // The serializer() that kotlinx.serialization adds to each DTO. Nothing calls it: the sealed ApiItem decodes them.
+                    "com.moisesai.challange.core.network.model.*\$Companion",
                 )
-                packages("*.di", "*.composable", "*.animation")
+                packages(
+                    "*.di",
+                    "*.composable",
+                    "*.animation",
+                    "*.components",
+                    "*.theme",
+                    "*.navigation",
+                    "com.moisesai.challange.splash",
+                    "com.moisesai.challange.splash.*",
+                )
             }
         }
     }

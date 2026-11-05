@@ -215,32 +215,32 @@ A pyramid: many small fast tests at the bottom, few broad ones at the top.
 - Fixtures are real API responses. The tests fail when the code is broken.
 - A test lands in the same commit as its code.
 
-### What is measured, and what is not
+### Coverage
 
-The pyramid is the goal: many unit tests, fewer functional ones, a few end-to-end journeys. The 100% / 50% / 30% are targets for how much to cover at each level, not measured numbers.
+The pyramid is the goal. The balance between the three levels still needs calibrating before we can say we follow 100% / 50% / 30%.
 
-- **Unit tests are measured.** [Kover](https://github.com/Kotlin/kotlinx-kover) reads the JVM tests of every module and merges them into one report: `./gradlew koverLog` prints the number, `./gradlew koverHtmlReport` writes `build/reports/kover/html`. Screens and components (`@Composable`), the dependency injection wiring and generated code are left out, because they are not unit-test targets.
-- **Functional and end-to-end tests are not measured.** Kover cannot read tests that run on the emulator and JaCoCo is not set up, so we cannot say what percentage of the code they cover. What we can say is what they exercise: every screen in every state, the components, the animations, the Room database and the player engine (functional), and the main user journeys (end to end).
+**Unit tests are measured** with [Kover](https://github.com/Kotlin/kotlinx-kover): `./gradlew koverLog` prints the number and `./gradlew koverHtmlReport` writes the report.
 
-**Unit coverage today** (line coverage, Kover 0.9.8, November 2026):
+**What Kover ignores, and why.** A unit test runs on the JVM and cannot touch the Android system, so this code is left to the emulator tests:
 
-| Module | Lines covered |
+- **UI:** `@Composable` screens and components, theme, animations, navigation, the splash and the Compose drawing and preview helpers.
+- **Activity and application.**
+- **The Room database:** its SQL and transactions need a real SQLite. The datasources are still unit tested, with the DAOs mocked.
+- **Generated code and DI wiring:** Hilt, Room, kotlinx.serialization, `R`, `BuildConfig`.
+
+`:core:player` is the one exception: ExoPlayer needs Android too, but it is counted on purpose, so its gap stays visible.
+
+**Unit coverage today** (line coverage, Kover 0.9.8):
+
+| Module | Covered |
 | --- | --- |
-| `:feature:songs` | 97.5% |
-| `:feature:songdetails` | 96.1% |
-| `:feature:album` | 93.5% |
-| `:core:network` | 96.2% |
-| `:core:database` (the local datasources, DAOs mocked) | 98.4% |
-| `:core:data-common`, `:core:shared-domain-model`, `:core:common` | 100% |
-| **Logic modules together** | **96.6%** |
-| `:core:player` (ExoPlayer engine) | 21.0%, tested on the emulator |
-| `:core:design` (theme and components) | 4.4%, tested on the emulator |
-| `:app` (activity, navigation, splash) | 0%, tested end to end |
-| **Whole project** | **72.2%** |
+| `:feature:songs`, `:feature:songdetails`, `:feature:album` | 99.6%, 99.5%, 98.9% |
+| `:core:network`, `:core:database` (datasources), `:core:data-common`, `:core:shared-domain-model`, `:core:common`, `:core:design` (plain helpers) | 100% |
+| **Everything except `:core:player`** | **99.5%** |
+| `:core:player` | 21.0% (its tests run on the emulator) |
+| **Whole project** | **91.0%** |
 
-So the unit tests cover about **97% of the logic** (the feature modules, the network and local datasources, and the models). The project as a whole reads lower because the code that talks to ExoPlayer and the screen is exercised by the emulator tests, which this number does not include. What the logic modules still miss is mostly the navigation graph files, which the end-to-end tests walk through.
-
-The local datasources are unit tested with their DAOs mocked, so the unit tests check what a datasource asks of the database (the order of the writes, the position of each row, the errors). Whether the SQL and a rolled-back transaction really work is checked by the Room tests on the emulator, against a real SQLite.
+**Functional and end-to-end tests are not measured.** Kover cannot read tests that run on the emulator, so we do not know what percentage of the code they cover. To analyse them we would need to set up JaCoCo. Until then we only know what they exercise: every screen in every state, the components, the animations, Room and the player engine (functional), and the main user journeys (end to end).
 
 Details in [`ARCHITECTURE.md`](ARCHITECTURE.md) section 9.
 
