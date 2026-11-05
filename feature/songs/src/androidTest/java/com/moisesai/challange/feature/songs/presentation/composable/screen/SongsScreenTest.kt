@@ -1,7 +1,12 @@
 package com.moisesai.challange.feature.songs.presentation.composable.screen
 
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
@@ -111,6 +116,24 @@ class SongsScreenTest {
     }
 
     @Test
+    fun GIVEN_the_songs_screen_WHEN_it_is_shown_THEN_a_screen_reader_treats_the_title_as_a_heading() {
+        showContent(UiSongsContentState.History(SampleTracks))
+
+        composeTestRule.onNodeWithText(
+            context.getString(R.string.songs_title),
+        ).assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+    }
+
+    @Test
+    fun GIVEN_a_search_with_no_results_WHEN_the_message_is_shown_THEN_a_screen_reader_announces_it() {
+        showContent(UiSongsContentState.SearchNoResults(searchText = "zzzz"), query = "zzzz")
+
+        val isPolite = SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)
+        composeTestRule.onNodeWithText(context.getString(R.string.songs_no_results_title)).assert(isPolite)
+        composeTestRule.onNodeWithText(context.getString(R.string.songs_no_results_message, "zzzz")).assert(isPolite)
+    }
+
+    @Test
     fun GIVEN_the_search_field_is_tucked_away_WHEN_the_screen_is_shown_THEN_the_magnifier_is_there_and_the_field_is_not() {
         showContent(UiSongsContentState.History(SampleTracks), isSearchFieldVisible = false)
 
@@ -125,6 +148,14 @@ class SongsScreenTest {
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.songs_search_button)).performClick()
 
         assertEquals(1, callbacks.searchIconClickCount)
+    }
+
+    @Test
+    fun GIVEN_the_search_field_is_shown_WHEN_the_screen_is_shown_THEN_a_screen_reader_can_name_the_field() {
+        showContent(UiSongsContentState.History(SampleTracks))
+
+        composeTestRule.onNode(hasSetTextAction() and hasContentDescription(context.getString(R.string.songs_search_field_label)))
+            .assertIsDisplayed()
     }
 
     @Test

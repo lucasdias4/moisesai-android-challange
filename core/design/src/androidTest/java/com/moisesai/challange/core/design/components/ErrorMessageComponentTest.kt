@@ -1,5 +1,9 @@
 package com.moisesai.challange.core.design.components
 
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -46,6 +50,23 @@ class ErrorMessageComponentTest {
         composeTestRule.onNodeWithText(context.getString(R.string.common_retry)).performClick()
 
         assertEquals(1, retryCount)
+    }
+
+    @Test
+    fun GIVEN_an_error_WHEN_it_is_shown_THEN_a_screen_reader_announces_the_title_and_the_message() {
+        show(UiErrorType.Network)
+
+        val isPolite = SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)
+        composeTestRule.onNodeWithText(context.getString(R.string.common_error_network_title)).assert(isPolite)
+        composeTestRule.onNodeWithText(context.getString(R.string.common_error_network_message)).assert(isPolite)
+    }
+
+    @Test
+    fun GIVEN_an_error_WHEN_it_is_shown_THEN_the_title_is_a_heading() {
+        show(UiErrorType.Network)
+
+        composeTestRule.onNodeWithText(context.getString(R.string.common_error_network_title))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
     }
 
     private fun show(type: UiErrorType) {

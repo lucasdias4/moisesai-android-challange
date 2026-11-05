@@ -24,6 +24,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
@@ -51,6 +53,8 @@ internal fun SearchFieldComponent(
     val colors = MaterialTheme.design.colors
     val textStyle = MaterialTheme.design.text.text16
     val fieldValue = rememberFieldValueEndingAfter(query)
+    // Accessibility (`semantics { contentDescription }`): the placeholder is a separate Text that disappears once the user types, so the field needs this label.
+    val fieldLabel = stringResource(R.string.songs_search_field_label)
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -77,7 +81,8 @@ internal fun SearchFieldComponent(
                     fieldValue.value = newValue
                     onQueryChange(newValue.text)
                 },
-                modifier = Modifier.fillMaxWidth(),
+                // Accessibility (`semantics { contentDescription }`): the field names itself for screen readers.
+                modifier = Modifier.fillMaxWidth().semantics { contentDescription = fieldLabel },
                 textStyle = textStyle.copy(color = colors.text03),
                 singleLine = true,
                 cursorBrush = SolidColor(colors.text03),

@@ -9,8 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.moisesai.challange.core.design.accessibility.announcedWhenShown
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
 import com.moisesai.challange.core.design.theme.design
@@ -35,8 +38,22 @@ internal fun MessageStateComponent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(SpaceBetweenMessageParts),
     ) {
-        Text(text = title, style = design.text.display16, color = design.colors.text03, textAlign = TextAlign.Center)
-        Text(text = message, style = design.text.text14, color = design.colors.text01, textAlign = TextAlign.Center)
+        Text(
+            text = title,
+            // Accessibility (`semantics { heading() }`, `announcedWhenShown()`): the title is a heading and is read out when the message appears.
+            modifier = Modifier.announcedWhenShown().semantics { heading() },
+            style = design.text.display16,
+            color = design.colors.text03,
+            textAlign = TextAlign.Center,
+        )
+        Text(
+            text = message,
+            // Accessibility (`announcedWhenShown()`): the message is read out when it appears.
+            modifier = Modifier.announcedWhenShown(),
+            style = design.text.text14,
+            color = design.colors.text01,
+            textAlign = TextAlign.Center,
+        )
         action?.invoke()
     }
 }

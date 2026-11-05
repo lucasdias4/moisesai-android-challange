@@ -46,6 +46,7 @@ A single-activity app: `:app` owns the navigation. Features never know each othe
 | **More options** | Bottom sheet you can pull down. "View album" opens the album |
 | **Album** | Cover, artist and the track list. A track opens the player |
 | **Everywhere** | Shimmer skeletons while loading, error with retry, dark theme from the Figma tokens |
+| **Accessibility** | For screen readers: the search field has a name, song rows are one merged element that reads title and artist, screen and error titles are headings, error and "no songs found" messages are announced when they appear, loading skeletons announce a loading description, buttons carry their `Role`, and repeat is a switch that reads "on" or "off". The player timeline exposes its range and supports `setProgress`, so TalkBack users can seek without dragging. Decorative images and animations are hidden, touch targets are 48dp, and animations follow the system animator scale, so turning animations off stops the endless ones |
 
 ## Architecture
 
@@ -269,7 +270,7 @@ Working agreements: plan first, small steps, one test per behaviour in the same 
 
 ### Requirements
 
-- Android Studio with the Android SDK **37** installed
+- Android Studio with the Android SDK platform **37** installed (it is the `compileSdk`; the app targets 36, see [Technologies](#technologies))
 - JDK 21. The Gradle daemon is pinned to 21 and downloads it automatically if it is missing
 - An emulator or device running Android 7.0 (API 24) or newer, to run the app and the instrumented tests
 

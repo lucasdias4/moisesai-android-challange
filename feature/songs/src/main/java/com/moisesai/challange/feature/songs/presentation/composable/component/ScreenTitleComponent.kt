@@ -9,6 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.preview.FullPreview
 import com.moisesai.challange.core.design.preview.PreviewSurface
@@ -26,7 +28,8 @@ internal fun ScreenTitleComponent(title: String, modifier: Modifier = Modifier, 
     ) {
         Text(
             text = title,
-            modifier = Modifier.weight(1f),
+            // Accessibility (`semantics { heading() }`): a screen reader treats the screen name as a heading, so the user can jump to it.
+            modifier = Modifier.weight(1f).semantics { heading() },
             style = MaterialTheme.design.text.display24,
             color = MaterialTheme.design.colors.text03,
         )

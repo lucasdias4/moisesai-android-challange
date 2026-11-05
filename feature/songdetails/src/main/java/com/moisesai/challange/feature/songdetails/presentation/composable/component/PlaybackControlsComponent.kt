@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -72,7 +72,8 @@ private fun RepeatButton(isRepeatEnabled: Boolean, onClick: () -> Unit) {
             .size(RepeatButtonSize)
             .clip(CircleShape)
             .background(if (isRepeatEnabled) colors.whiteAlpha20 else Color.Transparent)
-            .selectable(selected = isRepeatEnabled, role = Role.Switch, onClick = onClick),
+            // Accessibility (`toggleable`, `Role.Switch`): a switch, not a selectable, so a screen reader says "on" or "off" for it.
+            .toggleable(value = isRepeatEnabled, role = Role.Switch, onValueChange = { onClick() }),
         contentAlignment = Alignment.Center,
     ) {
         Icon(

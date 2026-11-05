@@ -10,6 +10,8 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -108,6 +110,20 @@ class SongDetailsScreenTest {
         composeTestRule.onNodeWithContentDescription(text(R.string.songdetails_repeat)).performClick()
 
         assertEquals(listOf(1, 1, 1), listOf(callbacks.previousCount, callbacks.nextCount, callbacks.repeatCount))
+    }
+
+    @Test
+    fun GIVEN_repeat_is_off_WHEN_the_screen_is_shown_THEN_a_screen_reader_finds_the_repeat_switch_off() {
+        show(success(SamplePlayingTrack.copy(isRepeatEnabled = false)))
+
+        composeTestRule.onNodeWithContentDescription(text(R.string.songdetails_repeat)).assertIsOff()
+    }
+
+    @Test
+    fun GIVEN_repeat_is_on_WHEN_the_screen_is_shown_THEN_a_screen_reader_finds_the_repeat_switch_on() {
+        show(success(SamplePlayingTrack.copy(isRepeatEnabled = true)))
+
+        composeTestRule.onNodeWithContentDescription(text(R.string.songdetails_repeat)).assertIsOn()
     }
 
     @Test

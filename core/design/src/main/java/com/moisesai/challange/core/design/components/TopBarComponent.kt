@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.moisesai.challange.core.design.R as DesignR
 import com.moisesai.challange.core.design.preview.FullPreview
@@ -52,7 +54,8 @@ fun TopBarComponent(title: String, onBackClick: () -> Unit, modifier: Modifier =
             )
             Text(
                 text = title,
-                modifier = Modifier.align(Alignment.TopStart).offset(x = TitleStart, y = TitleTop),
+                // Accessibility (`semantics { heading() }`): a screen reader treats the screen name as a heading, so the user can jump to it.
+                modifier = Modifier.align(Alignment.TopStart).offset(x = TitleStart, y = TitleTop).semantics { heading() },
                 style = MaterialTheme.design.text.display18,
                 color = MaterialTheme.design.colors.text03,
                 maxLines = 1,

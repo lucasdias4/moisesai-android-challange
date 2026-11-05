@@ -1,6 +1,9 @@
 package com.moisesai.challange.core.design.components
 
 import androidx.compose.material3.Text
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -29,6 +32,13 @@ class TopBarComponentTest {
 
         composeTestRule.onNodeWithText("Discovery").assertIsDisplayed()
         composeTestRule.onNodeWithContentDescription(context.getString(R.string.common_back)).assertIsDisplayed()
+    }
+
+    @Test
+    fun GIVEN_a_title_WHEN_the_bar_is_shown_THEN_a_screen_reader_treats_the_title_as_a_heading() {
+        composeTestRule.setContent { MoisesaiChallangeTheme { TopBarComponent(title = "Discovery", onBackClick = {}) } }
+
+        composeTestRule.onNodeWithText("Discovery").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
     }
 
     @Test
