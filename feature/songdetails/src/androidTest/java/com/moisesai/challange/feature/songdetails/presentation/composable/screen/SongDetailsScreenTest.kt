@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsOff
@@ -110,6 +111,14 @@ class SongDetailsScreenTest {
         composeTestRule.onNodeWithContentDescription(text(R.string.songdetails_repeat)).performClick()
 
         assertEquals(listOf(1, 1, 1), listOf(callbacks.previousCount, callbacks.nextCount, callbacks.repeatCount))
+    }
+
+    @Test
+    fun GIVEN_a_track_WHEN_the_screen_is_shown_THEN_a_screen_reader_hears_the_time_played_and_left_on_the_bar() {
+        show(success(SamplePlayingTrack.copy(playedTimeText = "1:26", remainingTimeText = "-2:54")))
+
+        composeTestRule.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "1:26 played, 2:54 left"))
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.moisesai.challange.core.design.extension.mainArtist
 import com.moisesai.challange.core.design.extension.toLargeCoverUrl
 import com.moisesai.challange.core.player.PlaybackState
 import com.moisesai.challange.core.shareddomainmodel.TrackDomainModel
+import com.moisesai.challange.feature.songdetails.presentation.model.REMAINING_TIME_PREFIX
 import com.moisesai.challange.feature.songdetails.presentation.model.UiPlayingTrack
 
 private const val MILLIS_PER_SECOND = 1_000L
@@ -12,7 +13,6 @@ private const val CLOCK_SECOND_DIGITS = 2
 private const val NO_MILLIS = 0L
 private const val NOTHING_PLAYED = 0f
 private const val EVERYTHING_PLAYED = 1f
-private const val REMAINING_TIME_PREFIX = "-"
 
 // The names and the cover come from the domain track; the times come from the player, not from the domain.
 // It runs every 250 ms while the audio plays: the player publishes a new state at that pace, the ViewModel collects it
