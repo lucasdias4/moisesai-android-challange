@@ -25,6 +25,7 @@ navigationCompose = "2.10.2"
 coil = "3.3.0"
 ktlintGradle = "14.2.0"
 ktlint = "1.8.0"
+kover = "0.9.8"
 media3 = "1.11.1"
 
 [libraries]
@@ -85,4 +86,5 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 

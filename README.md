@@ -213,7 +213,33 @@ A pyramid: many small fast tests at the bottom, few broad ones at the top.
 
 - Names read `GIVEN a saved search, WHEN searching again, THEN the network is not called`, and the body follows the same 3 parts.
 - Fixtures are real API responses. The tests fail when the code is broken.
-- Coverage is a rule, not a tool: the percentage is of what must be tested, and a test lands in the same commit as its code.
+- A test lands in the same commit as its code.
+
+### What is measured, and what is not
+
+The pyramid is the goal: many unit tests, fewer functional ones, a few end-to-end journeys. The 100% / 50% / 30% are targets for how much to cover at each level, not measured numbers.
+
+- **Unit tests are measured.** [Kover](https://github.com/Kotlin/kotlinx-kover) reads the JVM tests of every module and merges them into one report: `./gradlew koverLog` prints the number, `./gradlew koverHtmlReport` writes `build/reports/kover/html`. Screens and components (`@Composable`), the dependency injection wiring and generated code are left out, because they are not unit-test targets.
+- **Functional and end-to-end tests are not measured.** Kover cannot read tests that run on the emulator and JaCoCo is not set up, so we cannot say what percentage of the code they cover. What we can say is what they exercise: every screen in every state, the components, the animations, the Room database and the player engine (functional), and the main user journeys (end to end).
+
+**Unit coverage today** (line coverage, Kover 0.9.8, November 2026):
+
+| Module | Lines covered |
+| --- | --- |
+| `:feature:songs` | 97.5% |
+| `:feature:songdetails` | 96.1% |
+| `:feature:album` | 93.5% |
+| `:core:network` | 96.2% |
+| `:core:data-common`, `:core:shared-domain-model` | 100% |
+| `:core:common` | 50% |
+| **Logic modules together** | **96.0%** |
+| `:core:database` (Room datasources) | 20.6%, tested on the emulator |
+| `:core:player` (ExoPlayer engine) | 21.0%, tested on the emulator |
+| `:core:design` (theme and components) | 4.4%, tested on the emulator |
+| `:app` (activity, navigation, splash) | 0%, tested end to end |
+| **Whole project** | **66.7%** |
+
+So the unit tests cover about **96% of the logic** (the feature modules, the network layer and the models). The project as a whole reads lower because the code that talks to Room, ExoPlayer and the screen is exercised by the emulator tests, which this number does not include. What the logic modules still miss is mostly the navigation graph files, which the end-to-end tests walk through.
 
 Details in [`ARCHITECTURE.md`](ARCHITECTURE.md) section 9.
 
@@ -288,6 +314,7 @@ Open the project in Android Studio and run the `app` configuration, or from a te
 ./gradlew testDebugUnitTest            # unit tests, all modules
 ./gradlew lintDebug                    # Android lint, all modules
 ./gradlew ktlintCheck                  # code style, all modules (ktlintFormat fixes it)
+./gradlew koverLog                      # unit-test coverage, all modules merged (koverHtmlReport for the report)
 ./gradlew connectedDebugAndroidTest    # instrumented tests (needs a running emulator or device)
 ./gradlew clean assembleDebug testDebugUnitTest lintDebug ktlintCheck   # the full local check
 ```
